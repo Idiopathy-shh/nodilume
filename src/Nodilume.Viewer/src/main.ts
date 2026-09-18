@@ -1,7 +1,13 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { focusPose } from './navigation';
-import { reframePose, semanticDecision, shouldAcceptProjection, transitionScalar } from './semantic';
+import {
+  DEFAULT_SEMANTIC_THRESHOLDS,
+  reframePose,
+  semanticDecision,
+  shouldAcceptProjection,
+  transitionScalar
+} from './semantic';
 import './styles.css';
 
 type NodeData = {
@@ -69,7 +75,7 @@ type PendingRequest = {
 
 const bridge = (window as unknown as {chrome?: {webview?: Bridge}}).chrome?.webview;
 const el = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
-const thresholds = { enterDistance: 68, exitDistance: 195, dwellMs: 280 };
+const thresholds = DEFAULT_SEMANTIC_THRESHOLDS;
 const protocolVersion = 2;
 const requestPrefix = Date.now().toString(36);
 let requestSequence = 0;
@@ -351,6 +357,7 @@ try {
     requestProjection(projection.parentContextPlacementId, 'exit');
   }
   function overview(): void {
+    clearSelection();
     requestProjection(null, 'overview');
   }
   function returnToPrevious(): void {

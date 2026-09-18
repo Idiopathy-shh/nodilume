@@ -65,7 +65,9 @@ Sono verificati:
 Doppio clic, pulsante Entra e zoom semantico usano la stessa richiesta contestuale.
 Il candidato automatico è il nodo selezionato o il nodo puntato stabilmente. Entrata e
 uscita hanno soglie diverse; dopo un ingresso la camera viene accompagnata verso il
-nuovo contesto prima che l'uscita automatica venga riabilitata.
+nuovo contesto prima che l'uscita automatica venga riabilitata. Dopo la prima prova
+visiva dell'utente, la soglia canonica di uscita è stata ampliata da 195 a 260 unità:
+un contesto profondo mantiene quindi più margine di zoom-out prima di risalire al parent.
 
 Sono disponibili breadcrumb, Livello superiore, Panoramica e Ritorna. Una navigazione
 trasversale apre il parent della destinazione scelta, focalizza quel Placement e salva

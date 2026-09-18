@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
+  DEFAULT_SEMANTIC_THRESHOLDS,
   reframePose,
   semanticDecision,
   transitionScalar,
@@ -33,6 +34,24 @@ test('semantic hysteresis requires stable candidate and separates enter from exi
     candidateEligible: false, candidateDistance: 100, stableMs: 1000,
     canExit: true, contextDistance: 100
   }, thresholds), null);
+});
+
+test('default semantic zoom allows more zoom-out before leaving a deep context', () => {
+  assert.equal(DEFAULT_SEMANTIC_THRESHOLDS.exitDistance, 260);
+  assert.equal(semanticDecision({
+    candidateEligible: false,
+    candidateDistance: 999,
+    stableMs: 1000,
+    canExit: true,
+    contextDistance: 220
+  }, DEFAULT_SEMANTIC_THRESHOLDS), null);
+  assert.equal(semanticDecision({
+    candidateEligible: false,
+    candidateDistance: 999,
+    stableMs: 1000,
+    canExit: true,
+    contextDistance: 270
+  }, DEFAULT_SEMANTIC_THRESHOLDS), 'exit');
 });
 
 test('transition reversal begins from the current intermediate value', () => {

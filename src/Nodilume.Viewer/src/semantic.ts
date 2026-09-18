@@ -4,6 +4,12 @@ export type SemanticThresholds = {
   dwellMs: number;
 };
 
+export const DEFAULT_SEMANTIC_THRESHOLDS: SemanticThresholds = {
+  enterDistance: 68,
+  exitDistance: 260,
+  dwellMs: 280
+};
+
 export type SemanticSample = {
   candidateEligible: boolean;
   candidateDistance: number;

@@ -17,7 +17,7 @@ destinazioni. Il viewer mantiene camera e animazioni transitorie.
 
 Sono implementati:
 - zoom semantico su nodo selezionato o puntato stabilmente;
-- isteresi ingresso/uscita;
+- isteresi ingresso/uscita, con soglia di uscita ampliata a 260 dopo feedback visivo dell'utente;
 - transizioni invertibili da stato intermedio;
 - frame locali senza scrittura delle coordinate persistenti;
 - breadcrumb, Livello superiore, Panoramica e Ritorna;
