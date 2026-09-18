@@ -3,27 +3,6 @@ using Nodilume.Core;
 
 namespace Nodilume.Application;
 
-public sealed record SceneNode(
-    string Id,
-    string PlacementId,
-    string IdeaId,
-    string Title,
-    double X,
-    double Y,
-    double Z,
-    string Color,
-    int Depth);
-
-public sealed record SceneLink(string Source, string Target, string Kind);
-
-public sealed record SceneSnapshot(
-    int Version,
-    string Type,
-    string MapId,
-    long Revision,
-    IReadOnlyList<SceneNode> Nodes,
-    IReadOnlyList<SceneLink> Links);
-
 public static class DemoMapInitializer
 {
     public static async Task EnsureAsync(IMapStore store, CancellationToken cancellationToken = default)
@@ -36,96 +15,405 @@ public static class DemoMapInitializer
 
 public sealed class SceneService(IMapStore store)
 {
-    private static readonly string[] BranchColors = ["#65d8bf", "#8caafa", "#db9aca", "#7fd3ff", "#efaa7a"];
+    private static readonly string[] BranchColors =
+        ["#65d8bf", "#8caafa", "#db9aca", "#7fd3ff", "#efaa7a"];
 
-    public async Task<SceneSnapshot> LoadFirstPageAsync(
-        int placementLimit = 128,
+    public async Task<SceneProjection> LoadProjectionAsync(
+        string requestId,
+        PlacementId? contextPlacementId = null,
+        SceneProjectionLimits? limits = null,
         CancellationToken cancellationToken = default)
     {
-        if (placementLimit is < 1 or > 512) throw new ArgumentOutOfRangeException(nameof(placementLimit));
+        if (string.IsNullOrWhiteSpace(requestId) || requestId.Length > 128)
+            throw new ArgumentException("A bounded requestId is required.", nameof(requestId));
+        limits ??= new SceneProjectionLimits();
+        limits.Validate();
+
         var map = await store.GetMapAsync(cancellationToken)
             ?? throw new InvalidOperationException("Map is not initialized.");
-        var placements = await store.ReadPlacementPageAsync(map.Id, placementLimit, cancellationToken: cancellationToken);
-        var ideaIds = placements.Select(x => x.IdeaId).Distinct().ToArray();
-        var ideas = await store.ReadIdeasAsync(map.Id, ideaIds, cancellationToken);
-        var relations = await store.ReadRelationsForIdeasAsync(map.Id, ideaIds, placementLimit * 4, cancellationToken);
+        var partialReasons = new HashSet<string>(StringComparer.Ordinal);
+        var roots = await store.ReadChildrenAsync(map.Id, null, limits.RootLimit, cancellationToken);
+        if (roots.HasMore) partialReasons.Add("root-limit");
 
-        var placementById = placements.ToDictionary(x => x.Id);
-        var ideaById = ideas.ToDictionary(x => x.Id);
-        var childrenOfRoot = placements
-            .Where(x => x.ParentId is { } parent && placementById.TryGetValue(parent, out var p) && p.ParentId is null)
-            .OrderBy(x => x.Id.ToString(), StringComparer.Ordinal)
-            .Select(x => x.Id)
-            .ToArray();
+        if (roots.Items.Count == 0)
+        {
+            return new SceneProjection(
+                2, "projection", requestId, map.Id.ToString(), map.Revision, "empty",
+                null, null, new SceneVector(0, 0, 0), [], [], [], [], 0,
+                partialReasons.OrderBy(x => x, StringComparer.Ordinal).ToArray());
+        }
 
-        var nodes = placements
-            .OrderBy(x => x.Id.ToString(), StringComparer.Ordinal)
-            .Select(x => ProjectNode(x, placementById, ideaById, childrenOfRoot))
+        IReadOnlyList<Placement> path;
+        if (contextPlacementId is null)
+        {
+            path = roots.Items.Count == 1 ? [roots.Items[0]] : [];
+        }
+        else
+        {
+            path = await store.ReadAncestorPathAsync(
+                map.Id, contextPlacementId.Value, limits.AncestorDepthLimit, cancellationToken);
+            if (path.Count == 0 || path[^1].Id != contextPlacementId.Value)
+                throw new InvalidOperationException("Requested context placement does not exist.");
+            if (path[0].ParentId is not null)
+                throw new InvalidDataException("Ancestor depth limit reached before the root.");
+        }
+
+        var visible = new Dictionary<PlacementId, Placement>();
+        foreach (var root in roots.Items) visible[root.Id] = root;
+        foreach (var item in path) visible[item.Id] = item;
+        var childrenByParent = new Dictionary<PlacementId, IReadOnlyList<Placement>>();
+        foreach (var item in path)
+        {
+            var children = await store.ReadChildrenAsync(
+                map.Id, item.Id, limits.ChildLimit, cancellationToken);
+            childrenByParent[item.Id] = children.Items;
+            if (children.HasMore) partialReasons.Add($"child-limit:{item.Id}");
+            foreach (var child in children.Items) visible[child.Id] = child;
+        }
+
+        var context = path.Count == 0 ? null : path[^1];
+        var activeChildren = context is null
+            ? roots.Items
+            : childrenByParent.GetValueOrDefault(context.Id, []);
+
+        var childCounts = await store.ReadChildCountsAsync(
+            map.Id, visible.Keys.ToArray(), cancellationToken);
+        var visibleIdeaIds = visible.Values.Select(x => x.IdeaId).Distinct().ToArray();
+        var visibleIdeas = (await store.ReadIdeasAsync(map.Id, visibleIdeaIds, cancellationToken))
+            .ToDictionary(x => x.Id);
+        if (visibleIdeas.Count != visibleIdeaIds.Length)
+            throw new InvalidDataException("Projection references an idea that could not be loaded.");
+
+        var globalPositions = new Dictionary<PlacementId, Vector3Value>();
+        Vector3Value ResolveGlobal(Placement placement)
+        {
+            if (globalPositions.TryGetValue(placement.Id, out var cached)) return cached;
+            var local = new Vector3Value(placement.X, placement.Y, placement.Z);
+            if (placement.ParentId is null)
+                return globalPositions[placement.Id] = local;
+            if (!visible.TryGetValue(placement.ParentId.Value, out var parent))
+                throw new InvalidDataException("Visible projection is missing a required ancestor.");
+            return globalPositions[placement.Id] = ResolveGlobal(parent) + local;
+        }
+        var depths = new Dictionary<PlacementId, int>();
+        int ResolveDepth(Placement placement)
+        {
+            if (depths.TryGetValue(placement.Id, out var cached)) return cached;
+            if (placement.ParentId is null) return depths[placement.Id] = 0;
+            if (!visible.TryGetValue(placement.ParentId.Value, out var parent))
+                throw new InvalidDataException("Visible projection is missing a required parent.");
+            return depths[placement.Id] = ResolveDepth(parent) + 1;
+        }
+
+        var frame = context is null ? Vector3Value.Zero : ResolveGlobal(context);
+        var pathIds = path.Select(x => x.Id).ToHashSet();
+        var nodes = visible.Values
+            .OrderBy(ResolveDepth)
+            .ThenBy(x => x.Id.ToString(), StringComparer.Ordinal)
+            .Select(placement =>
+            {
+                var position = ResolveGlobal(placement) - frame;
+                return new SceneNode(
+                    placement.Id.ToString(),
+                    placement.Id.ToString(),
+                    placement.IdeaId.ToString(),
+                    placement.ParentId?.ToString(),
+                    visibleIdeas[placement.IdeaId].Title,
+                    position.X, position.Y, position.Z,
+                    ResolveColor(placement, visible),
+                    ResolveDepth(placement),
+                    ResolveRole(placement, context, pathIds),
+                    childCounts.TryGetValue(placement.Id, out var count) && count > 0,
+                    childCounts.GetValueOrDefault(placement.Id, 0));
+            })
             .ToArray();
 
         var links = new List<SceneLink>();
-        foreach (var placement in placements)
-            if (placement.ParentId is { } parent && placementById.ContainsKey(parent))
-                links.Add(new SceneLink(parent.ToString(), placement.Id.ToString(), "containment"));
+        foreach (var placement in visible.Values.OrderBy(x => x.Id.ToString(), StringComparer.Ordinal))
+        {
+            if (placement.ParentId is not { } parentId || !visible.ContainsKey(parentId)) continue;
+            links.Add(new SceneLink(
+                $"containment:{parentId}:{placement.Id}",
+                "containment",
+                parentId.ToString(),
+                placement.Id.ToString(),
+                "containment",
+                false,
+                1,
+                []));
+        }
 
-        var placementsByIdea = placements
+        var relationProjection = await BuildRelationProjectionAsync(
+            map.Id,
+            roots.Items,
+            visible,
+            limits,
+            partialReasons,
+            cancellationToken);
+        links.AddRange(relationProjection.Links);
+
+        var pathItems = path
+            .Select((placement, depth) => new SceneContextItem(
+                placement.Id.ToString(),
+                placement.IdeaId.ToString(),
+                visibleIdeas[placement.IdeaId].Title,
+                depth))
+            .ToArray();
+
+        var state = activeChildren.Count == 0
+            ? "empty"
+            : partialReasons.Count > 0 ? "partial" : "ready";
+        return new SceneProjection(
+            2,
+            "projection",
+            requestId,
+            map.Id.ToString(),
+            map.Revision,
+            state,
+            context?.Id.ToString(),
+            context?.ParentId?.ToString(),
+            new SceneVector(frame.X, frame.Y, frame.Z),
+            pathItems,
+            nodes,
+            links,
+            relationProjection.Relations,
+            relationProjection.HiddenInternalCount,
+            partialReasons.OrderBy(x => x, StringComparer.Ordinal).ToArray());
+    }
+
+    private async Task<RelationProjectionResult> BuildRelationProjectionAsync(
+        MapId mapId,
+        IReadOnlyList<Placement> roots,
+        IReadOnlyDictionary<PlacementId, Placement> visible,
+        SceneProjectionLimits limits,
+        HashSet<string> partialReasons,
+        CancellationToken cancellationToken)
+    {
+        if (roots.Count == 0)
+            return new RelationProjectionResult([], [], 0);
+
+        var scopeResult = await store.ReadDescendantsAsync(
+            mapId, roots.Select(x => x.Id).ToArray(), limits.RelationPlacementLimit, cancellationToken);
+        if (scopeResult.HasMore) partialReasons.Add("relation-placement-limit");
+        var scope = scopeResult.Items.ToDictionary(x => x.Id);
+        var scopeIdeaIds = scope.Values.Select(x => x.IdeaId).Distinct().ToArray();
+        if (scopeIdeaIds.Length == 0)
+            return new RelationProjectionResult([], [], 0);
+
+        var relationResult = await store.ReadRelationsTouchingIdeasAsync(
+            mapId, scopeIdeaIds, limits.RelationLimit, cancellationToken);
+        if (relationResult.HasMore) partialReasons.Add("relation-limit");
+        if (relationResult.Items.Count == 0)
+            return new RelationProjectionResult([], [], 0);
+
+        var endpointIdeaIds = relationResult.Items
+            .SelectMany(x => new[] { x.SourceIdeaId, x.TargetIdeaId })
+            .Distinct()
+            .ToArray();
+        var ideaById = (await store.ReadIdeasAsync(mapId, endpointIdeaIds, cancellationToken))
+            .ToDictionary(x => x.Id);
+
+        var destinationResult = await store.ReadPlacementsForIdeasAsync(
+            mapId, endpointIdeaIds, limits.DestinationPlacementLimit, cancellationToken);
+        if (destinationResult.HasMore) partialReasons.Add("destination-placement-limit");
+        var placementsByIdea = destinationResult.Items
             .GroupBy(x => x.IdeaId)
             .ToDictionary(
                 x => x.Key,
-                x => x.OrderBy(p => p.Id.ToString(), StringComparer.Ordinal).ToArray());
-        foreach (var relation in relations)
+                x => (IReadOnlyList<Placement>)x.OrderBy(p => p.Id.ToString(), StringComparer.Ordinal).ToArray());
+
+        var candidatePaths = new Dictionary<PlacementId, IReadOnlyList<Placement>>();
+        var pathIdeaIds = new HashSet<IdeaId>(endpointIdeaIds);
+        foreach (var placement in destinationResult.Items)
         {
-            if (!placementsByIdea.TryGetValue(relation.SourceIdeaId, out var sources)
-                || !placementsByIdea.TryGetValue(relation.TargetIdeaId, out var targets))
-                continue;
-            links.Add(new SceneLink(sources[0].Id.ToString(), targets[0].Id.ToString(), "relation"));
+            cancellationToken.ThrowIfCancellationRequested();
+            var candidatePath = TryBuildPathFromScope(placement, scope);
+            if (candidatePath is null)
+            {
+                candidatePath = await store.ReadAncestorPathAsync(
+                    mapId, placement.Id, limits.AncestorDepthLimit, cancellationToken);
+            }
+            if (candidatePath.Count == 0)
+                throw new InvalidDataException("A relation destination disappeared during projection.");
+            if (candidatePath[0].ParentId is not null)
+                partialReasons.Add("destination-ancestor-depth-limit");
+            candidatePaths[placement.Id] = candidatePath;
+            foreach (var item in candidatePath) pathIdeaIds.Add(item.IdeaId);
         }
 
-        return new SceneSnapshot(1, "scene", map.Id.ToString(), map.Revision, nodes, links);
-    }
+        var pathIdeas = await store.ReadIdeasAsync(mapId, pathIdeaIds.ToArray(), cancellationToken);
+        foreach (var idea in pathIdeas) ideaById[idea.Id] = idea;
 
-    private static SceneNode ProjectNode(
-        Placement placement,
-        IReadOnlyDictionary<PlacementId, Placement> placementById,
-        IReadOnlyDictionary<IdeaId, Idea> ideaById,
-        IReadOnlyList<PlacementId> rootChildren)
-    {
-        var (x, y, z, depth, branch) = ResolvePosition(placement, placementById);
-        var color = depth == 0
-            ? "#f4c676"
-            : BranchColors[Math.Max(0, Array.IndexOf(rootChildren.ToArray(), branch)) % BranchColors.Length];
-        var title = ideaById.TryGetValue(placement.IdeaId, out var idea) ? idea.Title : "(idea non caricata)";
-        return new SceneNode(
-            placement.Id.ToString(),
-            placement.Id.ToString(),
-            placement.IdeaId.ToString(),
-            title,
-            x,
-            y,
-            z,
-            color,
-            depth);
-    }
-
-    private static (double X, double Y, double Z, int Depth, PlacementId Branch) ResolvePosition(
-        Placement placement,
-        IReadOnlyDictionary<PlacementId, Placement> placementById)
-    {
-        var x = placement.X;
-        var y = placement.Y;
-        var z = placement.Z;
-        var depth = 0;
-        var branch = placement.Id;
-        var current = placement;
-        while (current.ParentId is { } parentId && placementById.TryGetValue(parentId, out var parent))
+        var resolutions = new Dictionary<IdeaId, SceneEndpointResolution>();
+        SceneEndpointResolution ResolveEndpoint(IdeaId ideaId)
         {
-            depth++;
-            branch = current.Id;
-            x += parent.X;
-            y += parent.Y;
-            z += parent.Z;
+            if (resolutions.TryGetValue(ideaId, out var cached)) return cached;
+            var title = ideaById.TryGetValue(ideaId, out var idea) ? idea.Title : "(idea non caricata)";
+            var placements = placementsByIdea.GetValueOrDefault(ideaId, []);
+            if (placements.Count == 0)
+            {
+                return resolutions[ideaId] = new SceneEndpointResolution(
+                    ideaId.ToString(), title, "unplaced", null, []);
+            }
+
+            var candidates = new List<SceneDestinationCandidate>(placements.Count);
+            var visibleRepresentatives = new HashSet<PlacementId>();
+            foreach (var placement in placements)
+            {
+                if (!candidatePaths.TryGetValue(placement.Id, out var candidatePath)) continue;
+                var visibleRepresentative = FindDeepestVisible(candidatePath, visible);
+                if (visibleRepresentative is { } rep) visibleRepresentatives.Add(rep);
+                var pathLabel = string.Join(
+                    " / ",
+                    candidatePath.Select(x => ideaById.TryGetValue(x.IdeaId, out var pathIdea)
+                        ? pathIdea.Title
+                        : "(idea non caricata)"));
+                candidates.Add(new SceneDestinationCandidate(
+                    placement.Id.ToString(),
+                    (placement.ParentId ?? placement.Id).ToString(),
+                    placement.IdeaId.ToString(),
+                    title,
+                    pathLabel));
+            }
+
+            var status = placements.Count > 1
+                ? "ambiguous"
+                : visibleRepresentatives.Count == 1 ? "visible" : "external";
+            var visibleId = visibleRepresentatives.Count == 1
+                ? visibleRepresentatives.Single().ToString()
+                : null;
+            return resolutions[ideaId] = new SceneEndpointResolution(
+                ideaId.ToString(), title, status, visibleId, candidates);
+        }
+
+        var aggregation = new Dictionary<RelationKey, List<string>>();
+        var navigations = new List<SceneRelationNavigation>(relationResult.Items.Count);
+        var hiddenInternal = 0;
+        foreach (var relation in relationResult.Items)
+        {
+            var source = ResolveEndpoint(relation.SourceIdeaId);
+            var target = ResolveEndpoint(relation.TargetIdeaId);
+            navigations.Add(new SceneRelationNavigation(
+                relation.Id.ToString(),
+                relation.Kind,
+                relation.IsDirected,
+                relation.Explanation,
+                source,
+                target));
+
+            if (source.VisiblePlacementId is null || target.VisiblePlacementId is null) continue;
+            var sourceId = source.VisiblePlacementId;
+            var targetId = target.VisiblePlacementId;
+            if (sourceId == targetId)
+            {
+                hiddenInternal++;
+                continue;
+            }
+
+            if (!relation.IsDirected && string.CompareOrdinal(sourceId, targetId) > 0)
+                (sourceId, targetId) = (targetId, sourceId);
+            var key = new RelationKey(sourceId, targetId, relation.Kind, relation.IsDirected);
+            if (!aggregation.TryGetValue(key, out var relationIds))
+                aggregation[key] = relationIds = [];
+            relationIds.Add(relation.Id.ToString());
+        }
+
+        var links = aggregation
+            .OrderBy(x => x.Key.Source, StringComparer.Ordinal)
+            .ThenBy(x => x.Key.Target, StringComparer.Ordinal)
+            .ThenBy(x => x.Key.Kind, StringComparer.Ordinal)
+            .ThenBy(x => x.Key.IsDirected)
+            .Select(x => new SceneLink(
+                $"relation:{x.Key.Source}:{x.Key.Target}:{x.Key.Kind}:{(x.Key.IsDirected ? "d" : "u")}",
+                "relation",
+                x.Key.Source,
+                x.Key.Target,
+                x.Key.Kind,
+                x.Key.IsDirected,
+                x.Value.Count,
+                x.Value.OrderBy(id => id, StringComparer.Ordinal).ToArray()))
+            .ToArray();
+
+        return new RelationProjectionResult(
+            links,
+            navigations.OrderBy(x => x.RelationId, StringComparer.Ordinal).ToArray(),
+            hiddenInternal);
+    }
+    private static IReadOnlyList<Placement>? TryBuildPathFromScope(
+        Placement placement,
+        IReadOnlyDictionary<PlacementId, Placement> scope)
+    {
+        var reverse = new List<Placement> { placement };
+        var current = placement;
+        var guard = 0;
+        while (current.ParentId is { } parentId)
+        {
+            if (++guard > 256) throw new InvalidDataException("Placement ancestry is cyclic.");
+            if (!scope.TryGetValue(parentId, out var parent)) return null;
+            reverse.Add(parent);
             current = parent;
         }
-        return (x, y, z, depth, branch);
+        reverse.Reverse();
+        return reverse;
+    }
+
+    private static PlacementId? FindDeepestVisible(
+        IReadOnlyList<Placement> path,
+        IReadOnlyDictionary<PlacementId, Placement> visible)
+    {
+        for (var index = path.Count - 1; index >= 0; index--)
+            if (visible.ContainsKey(path[index].Id))
+                return path[index].Id;
+        return null;
+    }
+
+    private static string ResolveRole(
+        Placement placement,
+        Placement? context,
+        IReadOnlySet<PlacementId> pathIds)
+    {
+        if (context is not null && placement.Id == context.Id) return "context";
+        if (pathIds.Contains(placement.Id)) return "ancestor";
+        if (context is not null && placement.ParentId == context.Id) return "child";
+        if (placement.ParentId is null) return "root";
+        return "sibling";
+    }
+    private static string ResolveColor(
+        Placement placement,
+        IReadOnlyDictionary<PlacementId, Placement> visible)
+    {
+        if (placement.ParentId is null) return "#f4c676";
+        var branch = placement;
+        while (branch.ParentId is { } parentId
+            && visible.TryGetValue(parentId, out var parent)
+            && parent.ParentId is not null)
+        {
+            branch = parent;
+        }
+
+        var bytes = branch.Id.Value.ToByteArray();
+        var hash = 17;
+        foreach (var value in bytes) hash = unchecked(hash * 31 + value);
+        return BranchColors[(hash & int.MaxValue) % BranchColors.Length];
+    }
+
+    private readonly record struct RelationKey(
+        string Source,
+        string Target,
+        string Kind,
+        bool IsDirected);
+
+    private sealed record RelationProjectionResult(
+        IReadOnlyList<SceneLink> Links,
+        IReadOnlyList<SceneRelationNavigation> Relations,
+        int HiddenInternalCount);
+
+    private readonly record struct Vector3Value(double X, double Y, double Z)
+    {
+        public static Vector3Value Zero => new(0, 0, 0);
+        public static Vector3Value operator +(Vector3Value left, Vector3Value right) =>
+            new(left.X + right.X, left.Y + right.Y, left.Z + right.Z);
+        public static Vector3Value operator -(Vector3Value left, Vector3Value right) =>
+            new(left.X - right.X, left.Y - right.Y, left.Z - right.Z);
     }
 }
