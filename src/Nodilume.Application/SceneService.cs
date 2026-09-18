@@ -161,7 +161,7 @@ public sealed class SceneService(IMapStore store)
             .ToArray();
 
         var state = activeChildren.Count == 0
-            ? "empty"
+            ? context is null ? "empty" : "leaf"
             : partialReasons.Count > 0 ? "partial" : "ready";
         return new SceneProjection(
             2,

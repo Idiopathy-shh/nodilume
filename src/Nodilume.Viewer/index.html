@@ -10,20 +10,33 @@
 <body>
  <div id="scene" tabindex="0" aria-label="Grafo tridimensionale: trascina per ruotare, rotella per avvicinarti"></div>
  <div id="labels"></div>
+ <div id="link-labels"></div>
  <header><div class="brand"><span class="mark">✳</span> Nodilume</div><div class="subtitle">UNO SPAZIO PER LE TUE IDEE</div></header>
- <nav><span class="badge">Mappa dimostrativa</span><button id="home">↗ Panoramica</button></nav>
+ <nav>
+  <span id="projection-status" class="badge">Preparazione…</span>
+  <button id="back" disabled>↶ Ritorna</button>
+  <button id="up" disabled>↑ Livello superiore</button>
+  <button id="home">↗ Panoramica</button>
+ </nav>
+ <div id="breadcrumbs" aria-label="Percorso del contesto"></div>
  <aside>
   <div class="eyebrow">ESPLORA LE CONNESSIONI</div>
   <h1>Ogni idea apre<br>una prospettiva.</h1>
-  <p>Muoviti tra i nodi e segui i fili che li uniscono.</p>
+  <p>Avvicinati a un gruppo selezionato o puntato stabilmente per aprirlo.</p>
   <div class="divider"></div>
   <div class="eyebrow">NODO SELEZIONATO</div>
   <h2 id="selection-title">Scegli un'idea</h2>
-  <p id="selection-help">Un clic seleziona. Un doppio clic ti avvicina.</p>
-  <button id="focus" disabled>Avvicinati al nodo →</button>
-  <div class="legend"><span class="mint">● Conoscenza</span><span class="blue">● Progetti</span><span class="pink">● Connessioni</span></div>
+  <p id="selection-help">Un clic seleziona. Un doppio clic entra nei gruppi o mette a fuoco una foglia.</p>
+  <div class="action-grid">
+   <button id="focus" disabled>Metti a fuoco</button>
+   <button id="enter" disabled>Entra →</button>
+  </div>
+  <div class="divider compact"></div>
+  <div class="eyebrow">COLLEGAMENTI</div>
+  <div id="relations"><p class="muted">Seleziona un nodo per vedere le destinazioni.</p></div>
+  <div class="legend"><span class="containment">— contenimento</span><span class="conceptual">→ relazione concettuale</span></div>
  </aside>
- <footer><span id="counts">Preparazione della scena…</span><span>Trascina: ruota · Tasto destro: sposta · Rotella: zoom<br>WASD: attraversa · Q/E: scendi/sali · Maiusc: accelera</span></footer>
+ <footer><span id="counts">Preparazione della scena…</span><span>Trascina: ruota · Tasto destro: sposta · Rotella: zoom<br>WASD: attraversa · Q/E: scendi/sali · Invio: entra · Esc: esci</span></footer>
  <div id="error" role="alert" hidden></div>
  <script type="module" src="main.js"></script>
 </body>

@@ -10,6 +10,7 @@ internal static class SemanticProjectionTests
         await RelationsAggregateAndRedistributeAsync();
         await MultiplePlacementsAndUnplacedIdeasStayExplicitAsync();
         await LeafIsNotTreatedAsEmptyGroupAsync();
+        await MissingContextFailsExplicitlyAsync();
         await AncestorDepthExhaustionFailsClosedAsync();
     }
 
@@ -116,8 +117,22 @@ internal static class SemanticProjectionTests
         var leaf = projection.Nodes.Single(x => x.PlacementId == Graph03Fixture.LeafA1.ToString());
         Check.True(!leaf.HasChildren, "Leaf advertises semantic expansion.");
         Check.Equal(0, leaf.DirectChildCount, "Leaf has an invented child count.");
-        Check.Equal("empty", projection.State,
-            "Explicit leaf context should be distinguishable from a loaded group.");
+        Check.Equal("leaf", projection.State,
+            "A leaf must be explicit and not masquerade as an empty group.");
+    }
+
+    private static async Task MissingContextFailsExplicitlyAsync()
+    {
+        await using var temp = new TempDatabase("graph03-missing-context");
+        await using var store = new SqliteMapStore(temp.Path);
+        await store.InitializeAsync();
+        await store.CreateMapAsync(Graph03Fixture.Create());
+
+        await Check.ThrowsAsync<InvalidOperationException>(
+            () => new SceneService(store).LoadProjectionAsync(
+                "missing-context",
+                TestIds.Placement(999999)),
+            "A missing context must fail explicitly instead of rendering an empty graph.");
     }
 
     private static async Task AncestorDepthExhaustionFailsClosedAsync()
