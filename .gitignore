@@ -1,0 +1,16 @@
+**/bin/
+**/obj/
+**/node_modules/
+**/dist/
+.vs/
+.worktrees/
+artifacts/
+*.db
+*.db-*
+*.sqlite*
+*.epub
+*.pdf
+*.har
+.env*
+!*.example
+*.user
