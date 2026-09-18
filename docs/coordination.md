@@ -1,44 +1,30 @@
-# Nodilume — coordinamento delle chat
-
+# Nodilume - coordinamento delle chat
 ## Ruoli
-
-La chat coordinatrice mantiene architettura, roadmap, dipendenze, criteri di accettazione
-e stato delle consegne. Le chat implementatrici eseguono incarichi circoscritti e
-consegnano PR con verifiche riproducibili. L'utente approva l'integrazione.
-
-GitHub conserva lo stato ufficiale. I messaggi di una chat non sostituiscono commit,
-risultati dei test o documentazione aggiornata.
-
-## Stato
-
-- GRAPH.00: completata.
-- GRAPH.01: accettata dall'utente; chiusura tramite PR #1.
-- GRAPH.02: integrata tramite PR #2, squash `5272f297bc58d4f1b69b17ad1eb2f236ec40c4db`.
-- GRAPH.03: implementata sul branch `feat/graph-03-semantic-zoom`; PR #3 draft;
-  PASS tecnico e smoke Windows completati. Accettazione visiva dell'utente e merge non
-  ancora eseguiti.
-- GRAPH.04-08: non iniziate.
-
-## Assegnazione attiva
-
-| Incarico | Chat | Branch | Dipendenza | Consegna |
-|---|---|---|---|---|
-| GRAPH.03 — zoom semantico e aggregazioni | Chat implementatrice corrente | `feat/graph-03-semantic-zoom` | PR #2 merged | PR draft, validation + handoff, nessun merge |
-
-Non avviare GRAPH.04 e non creare un secondo incarico GRAPH.03 finché la coordinatrice
-non ha verificato la PR e l'utente non ha completato l'accettazione visiva.
-
+Questa chat è la coordinatrice per continuità, architettura, roadmap, dipendenze, assegnazioni e verifica delle consegne.
+Le chat implementatrici eseguono incarichi circoscritti e consegnano PR con verifiche riproducibili; non effettuano merge.
+GitHub conserva lo stato ufficiale. La coordinatrice integra dopo autorizzazione dell'utente.
+## Checkpoint del 18 settembre 2026
+- GRAPH.00-01: completate; GRAPH.01 accettata, PR #1.
+- GRAPH.02: integrata PR #2, squash 5272f297bc58d4f1b69b17ad1eb2f236ec40c4db.
+- GRAPH.03: integrata PR #3 su main, squash 1690c35fcde8f6e51bb17fda7e4f32da8c76d8a2.
+- Ultimo head verificato prima del merge: 69dd2b08db1555507dcd3fc92638e011a4ae38f6.
+- Verifiche rieseguite dalla coordinatrice: viewer 9/9, C#/SQLite/proiezioni 3/3 gruppi, build 0 errori/avvisi, smoke WPF/WebView2 PASS.
+- Merge espressamente richiesto dall'utente; non si dichiara retroattivamente eseguito ogni punto del playbook visivo manuale.
+- GRAPH.04: bootstrap preparato in docs/handoffs/BOOTSTRAP_NODILUME_GRAPH_04.md; implementazione non iniziata.
+- GRAPH.05-08: non iniziate.
+## Assegnazioni e accesso
+Nessuna chat implementatrice attiva registrata in questo checkpoint. GRAPH.03 è consegnata.
+Prossimo incarico: GRAPH.04, caricamento selettivo e prove di scala, da assegnare con il bootstrap dedicato.
+Repository Idiopathy-shh/nodilume; OFFICE-PC; checkout originale C:\Sviluppo\Nodilume.
+Il connettore GitHub restituisce 404; GitHub CLI sul PC accede alla repository con la sessione già configurata.
+Worktree documentale coordinatrice: C:\Sviluppo\Nodilume-coordination, branch docs/coordination-post-graph03.
+Il checkout originale resta sul branch GRAPH.03; non cambiarlo mentre altre chat potrebbero usarlo.
 ## Regole di integrazione
-
-1. La chat implementatrice registra base, branch e working tree prima di modificare.
-2. Piano esecutivo prima delle modifiche funzionali.
-3. Commit funzionali separati da documentazione quando utile.
-4. Build, test e smoke devono essere riproducibili e usare fixture temporanee dedicate.
-5. PASS tecnico e accettazione visiva sono stati distinti.
-6. La chat implementatrice pubblica la PR ma non effettua merge.
-7. L'utente riporta la PR alla coordinatrice; la coordinatrice verifica autonomamente.
-8. Solo dopo autorizzazione esplicita dell'utente si integra.
-9. GRAPH.04 riceverà un bootstrap separato; nessun benchmark di scala viene anticipato in GRAPH.03.
-
-Un checkout condiviso non può essere cambiato di branch da due chat contemporaneamente.
-Nessuna chat deve resettare, force-pushare o fare rebase autonomo.
+1. Registrare base, branch, working tree e incarichi concorrenti prima delle modifiche.
+2. Piano esecutivo prima del codice; worktree dedicata per ogni incarico.
+3. Build, test e smoke riproducibili con fixture temporanee; preservare database personali.
+4. PASS tecnico, accettazione visiva e risultati prestazionali restano distinti.
+5. La implementatrice pubblica la PR; la coordinatrice verifica autonomamente prima dell'integrazione.
+6. Integrare solo con autorizzazione dell'utente; nessun reset, force-push o rebase autonomo.
+7. Non cambiare branch in un checkout condiviso usato da un'altra chat.
+8. Misure 10k/100k/300k appartengono a GRAPH.04: nessuna capacità di scala è ancora certificata.

@@ -4,9 +4,11 @@ Desktop Windows per esplorare mappe di idee come grafi 3D multiscala.
 
 ## Stato
 
-GRAPH.00-01 completate e GRAPH.02 integrata. GRAPH.03 è implementata e verificata
-tecnicamente sul branch `feat/graph-03-semantic-zoom`; l'accettazione visiva dell'utente
-e l'integrazione restano passaggi separati. GRAPH.04-08 non sono iniziate.
+GRAPH.00-03 integrate. GRAPH.03: PR #3, squash su main
+`1690c35fcde8f6e51bb17fda7e4f32da8c76d8a2`. Verifiche automatiche e smoke
+rieseguiti dalla coordinatrice: PASS. Merge autorizzato dall’utente; non si dichiara
+retroattivamente completato ogni punto del playbook visivo. GRAPH.04 ha un bootstrap
+preparato, ma non è iniziata; GRAPH.05-08 non iniziate.
 
 GRAPH.03 introduce zoom semantico contestuale, proiezioni C# limitate, collegamenti
 concettuali aggregati con provenienza, scelta esplicita fra rappresentazioni multiple,
@@ -41,7 +43,7 @@ dotnet run --project tests/Nodilume.Smoke -c Release --no-build
 ./scripts/run.ps1
 ```
 
-`build.ps1` esegue `npm ci`, otto test viewer/navigation, compilazione TypeScript,
+`build.ps1` esegue `npm ci`, nove test viewer/navigation, compilazione TypeScript,
 bundle, test Core/SQLite/proiezione semantica su database temporanei reali e build .NET
 con restore bloccato.
 
