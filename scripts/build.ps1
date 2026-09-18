@@ -11,8 +11,15 @@ try {
         npm.cmd run build
         if ($LASTEXITCODE -ne 0) { throw 'Viewer build failed' }
     } finally { Pop-Location }
+    dotnet restore tests/Nodilume.Tests --locked-mode
+    if ($LASTEXITCODE -ne 0) { throw 'Locked test restore failed' }
+    dotnet build tests/Nodilume.Tests -c Release --no-restore
+    if ($LASTEXITCODE -ne 0) { throw 'Domain/integration test build failed' }
+    dotnet run --project tests/Nodilume.Tests -c Release --no-build
+    if ($LASTEXITCODE -ne 0) { throw 'Domain/integration tests failed' }
+
     dotnet restore tests/Nodilume.Smoke --locked-mode
-    if ($LASTEXITCODE -ne 0) { throw 'Locked restore failed' }
+    if ($LASTEXITCODE -ne 0) { throw 'Locked desktop restore failed' }
     dotnet build tests/Nodilume.Smoke -c Release --no-restore
     if ($LASTEXITCODE -ne 0) { throw 'Desktop build failed' }
 } finally { Pop-Location }
