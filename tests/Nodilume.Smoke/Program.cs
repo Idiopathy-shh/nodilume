@@ -141,6 +141,20 @@ internal static class Program
         if (!selection.Contains("Foglia profonda"))
             throw new Exception("Deep leaf selection did not reach the UI.");
 
+        if (await Script("document.getElementById('page-next').disabled") != "false")
+            throw new Exception("Wide context did not expose the next child page.");
+        await Script("document.getElementById('page-next').click()");
+        await WaitFor(
+            "document.body.dataset.state === 'ready' "
+            + "&& document.getElementById('page-prev').disabled === false "
+            + "&& document.getElementById('selection-title').textContent === 'Foglia profonda' "
+            + "&& [...document.querySelectorAll('.node-label')].some(x=>x.textContent==='Elemento ampio 139')");
+        await Script("document.getElementById('page-prev').click()");
+        await WaitFor(
+            "document.body.dataset.state === 'ready' "
+            + "&& document.body.dataset.pageAfter === '' "
+            + "&& document.getElementById('selection-title').textContent === 'Foglia profonda'");
+
         var ambiguousChoices = await Script(
             "[...document.querySelectorAll('.destination')].filter(x=>x.textContent.includes('Idea multipla')).length");
         if (ambiguousChoices != "2")
@@ -258,6 +272,20 @@ internal static class Program
         graph.AddPlacement(sibling, siblingIdea, groupA1, 5, -42, 0);
         graph.AddPlacement(bLeaf, bLeafIdea, groupB, 26, 6, 0);
         graph.AddPlacement(duplicateB, duplicateIdea, groupB, -28, -16, 0);
+
+        for (var index = 0; index < 140; index++)
+        {
+            var idea = new IdeaId(G(1000 + index));
+            var placement = new PlacementId(G(2000 + index));
+            graph.AddIdea(idea, $"Elemento ampio {index:D3}", "wide paging fixture");
+            graph.AddPlacement(
+                placement,
+                idea,
+                groupA1,
+                (index % 14 - 7) * 13,
+                (index / 14 - 5) * 13,
+                (index % 5 - 2) * 5);
+        }
 
         graph.AddRelation(new RelationId(G(300)), deepLeafIdea, bLeafIdea, "cross", true, "salto esterno");
         graph.AddRelation(new RelationId(G(301)), deepLeafIdea, duplicateIdea, "reference", true, "rappresentazioni multiple");

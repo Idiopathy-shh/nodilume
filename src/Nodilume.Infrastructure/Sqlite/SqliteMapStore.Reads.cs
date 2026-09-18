@@ -1,4 +1,5 @@
 using Microsoft.Data.Sqlite;
+using Nodilume.Application.Persistence;
 using Nodilume.Core;
 
 namespace Nodilume.Infrastructure.Sqlite;
@@ -87,6 +88,82 @@ LIMIT @limit;
         while (await reader.ReadAsync(cancellationToken))
             result.Add(ReadRelation(reader, mapId));
         return result;
+    }
+
+    public async Task<IdeaSearchPage> SearchIdeasByTitlePrefixAsync(
+        MapId mapId,
+        string prefix,
+        int limit,
+        IdeaSearchCursor? after = null,
+        CancellationToken cancellationToken = default)
+    {
+        if (limit is < 1 or > 512) throw new ArgumentOutOfRangeException(nameof(limit));
+        if (prefix is null) throw new ArgumentNullException(nameof(prefix));
+        var normalized = prefix.Trim();
+        if (normalized.Length > 256) throw new ArgumentOutOfRangeException(nameof(prefix));
+
+        await using var connection = await OpenConnectionAsync(cancellationToken);
+        await using var command = connection.CreateCommand();
+        command.CommandText = """
+SELECT id, title, content
+FROM ideas
+WHERE map_id=@map
+  AND title >= @prefix
+  AND title < @prefixEnd
+  AND (
+      @afterTitle IS NULL
+      OR title > @afterTitle
+      OR (title = @afterTitle AND id > @afterId)
+  )
+ORDER BY title, id
+LIMIT @take;
+""";
+        command.Parameters.AddWithValue("@map", mapId.ToString());
+        command.Parameters.AddWithValue("@prefix", normalized);
+        command.Parameters.AddWithValue("@prefixEnd", normalized + "\uffff");
+        command.Parameters.AddWithValue("@afterTitle", after is null ? DBNull.Value : after.Value.Title);
+        command.Parameters.AddWithValue("@afterId", after is null ? DBNull.Value : after.Value.Id.ToString());
+        command.Parameters.AddWithValue("@take", limit + 1);
+
+        var rows = new List<Idea>(limit + 1);
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+        while (await reader.ReadAsync(cancellationToken))
+            rows.Add(new Idea(IdeaId.Parse(reader.GetString(0)), mapId, reader.GetString(1), reader.GetString(2)));
+
+        var hasMore = rows.Count > limit;
+        if (hasMore) rows.RemoveRange(limit, rows.Count - limit);
+        IdeaSearchCursor? next = hasMore && rows.Count > 0
+            ? new IdeaSearchCursor(rows[^1].Title, rows[^1].Id)
+            : null;
+        return new IdeaSearchPage(rows, hasMore, next);
+    }
+
+    public async Task<RelationPage> ReadRelationPageAsync(
+        MapId mapId,
+        int limit,
+        RelationId? after = null,
+        CancellationToken cancellationToken = default)
+    {
+        if (limit is < 1 or > 4096) throw new ArgumentOutOfRangeException(nameof(limit));
+        await using var connection = await OpenConnectionAsync(cancellationToken);
+        await using var command = connection.CreateCommand();
+        command.CommandText = """
+SELECT id, source_idea_id, target_idea_id, kind, is_directed, explanation
+FROM relations
+WHERE map_id=@map AND (@after IS NULL OR id > @after)
+ORDER BY id
+LIMIT @take;
+""";
+        command.Parameters.AddWithValue("@map", mapId.ToString());
+        command.Parameters.AddWithValue("@after", after is null ? DBNull.Value : after.Value.ToString());
+        command.Parameters.AddWithValue("@take", limit + 1);
+        var rows = new List<Relation>(limit + 1);
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+        while (await reader.ReadAsync(cancellationToken))
+            rows.Add(ReadRelation(reader, mapId));
+        var hasMore = rows.Count > limit;
+        if (hasMore) rows.RemoveRange(limit, rows.Count - limit);
+        return new RelationPage(rows, hasMore, hasMore && rows.Count > 0 ? rows[^1].Id : null);
     }
 
     private static async Task<IReadOnlyList<Idea>> ReadAllIdeasAsync(

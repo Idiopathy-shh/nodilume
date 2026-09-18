@@ -49,14 +49,26 @@ public sealed partial class SqliteMapStore : IMapStore
             migration.Transaction = transaction;
             migration.CommandText = SqliteSchema.MigrationV1;
             await migration.ExecuteNonQueryAsync(cancellationToken);
+            version = 1;
+        }
 
-            await using var stamp = connection.CreateCommand();
+        if (version < 2)
+        {
+            await using var migration = connection.CreateCommand();
+            migration.Transaction = transaction;
+            migration.CommandText = SqliteSchema.MigrationV2;
+            await migration.ExecuteNonQueryAsync(cancellationToken);
+            version = 2;
+        }
+
+        await using (var stamp = connection.CreateCommand())
+        {
             stamp.Transaction = transaction;
             stamp.CommandText = """
 INSERT INTO schema_info(id, version) VALUES (1, @version)
 ON CONFLICT(id) DO UPDATE SET version = excluded.version;
 """;
-            stamp.Parameters.AddWithValue("@version", SqliteSchema.CurrentVersion);
+            stamp.Parameters.AddWithValue("@version", version);
             await stamp.ExecuteNonQueryAsync(cancellationToken);
         }
 

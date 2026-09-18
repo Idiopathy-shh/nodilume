@@ -13,7 +13,7 @@ import './styles.css';
 type NodeData = {
   id: string; placementId: string; ideaId: string; parentPlacementId: string | null;
   title: string; x: number; y: number; z: number; color: string; depth: number;
-  role: string; hasChildren: boolean; directChildCount: number;
+  role: string; showLabel: boolean; hasChildren: boolean; directChildCount: number;
 };
 type LinkData = {
   id: string; category: 'containment' | 'relation'; source: string; target: string;
@@ -32,11 +32,16 @@ type RelationNavigation = {
   relationId: string; kind: string; isDirected: boolean; explanation: string;
   source: Endpoint; target: Endpoint;
 };
+type PageInfo = {
+  afterPlacementId: string | null; nextPlacementId: string | null;
+  hasPrevious: boolean; hasMore: boolean; pageItemCount: number;
+};
 type Projection = {
   version: 2; type: 'projection'; requestId: string; mapId: string; revision: number;
+  transferSentUnixMs: number;
   state: 'ready' | 'partial' | 'empty' | 'leaf'; contextPlacementId: string | null;
   parentContextPlacementId: string | null;
-  frameOrigin: {x: number; y: number; z: number}; path: ContextItem[];
+  frameOrigin: {x: number; y: number; z: number}; path: ContextItem[]; page: PageInfo;
   nodes: NodeData[]; links: LinkData[]; relations: RelationNavigation[];
   hiddenInternalRelationCount: number; partialReasons: string[];
 };
@@ -52,7 +57,7 @@ type Bridge = {
 type VisualNode = {
   data: NodeData;
   mesh: THREE.Mesh<THREE.SphereGeometry, THREE.MeshStandardMaterial>;
-  label: HTMLButtonElement;
+  label: HTMLButtonElement | null;
   from: THREE.Vector3; to: THREE.Vector3;
   fromScale: number; toScale: number; fromOpacity: number; toOpacity: number;
   removing: boolean;
@@ -69,8 +74,10 @@ type ReturnSnapshot = {
   selectedId: string | null;
 };
 type PendingRequest = {
-  requestId: string; kind: 'initial' | 'enter' | 'exit' | 'overview' | 'navigate' | 'return';
+  requestId: string;
+  kind: 'initial' | 'enter' | 'exit' | 'overview' | 'navigate' | 'return' | 'page';
   contextId: string | null; focusPlacementId?: string; restore?: ReturnSnapshot;
+  pageAfterPlacementId?: string | null;
 };
 
 const bridge = (window as unknown as {chrome?: {webview?: Bridge}}).chrome?.webview;
@@ -132,17 +139,24 @@ try {
   let frameOrigin = [0, 0, 0];
   let selected: string | null = null;
   let selectedSince = 0;
+  let selectionRequestedAt: number | null = null;
+  const pageStartedAt = performance.now();
+  let firstUsefulRecorded = false;
+  const frameSamplesMs: number[] = [];
+  let frameSampleSequence = 0;
   let hovered: string | null = null;
   let hoveredSince = 0;
   let pending: PendingRequest | null = null;
   let semanticCooldownUntil = 0;
   const returnStack: ReturnSnapshot[] = [];
+  const pageCursorHistory = new Map<string, Array<string | null>>();
   let cameraAnimation: {
     start: number; from: THREE.Vector3; fromTarget: THREE.Vector3;
     to: THREE.Vector3; toTarget: THREE.Vector3;
   } | null = null;
   let visualTransition: {start: number; duration: number; requestId: string} | null = null;
   let reportAfterTransition = false;
+  let projectionReceivedAt: number | null = null;
   const keys = new Set<string>();
   const forward = new THREE.Vector3();
   const right = new THREE.Vector3();
@@ -284,13 +298,14 @@ try {
     if (!nodes.has(id)) return;
     selected = id;
     selectedSince = performance.now();
+    selectionRequestedAt = selectedSince;
     for (const [key, item] of nodes)
-      item.label.classList.toggle('selected', key === id);
+      item.label?.classList.toggle('selected', key === id);
     updateSelectionUI();
   }
   function clearSelection(): void {
     selected = null;
-    for (const item of nodes.values()) item.label.classList.remove('selected');
+    for (const item of nodes.values()) item.label?.classList.remove('selected');
     updateSelectionUI();
   }
   function snapshotReturn(): ReturnSnapshot {
@@ -304,6 +319,8 @@ try {
   function updateNavigationButtons(): void {
     el<HTMLButtonElement>('up').disabled = !projection?.parentContextPlacementId || pending !== null;
     el<HTMLButtonElement>('back').disabled = returnStack.length === 0 || pending !== null;
+    el<HTMLButtonElement>('page-prev').disabled = !projection?.page.hasPrevious || pending !== null;
+    el<HTMLButtonElement>('page-next').disabled = !projection?.page.hasMore || pending !== null;
   }
   function setLoading(text = 'Caricamento…'): void {
     el('projection-status').textContent = text;
@@ -325,21 +342,23 @@ try {
   function requestProjection(
     contextId: string | null,
     kind: PendingRequest['kind'],
-    options: Pick<PendingRequest, 'focusPlacementId' | 'restore'> = {}
+    options: Pick<PendingRequest, 'focusPlacementId' | 'restore' | 'pageAfterPlacementId'> = {}
   ): void {
     const requestId = nextRequestId();
     latestRequestId = requestId;
     pending = {requestId, kind, contextId, ...options};
     document.body.dataset.requestId = requestId;
     document.body.dataset.requestContext = contextId ?? '';
-    setLoading();
+    setLoading(kind === 'page' ? 'Caricamento pagina…' : 'Caricamento…');
     bridge?.postMessage({
       version: protocolVersion,
       type: 'projectionRequest',
       requestId,
       mapId: activeMapId,
       revision: revision >= 0 ? revision : null,
-      context: {placementId: contextId}
+      context: {placementId: contextId},
+      page: {afterPlacementId: options.pageAfterPlacementId ?? null},
+      selection: {placementId: selected}
     });
   }
   function enterSelected(): void {
@@ -365,6 +384,29 @@ try {
     if (!restore) return;
     requestProjection(restore.contextId, 'return', {restore});
   }
+  function pageKey(): string {
+    return projection?.contextPlacementId ?? '__root__';
+  }
+  function nextPage(): void {
+    if (!projection?.page.hasMore || !projection.page.nextPlacementId) return;
+    const key = pageKey();
+    const history = pageCursorHistory.get(key) ?? [];
+    history.push(projection.page.afterPlacementId);
+    pageCursorHistory.set(key, history);
+    requestProjection(projection.contextPlacementId, 'page', {
+      pageAfterPlacementId: projection.page.nextPlacementId
+    });
+  }
+  function previousPage(): void {
+    if (!projection?.page.hasPrevious) return;
+    const key = pageKey();
+    const history = pageCursorHistory.get(key) ?? [];
+    const previous = history.length > 0 ? history.pop() ?? null : null;
+    pageCursorHistory.set(key, history);
+    requestProjection(projection.contextPlacementId, 'page', {
+      pageAfterPlacementId: previous
+    });
+  }
   function navigateCandidate(candidate: Candidate): void {
     returnStack.push(snapshotReturn());
     updateNavigationButtons();
@@ -380,6 +422,8 @@ try {
   el<HTMLButtonElement>('up').onclick = exitContext;
   el<HTMLButtonElement>('home').onclick = overview;
   el<HTMLButtonElement>('back').onclick = returnToPrevious;
+  el<HTMLButtonElement>('page-prev').onclick = previousPage;
+  el<HTMLButtonElement>('page-next').onclick = nextPage;
 
   function pick(clientX: number, clientY: number): string | undefined {
     const rect = renderer.domElement.getBoundingClientRect();
@@ -445,6 +489,22 @@ try {
   window.addEventListener('blur', () => keys.clear());
   el('scene').addEventListener('blur', () => keys.clear());
   document.addEventListener('visibilitychange', () => keys.clear());
+
+  function createNodeLabel(data: NodeData): HTMLButtonElement {
+    const label = document.createElement('button');
+    label.className = 'node-label';
+    label.textContent = data.title;
+    label.onclick = () => select(data.id);
+    label.ondblclick = () => {
+      select(data.id);
+      const current = nodes.get(data.id);
+      if (current?.data.hasChildren) enterSelected();
+      else focusPlacement(data.id);
+    };
+    el('labels').append(label);
+    return label;
+  }
+
   function createNode(data: NodeData, position: THREE.Vector3): VisualNode {
     const material = new THREE.MeshStandardMaterial({
       color: data.color,
@@ -460,17 +520,7 @@ try {
     mesh.userData.id = data.id;
     graph.add(mesh);
 
-    const label = document.createElement('button');
-    label.className = 'node-label';
-    label.textContent = data.title;
-    label.onclick = () => select(data.id);
-    label.ondblclick = () => {
-      select(data.id);
-      const current = nodes.get(data.id);
-      if (current?.data.hasChildren) enterSelected();
-      else focusPlacement(data.id);
-    };
-    el('labels').append(label);
+    const label = data.showLabel ? createNodeLabel(data) : null;
 
     return {
       data,
@@ -489,7 +539,7 @@ try {
   function disposeNode(item: VisualNode): void {
     graph.remove(item.mesh);
     item.mesh.material.dispose();
-    item.label.remove();
+    item.label?.remove();
   }
 
   function createLink(data: LinkData): VisualLink {
@@ -623,7 +673,12 @@ try {
         nodes.set(node.id, item);
       } else {
         item.data = node;
-        item.label.textContent = node.title;
+        if (node.showLabel && !item.label) item.label = createNodeLabel(node);
+        if (!node.showLabel && item.label) {
+          item.label.remove();
+          item.label = null;
+        }
+        if (item.label) item.label.textContent = node.title;
       }
       item.removing = false;
       item.from.copy(item.mesh.position);
@@ -662,6 +717,8 @@ try {
     projection = data;
     activeMapId = data.mapId;
     revision = data.revision;
+    document.body.dataset.pageAfter = data.page.afterPlacementId ?? '';
+    document.body.dataset.pageHasMore = String(data.page.hasMore);
 
     if (selected && !incomingIds.has(selected)) clearSelection();
     renderBreadcrumbs();
@@ -702,6 +759,14 @@ try {
 
     visualTransition = null;
     document.body.dataset.state = 'ready';
+    if (projectionReceivedAt !== null) {
+      document.body.dataset.viewerRenderMs = (now - projectionReceivedAt).toFixed(2);
+      projectionReceivedAt = null;
+    }
+    if (!firstUsefulRecorded) {
+      firstUsefulRecorded = true;
+      document.body.dataset.firstUsefulMs = (now - pageStartedAt).toFixed(2);
+    }
 
     const completed = pending;
     pending = null;
@@ -826,6 +891,7 @@ try {
     const width = renderer.domElement.clientWidth;
     const height = renderer.domElement.clientHeight;
     for (const item of nodes.values()) {
+      if (!item.label) continue;
       projectedPoint.copy(item.mesh.position).project(camera);
       const hidden = item.removing
         || item.mesh.material.opacity < 0.16
@@ -895,6 +961,9 @@ try {
     document.body.dataset.responseContext = data.contextPlacementId ?? '';
     if (!shouldAcceptProjection(latestRequestId, activeMapId, revision, data)) return;
 
+    projectionReceivedAt = performance.now();
+    document.body.dataset.bridgeTransferMs =
+      Math.max(0, Date.now() - data.transferSentUnixMs).toFixed(2);
     try {
       applyProjection(data);
     } catch (error) {
@@ -913,8 +982,22 @@ try {
 
   let previousTime = performance.now();
   function frame(now: number): void {
-    const dt = Math.min((now - previousTime) / 1000, 0.05);
+    const rawFrameMs = now - previousTime;
+    const dt = Math.min(rawFrameMs / 1000, 0.05);
     previousTime = now;
+
+    if (projection && !visualTransition && document.body.dataset.state === 'ready') {
+      frameSamplesMs.push(rawFrameMs);
+      if (frameSamplesMs.length > 600) frameSamplesMs.shift();
+      frameSampleSequence++;
+      if (frameSamplesMs.length >= 30 && frameSampleSequence % 30 === 0) {
+        const ordered = [...frameSamplesMs].sort((a, b) => a - b);
+        const index = Math.min(ordered.length - 1, Math.ceil(ordered.length * 0.95) - 1);
+        document.body.dataset.frameP95Ms = ordered[index].toFixed(2);
+        document.body.dataset.frameSamplesMs =
+          frameSamplesMs.map(value => value.toFixed(2)).join(',');
+      }
+    }
 
     if (cameraAnimation) {
       const t = Math.min((now - cameraAnimation.start) / 700, 1);
@@ -944,6 +1027,10 @@ try {
     for (const item of links.values()) updateLinkGeometry(item);
     renderer.render(scene, camera);
     updateLabels();
+    if (selectionRequestedAt !== null) {
+      document.body.dataset.selectionLatencyMs = (now - selectionRequestedAt).toFixed(2);
+      selectionRequestedAt = null;
+    }
     runSemanticZoom(now);
   }
   renderer.setAnimationLoop(frame);

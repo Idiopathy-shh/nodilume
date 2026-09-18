@@ -29,6 +29,12 @@ public interface IMapStore : IAsyncDisposable
         PlacementId? parentId,
         int limit,
         CancellationToken cancellationToken = default);
+    Task<PlacementPage> ReadChildrenPageAsync(
+        MapId mapId,
+        PlacementId? parentId,
+        int limit,
+        PlacementId? after = null,
+        CancellationToken cancellationToken = default);
     Task<IReadOnlyList<Placement>> ReadAncestorPathAsync(
         MapId mapId,
         PlacementId placementId,
@@ -53,6 +59,12 @@ public interface IMapStore : IAsyncDisposable
         MapId mapId,
         IReadOnlyCollection<IdeaId> ids,
         CancellationToken cancellationToken = default);
+    Task<IdeaSearchPage> SearchIdeasByTitlePrefixAsync(
+        MapId mapId,
+        string prefix,
+        int limit,
+        IdeaSearchCursor? after = null,
+        CancellationToken cancellationToken = default);
     Task<IReadOnlyList<Relation>> ReadRelationsForIdeasAsync(
         MapId mapId,
         IReadOnlyCollection<IdeaId> ideaIds,
@@ -63,9 +75,27 @@ public interface IMapStore : IAsyncDisposable
         IReadOnlyCollection<IdeaId> ideaIds,
         int limit,
         CancellationToken cancellationToken = default);
+    Task<RelationPage> ReadRelationPageAsync(
+        MapId mapId,
+        int limit,
+        RelationId? after = null,
+        CancellationToken cancellationToken = default);
 }
 
 public sealed record BoundedResult<T>(IReadOnlyList<T> Items, bool HasMore);
+public sealed record PlacementPage(
+    IReadOnlyList<Placement> Items,
+    bool HasMore,
+    PlacementId? NextCursor);
+public readonly record struct IdeaSearchCursor(string Title, IdeaId Id);
+public sealed record IdeaSearchPage(
+    IReadOnlyList<Idea> Items,
+    bool HasMore,
+    IdeaSearchCursor? NextCursor);
+public sealed record RelationPage(
+    IReadOnlyList<Relation> Items,
+    bool HasMore,
+    RelationId? NextCursor);
 
 public abstract record MapChange;
 public sealed record CreateIdeaWithPlacementChange(Idea Idea, Placement Placement) : MapChange;
