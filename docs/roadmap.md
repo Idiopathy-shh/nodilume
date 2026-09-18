@@ -3,7 +3,8 @@
 Stato 18 settembre 2026: GRAPH.00-01 completate. GRAPH.02 integrata con squash merge PR #2
 (`5272f297bc58d4f1b69b17ad1eb2f236ec40c4db`). GRAPH.03 è implementata sul branch
 `feat/graph-03-semantic-zoom` e ha PASS tecnico automatico + smoke WPF/WebView2 reale;
-restano accettazione visiva dell'utente e integrazione della PR. GRAPH.04-08 non sono iniziate.
+PR #3 è pubblicata come draft. Restano accettazione visiva dell'utente e integrazione.
+GRAPH.04-08 non sono iniziate.
 
 ## Roadmap
 

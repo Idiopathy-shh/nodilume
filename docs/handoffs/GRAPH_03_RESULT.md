@@ -6,7 +6,7 @@ Checkout: `C:\Sviluppo\Nodilume`.
 Branch: `feat/graph-03-semantic-zoom`.
 Base SHA: `5b867ba2d67f2614cb19c98a0a06fed614a382fd`.
 Implementation SHA: `feaf2d151821f966b66afdd0d9069fdbedc2ec2f`.
-PR: da pubblicare verso `main` come draft.
+PR: https://github.com/Idiopathy-shh/nodilume/pull/3 (draft).
 Non eseguire merge da questa chat. Non iniziare GRAPH.04.
 
 ## Risultato

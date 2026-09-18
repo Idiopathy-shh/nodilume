@@ -14,8 +14,9 @@ risultati dei test o documentazione aggiornata.
 - GRAPH.00: completata.
 - GRAPH.01: accettata dall'utente; chiusura tramite PR #1.
 - GRAPH.02: integrata tramite PR #2, squash `5272f297bc58d4f1b69b17ad1eb2f236ec40c4db`.
-- GRAPH.03: implementata sul branch `feat/graph-03-semantic-zoom`; PASS tecnico e smoke
-  Windows completati. Accettazione visiva dell'utente e merge non ancora eseguiti.
+- GRAPH.03: implementata sul branch `feat/graph-03-semantic-zoom`; PR #3 draft;
+  PASS tecnico e smoke Windows completati. Accettazione visiva dell'utente e merge non
+  ancora eseguiti.
 - GRAPH.04-08: non iniziate.
 
 ## Assegnazione attiva
