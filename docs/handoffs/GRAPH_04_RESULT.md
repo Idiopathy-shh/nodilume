@@ -7,8 +7,8 @@ Worktree: `C:\Sviluppo\Nodilume-graph04`.
 Base: `1690c35fcde8f6e51bb17fda7e4f32da8c76d8a2`.
 Checkpoint funzionale: `35dc3ca`.
 
-Stato: **PASS tecnico**, pronto per verifica della chat coordinatrice.
-Nessun merge eseguito. GRAPH.05 non è stata iniziata.
+Stato: **PASS tecnico**, PR #5 pubblicata come draft verso `main`, pronta per
+verifica della chat coordinatrice. Nessun merge eseguito. GRAPH.05 non è stata iniziata.
 
 ## Cosa è stato implementato
 
@@ -85,5 +85,5 @@ a GRAPH.05. Non sono stati implementati editor completo, AI, libri o cloud.
 5. Integrare solo dopo autorizzazione dell'utente.
 6. Dopo integrazione aggiornare il checkpoint main e soltanto allora preparare GRAPH.05.
 
-La PR viene pubblicata dalla chat implementatrice dopo la creazione di questo handoff;
-GitHub resta la fonte autorevole per numero PR e head finale.
+PR: #5 — `GRAPH.04: caricamento selettivo e prove di scala`, draft verso `main`.
+GitHub resta la fonte autorevole per head finale e stato di integrazione.

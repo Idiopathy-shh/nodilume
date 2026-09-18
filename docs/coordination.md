@@ -12,7 +12,8 @@ GitHub conserva lo stato ufficiale. La coordinatrice integra dopo autorizzazione
 - Merge espressamente richiesto dall'utente; non si dichiara retroattivamente eseguito ogni punto del playbook visivo manuale.
 - GRAPH.04: implementata e PASS tecnico sul branch `feat/graph-04-selective-loading`;
   build, smoke GRAPH.03, scale-smoke 300k e benchmark 10k/100k/300k completati.
-  Restano PR, verifica coordinatrice, accettazione visiva separata e integrazione.
+  PR #5 è pubblicata come draft; restano verifica coordinatrice, accettazione visiva
+  separata e integrazione.
 - GRAPH.05-08: non iniziate.
 ## Assegnazioni e accesso
 GRAPH.04 è la sola consegna implementatrice attiva in questo checkpoint.

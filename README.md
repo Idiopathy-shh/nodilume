@@ -8,8 +8,8 @@ GRAPH.00-03 integrate. GRAPH.03: PR #3, squash su main
 `1690c35fcde8f6e51bb17fda7e4f32da8c76d8a2`. GRAPH.04 è implementata e verificata
 tecnicamente sul branch `feat/graph-04-selective-loading`: caricamento progressivo,
 budget separati, cache bounded, ricerca indicizzata e benchmark 10k/100k/300k PASS
-sull'hardware documentato. Integrazione e accettazione visiva restano passaggi separati.
-GRAPH.05-08 non iniziate.
+sull'hardware documentato. PR #5 pubblicata come draft; verifica coordinatrice,
+integrazione e accettazione visiva restano passaggi separati. GRAPH.05-08 non iniziate.
 
 GRAPH.03 introduce zoom semantico contestuale, aggregazioni e navigazione trasversale.
 GRAPH.04 rende raggiungibili i figli oltre la prima pagina, limita nodi/link/etichette,

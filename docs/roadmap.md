@@ -3,8 +3,9 @@
 Stato 18 settembre 2026: GRAPH.00-03 integrate. GRAPH.03 PR #3 squash su main
 `1690c35fcde8f6e51bb17fda7e4f32da8c76d8a2`. GRAPH.04 è implementata sul branch
 `feat/graph-04-selective-loading` e ha PASS tecnico su build, smoke GRAPH.03,
-scale-smoke WPF/WebView2 e benchmark 10k/100k/300k. Restano verifica della
-coordinatrice, accettazione visiva separata e integrazione. GRAPH.05-08 non iniziate.
+scale-smoke WPF/WebView2 e benchmark 10k/100k/300k. PR #5 è pubblicata come draft;
+restano verifica della coordinatrice, accettazione visiva separata e integrazione.
+GRAPH.05-08 non iniziate.
 
 ## Roadmap
 
