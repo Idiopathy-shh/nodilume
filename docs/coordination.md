@@ -10,7 +10,7 @@ GitHub conserva lo stato ufficiale. I messaggi di una chat non sostituiscono com
 
 - GRAPH.00: completata.
 - GRAPH.01: accettata dall'utente in conversazione; chiusura tramite PR #1.
-- GRAPH.02: implementazione tecnica completata sul branch `feat/graph-02-domain-sqlite`; PR/integrazione e accettazione manuale restano alla coordinatrice e all'utente.
+- GRAPH.02: integrata tramite PR #2, squash 5272f297bc58d4f1b69b17ad1eb2f236ec40c4db, su autorizzazione dell'utente del 18 settembre 2026. Build, test e smoke rieseguiti PASS dalla coordinatrice; nessuna nuova prova manuale dettagliata dichiarata.
 - GRAPH.03–08: in attesa delle rispettive dipendenze.
 
 L'accettazione di GRAPH.01 è complessiva: non viene presentata come verbale dettagliato di ogni gesto del playbook. Il caricamento locale è verificato; non è stata disconnessa la rete del PC.
@@ -19,7 +19,7 @@ L'accettazione di GRAPH.01 è complessiva: non viene presentata come verbale det
 
 | Incarico | Chat | Branch proposto | Dipendenza | Consegna |
 |---|---|---|---|---|
-| GRAPH.02 — identità e SQLite | Chat implementatrice corrente | feat/graph-02-domain-sqlite | PR #1 merged | PR #2 draft aperta; PASS tecnico completato, merge/accettazione alla coordinatrice e all'utente |
+| GRAPH.03 - zoom semantico e aggregazioni | Nuova chat implementatrice da avviare | feat/graph-03-semantic-zoom | PR #2 merged | Bootstrap GRAPH.03 pronto; consegna PR senza merge |
 
 Non avviare in parallelo più implementazioni del medesimo incarico. La chat esecutrice registra base SHA, branch e percorsi prima delle modifiche. Un checkout condiviso non può essere cambiato di branch da due chat contemporaneamente.
 

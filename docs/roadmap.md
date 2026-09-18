@@ -1,6 +1,6 @@
 # Nodilume — roadmap
 
-Stato 18 settembre 2026: GRAPH.00 completata. GRAPH.01 implementata, verificata e accettata dall'utente. GRAPH.02 implementata e verificata tecnicamente sul branch `feat/graph-02-domain-sqlite`; integrazione PR e accettazione manuale restano separate. GRAPH.03–08 non implementate.
+Stato 18 settembre 2026: GRAPH.00-01 completate. GRAPH.02 integrata con squash merge PR #2 (5272f297bc58d4f1b69b17ad1eb2f236ec40c4db), dopo nuova verifica tecnica e autorizzazione esplicita dell'utente. GRAPH.03 pronta per assegnazione tramite docs/handoffs/BOOTSTRAP_NODILUME_GRAPH_03.md; implementazione e accettazione visiva ancora da eseguire. GRAPH.04-08 non implementate.
 
 ## 11. Roadmap
 
