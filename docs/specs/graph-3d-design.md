@@ -2,7 +2,7 @@
 
 Data: 18 settembre 2026. Versione: 0.2.
 
-Stato: perimetro del prototipo e stack approvati in conversazione. Questo documento consolida tali decisioni e propone i dettagli tecnici necessari. GRAPH.00 completata; prima scena desktop GRAPH.01 implementata e verificata tecnicamente. Accettazione manuale della navigazione pendente; nessuna prestazione di scala è certificata. Nome approvato: Nodilume.
+Stato: perimetro del prototipo e stack approvati in conversazione. Questo documento consolida tali decisioni e propone i dettagli tecnici necessari. GRAPH.00 completata; prima scena desktop GRAPH.01 implementata e verificata tecnicamente. Accettazione complessiva confermata dall'utente; nessuna prestazione di scala è certificata. Nome approvato: Nodilume.
 
 ## 1. Obiettivo
 

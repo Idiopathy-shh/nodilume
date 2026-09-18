@@ -26,7 +26,7 @@ Data: 18 settembre 2026.
 | Focus e panoramica | PASS automatico | Il nodo proiettato raggiunge il centro e poi se ne allontana |
 | Ridimensionamento | PASS | Canvas si adatta al restringimento e al ripristino della finestra |
 | Aspetto iniziale | Ispezionato | Screenshot della vista reale, testi e rete leggibili |
-| Sensazione di navigazione con mouse/tastiera | DA ACCETTARE | Richiede prova dell'utente |
+| Sensazione di navigazione con mouse/tastiera | ACCETTATA | Approvazione complessiva in conversazione; nessun verbale dei singoli gesti |
 | Prestazioni 10k/100k/300k | NON ESEGUITE | Previste da GRAPH.04 |
 
 Il controllo delle risorse prova il caricamento locale della pagina; non è una misura
@@ -60,3 +60,7 @@ dal solo esito della compilazione. Nessuna modifica alla mappa è persistente in
 
 GRAPH.02: identità Idea/Placement, contenimento e invarianti, isolamento mappe,
 SQLite e round-trip dei dati. Lo zoom multiscala continuo appartiene a GRAPH.03.
+
+## Chiusura coordinata
+
+L'utente ha approvato la chiusura di GRAPH.01 e il passaggio alle chat implementatrici. Questa e' un'accettazione complessiva, non una dichiarazione di esecuzione di ogni voce del playbook. Verifica finale: build 0 errori/avvisi, test camera 4/4, smoke Windows PASS. Nessun workflow CI configurato; gli esiti sono locali e documentati.

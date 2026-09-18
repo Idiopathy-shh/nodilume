@@ -5,7 +5,7 @@ Desktop Windows per esplorare mappe di idee come grafi 3D multiscala.
 ## Stato
 
 GRAPH.00 completata. GRAPH.01 implementata e verificata tecnicamente su Windows;
-accettazione manuale della navigazione ancora da eseguire.
+accettazione complessiva confermata dall'utente.
 Non è ancora un editor: zoom semantico, SQLite e mappe personali sono nelle fasi successive.
 
 ## Architettura
