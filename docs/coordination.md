@@ -19,7 +19,7 @@ L'accettazione di GRAPH.01 è complessiva: non viene presentata come verbale det
 
 | Incarico | Chat | Branch proposto | Dipendenza | Consegna |
 |---|---|---|---|---|
-| GRAPH.02 — identità e SQLite | Chat implementatrice corrente | feat/graph-02-domain-sqlite | PR #1 merged | Implementazione/test/docs completati; apertura PR in consegna |
+| GRAPH.02 — identità e SQLite | Chat implementatrice corrente | feat/graph-02-domain-sqlite | PR #1 merged | PR #2 draft aperta; PASS tecnico completato, merge/accettazione alla coordinatrice e all'utente |
 
 Non avviare in parallelo più implementazioni del medesimo incarico. La chat esecutrice registra base SHA, branch e percorsi prima delle modifiche. Un checkout condiviso non può essere cambiato di branch da due chat contemporaneamente.
 

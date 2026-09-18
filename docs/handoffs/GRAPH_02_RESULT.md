@@ -5,7 +5,9 @@ Repository: `Idiopathy-shh/nodilume`.
 Checkout: `C:\Sviluppo\Nodilume`.
 Branch: `feat/graph-02-domain-sqlite`.
 Base SHA: `47119f7c5d470a3149a3a6dddbc1d503d2a36104`.
-PR: da registrare dopo l'apertura; non eseguire merge da questa chat.
+Implementation SHA: `057daa9`.
+PR: https://github.com/Idiopathy-shh/nodilume/pull/2 (draft).
+Non eseguire merge da questa chat.
 
 ## Risultato
 
