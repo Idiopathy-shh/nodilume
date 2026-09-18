@@ -4,19 +4,28 @@ Desktop Windows per esplorare mappe di idee come grafi 3D multiscala.
 
 ## Stato
 
-GRAPH.00 completata. GRAPH.01 implementata, verificata su Windows e accettata dall'utente.
-GRAPH.02 introduce il modello persistente Idea/Placement/Relation e SQLite ed è verificata
-tecnicamente; l'integrazione della PR e l'eventuale prova manuale restano separate.
-Non è ancora un editor completo: zoom semantico, modifica interattiva, undo e prove di scala
-appartengono alle fasi successive.
+GRAPH.00-01 completate e GRAPH.02 integrata. GRAPH.03 è implementata e verificata
+tecnicamente sul branch `feat/graph-03-semantic-zoom`; l'accettazione visiva dell'utente
+e l'integrazione restano passaggi separati. GRAPH.04-08 non sono iniziate.
+
+GRAPH.03 introduce zoom semantico contestuale, proiezioni C# limitate, collegamenti
+concettuali aggregati con provenienza, scelta esplicita fra rappresentazioni multiple,
+navigazione trasversale e ritorno prevedibile. Non è ancora un editor completo:
+benchmark 10k/100k/300k, drag/pin, undo/redo e camera persistente appartengono alle fasi
+successive.
 
 ## Architettura
 
 C#/.NET 10 e WPF ospitano una vista TypeScript/Three.js attraverso WebView2.
 `Nodilume.Core` contiene identità e invarianti senza dipendenze grafiche o database;
-`Nodilume.Application` espone operazioni e porte di persistenza; `Nodilume.Infrastructure`
-implementa un database SQLite per mappa. La scena è una proiezione C# e la vista non accede
-al database. Le risorse del renderer sono distribuite localmente.
+`Nodilume.Application` espone operazioni, contratti di proiezione e porte di persistenza;
+`Nodilume.Infrastructure` implementa un database SQLite per mappa.
+
+C# è autorevole per grafo, contesto, revisione, aggregazioni e destinazioni. Il viewer
+possiede camera, animazioni e stato grafico transitorio. I messaggi GRAPH.03 sono
+versionati e correlati tramite `requestId`, `mapId`, revisione e contesto; richieste
+superate vengono annullate lato Desktop e risposte obsolete vengono ignorate lato viewer.
+Le risorse del renderer sono distribuite localmente.
 
 ## Avvio da sorgente
 
@@ -32,31 +41,43 @@ dotnet run --project tests/Nodilume.Smoke -c Release --no-build
 ./scripts/run.ps1
 ```
 
-`build.ps1` esegue npm ci, quattro test della camera, compilazione TypeScript,
-bundle, test comportamentali Core/SQLite su database temporanei reali e build .NET con restore
-bloccato. Lo smoke apre due finestre WPF/WebView2 consecutive sullo stesso database temporaneo,
-verifica riapertura persistente, scena, selezione, focus/panoramica e ridimensionamento,
-salva un'immagine in `artifacts` e chiude soltanto le finestre create dal test.
+`build.ps1` esegue `npm ci`, otto test viewer/navigation, compilazione TypeScript,
+bundle, test Core/SQLite/proiezione semantica su database temporanei reali e build .NET
+con restore bloccato.
+
+Lo smoke GRAPH.03 usa una fixture separata dalla demo personale. Apre due finestre
+WPF/WebView2 consecutive sullo stesso database temporaneo e verifica tre contesti
+annidati, entrata/uscita, scelta fra rappresentazioni, destinazione trasversale e ritorno,
+direzioni opposte, focus osservabile, resize e riapertura persistente. Salva
+`artifacts/graph-03-smoke.png` e non sovrascrive database esistenti.
 
 ## Comandi della vista
 
 - Trascina col tasto sinistro per ruotare; col destro per spostare.
 - Rotella per avvicinarti o allontanarti.
 - Clic sul nodo o sulla sua etichetta per selezionarlo.
-- Doppio clic, oppure «Avvicinati al nodo», per il focus animato.
-- Clic sullo sfondo della scena, poi WASD per attraversare la rete, Q/E per scendere/salire, Maiusc per accelerare.
-- «Panoramica» ripristina il punto di vista iniziale.
+- Doppio clic o «Entra» apre un nodo che possiede figli; una foglia viene soltanto messa a fuoco.
+- Avvicinarsi a un nodo selezionato o puntato stabilmente può aprirlo automaticamente; entrata e uscita usano soglie diverse.
+- «Livello superiore» oppure Esc esce dal contesto; il breadcrumb permette di scegliere un antenato.
+- «Panoramica» torna alla proiezione principale.
+- «Ritorna» ripristina il contesto/camera precedente dopo una navigazione trasversale.
+- Nei collegamenti con più rappresentazioni viene mostrato il percorso di ogni Placement: la vista non sceglie silenziosamente il primo ID.
+- Clic sullo sfondo, poi WASD per attraversare la rete, Q/E per scendere/salire e Maiusc per accelerare.
 
-La demo persistente contiene 25 Placement, 24 Idea e 3 Relation concettuali; il renderer
-mostra anche i 24 archi di contenimento, per 27 collegamenti visuali. Una Idea è rappresentata
-in due contesti con identità di Placement distinte. Il database predefinito è
+Durante il caricamento la scena corrente resta visibile. Stati ready, partial, leaf,
+empty ed errore sono espliciti. Un nodo foglia espone `hasChildren=false` e non viene
+trattato come un gruppo apribile.
+
+La demo persistente contiene 25 Placement, 24 Idea e 3 Relation concettuali; una Idea
+è rappresentata in due contesti con Placement distinti. Il database predefinito è
 `%LOCALAPPDATA%\Nodilume\Maps\demo.sqlite` e viene inizializzato solo se assente.
-La vista GRAPH.02 è intenzionalmente limitata; zoom semantico e aggregazioni complete sono GRAPH.03.
-Le prove GRAPH.02 sono in `docs/validation/graph-02.md`.
+GRAPH.03 non richiede il caricamento globale della mappa e non scrive posizioni durante
+lo zoom.
 
+Le prove GRAPH.02 sono in `docs/validation/graph-02.md`.
+Le prove e il playbook GRAPH.03 sono in `docs/validation/graph-03.md`.
 La specifica completa è in `docs/specs/graph-3d-design.md`.
 La roadmap è in `docs/roadmap.md`.
-Il piano della prima consegna è in `docs/plans/2026-09-18-graph-00-01.md`.
 
 ## Dati
 

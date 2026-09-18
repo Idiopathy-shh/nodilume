@@ -1,22 +1,36 @@
 # Nodilume — roadmap
 
-Stato 18 settembre 2026: GRAPH.00-01 completate. GRAPH.02 integrata con squash merge PR #2 (5272f297bc58d4f1b69b17ad1eb2f236ec40c4db), dopo nuova verifica tecnica e autorizzazione esplicita dell'utente. GRAPH.03 pronta per assegnazione tramite docs/handoffs/BOOTSTRAP_NODILUME_GRAPH_03.md; implementazione e accettazione visiva ancora da eseguire. GRAPH.04-08 non implementate.
+Stato 18 settembre 2026: GRAPH.00-01 completate. GRAPH.02 integrata con squash merge PR #2
+(`5272f297bc58d4f1b69b17ad1eb2f236ec40c4db`). GRAPH.03 è implementata sul branch
+`feat/graph-03-semantic-zoom` e ha PASS tecnico automatico + smoke WPF/WebView2 reale;
+restano accettazione visiva dell'utente e integrazione della PR. GRAPH.04-08 non sono iniziate.
 
-## 11. Roadmap
+## Roadmap
 
-Questa è una roadmap di consegne, non ancora un piano esecutivo con tutte le modifiche al codice.
-
-| Fase | Consegna | Criterio di uscita |
+| Fase | Consegna | Stato / criterio di uscita |
 |---|---|---|
-| GRAPH.00 | Repository dedicata, specifica, verifica ambiente e convenzioni | Build riproducibile prevista, ambiente Windows identificato, dati personali esclusi da git |
-| GRAPH.01 | Finestra Windows e scena 3D locale | Rotazione, movimento e focus funzionanti offline |
-| GRAPH.02 | Identità, rappresentazioni, contenimento e SQLite | Invarianti e persistenza verificate con fixture piccole |
-| GRAPH.03 | Zoom semantico continuo e collegamenti aggregati | Entrata/uscita e navigazione trasversale accettate dall’utente |
-| GRAPH.04 | Caricamento selettivo e prove di scala | Report 10k/100k/300k con risultati e limiti espliciti |
-| GRAPH.05 | Spostamento, fissaggio, undo e ripristino | Modifiche locali persistenti e orientamento conservato; chiusura del prototipo |
-| GRAPH.06 | Primo editor personale completo | Gestione mappe, nodi, relazioni, ricerca, import/export e recupero |
-| GRAPH.07 | Automazioni AI | Comandi strutturati, provenienza, annullamento del lotto e protezione delle modifiche manuali |
-| GRAPH.08 | Modalità libri | EPUB e materiali cartacei acquisiti; capitoli, riferimenti e copertura parziale esplicita |
+| GRAPH.00 | Repository dedicata, specifica, verifica ambiente e convenzioni | Completata |
+| GRAPH.01 | Finestra Windows e scena 3D locale | Completata e accettata |
+| GRAPH.02 | Identità, rappresentazioni, contenimento e SQLite | Integrata tramite PR #2 |
+| GRAPH.03 | Zoom semantico continuo e collegamenti aggregati | Implementazione e PASS tecnico completati; richiede ancora accettazione visiva e merge |
+| GRAPH.04 | Caricamento selettivo e prove di scala | Non iniziare prima della chiusura GRAPH.03; report 10k/100k/300k con limiti espliciti |
+| GRAPH.05 | Spostamento, fissaggio, undo e ripristino | Non implementata |
+| GRAPH.06 | Primo editor personale completo | Non implementata |
+| GRAPH.07 | Automazioni AI | Non implementata |
+| GRAPH.08 | Modalità libri | Non implementata |
 
-Ogni fase richiede solo le verifiche che coprono rischi concreti introdotti. Una fase non è conclusa per il solo fatto che il codice compila. Il piano esecutivo iniziale coprirà GRAPH.00–GRAPH.01; i successivi dipenderanno dai risultati verificati, mantenendo i contratti sopra descritti.
+## GRAPH.03 — checkpoint tecnico
 
+Completati: contratti di proiezione contestuale, query limitate con antenati indipendenti
+dalla pagina, frame locali, aggregazione Relation con conteggio/provenienza, soppressione
+dei falsi self-link, direzioni opposte distinte, destinazioni multiple esplicite,
+navigazione trasversale/ritorno, protocollo v2 requestId/map/revision/context,
+cancellazione/risposte obsolete, transizioni continue, isteresi, riframing camera,
+stati partial/leaf/empty/error e smoke Windows su fixture dedicata.
+
+Il PASS tecnico non chiude la fase. Il criterio originario resta: entrata/uscita e
+navigazione trasversale devono essere accettate visivamente dall'utente. La PR deve
+restare draft fino a tale prova e non autorizza GRAPH.04.
+
+Ogni fase richiede verifiche sui rischi concreti introdotti. Una fase non è conclusa
+per il solo fatto che il codice compila.

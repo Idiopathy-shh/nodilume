@@ -2,34 +2,42 @@
 
 ## Ruoli
 
-La chat coordinatrice mantiene architettura, roadmap, dipendenze, criteri di accettazione e stato delle consegne. Le chat implementatrici eseguono incarichi circoscritti e consegnano PR con verifiche riproducibili. L'utente approva l'integrazione, coordinata da questa chat.
+La chat coordinatrice mantiene architettura, roadmap, dipendenze, criteri di accettazione
+e stato delle consegne. Le chat implementatrici eseguono incarichi circoscritti e
+consegnano PR con verifiche riproducibili. L'utente approva l'integrazione.
 
-GitHub conserva lo stato ufficiale. I messaggi di una chat non sostituiscono commit, risultati dei test o documentazione aggiornata.
+GitHub conserva lo stato ufficiale. I messaggi di una chat non sostituiscono commit,
+risultati dei test o documentazione aggiornata.
 
-## Stato iniziale
+## Stato
 
 - GRAPH.00: completata.
-- GRAPH.01: accettata dall'utente in conversazione; chiusura tramite PR #1.
-- GRAPH.02: integrata tramite PR #2, squash 5272f297bc58d4f1b69b17ad1eb2f236ec40c4db, su autorizzazione dell'utente del 18 settembre 2026. Build, test e smoke rieseguiti PASS dalla coordinatrice; nessuna nuova prova manuale dettagliata dichiarata.
-- GRAPH.03–08: in attesa delle rispettive dipendenze.
-
-L'accettazione di GRAPH.01 è complessiva: non viene presentata come verbale dettagliato di ogni gesto del playbook. Il caricamento locale è verificato; non è stata disconnessa la rete del PC.
+- GRAPH.01: accettata dall'utente; chiusura tramite PR #1.
+- GRAPH.02: integrata tramite PR #2, squash `5272f297bc58d4f1b69b17ad1eb2f236ec40c4db`.
+- GRAPH.03: implementata sul branch `feat/graph-03-semantic-zoom`; PASS tecnico e smoke
+  Windows completati. Accettazione visiva dell'utente e merge non ancora eseguiti.
+- GRAPH.04-08: non iniziate.
 
 ## Assegnazione attiva
 
-| Incarico | Chat | Branch proposto | Dipendenza | Consegna |
+| Incarico | Chat | Branch | Dipendenza | Consegna |
 |---|---|---|---|---|
-| GRAPH.03 - zoom semantico e aggregazioni | Nuova chat implementatrice da avviare | feat/graph-03-semantic-zoom | PR #2 merged | Bootstrap GRAPH.03 pronto; consegna PR senza merge |
+| GRAPH.03 — zoom semantico e aggregazioni | Chat implementatrice corrente | `feat/graph-03-semantic-zoom` | PR #2 merged | PR draft, validation + handoff, nessun merge |
 
-Non avviare in parallelo più implementazioni del medesimo incarico. La chat esecutrice registra base SHA, branch e percorsi prima delle modifiche. Un checkout condiviso non può essere cambiato di branch da due chat contemporaneamente.
+Non avviare GRAPH.04 e non creare un secondo incarico GRAPH.03 finché la coordinatrice
+non ha verificato la PR e l'utente non ha completato l'accettazione visiva.
 
-## Flusso di consegna
+## Regole di integrazione
 
-1. La coordinatrice definisce perimetro e criteri e prepara il bootstrap.
-2. L'utente apre una chat e allega il bootstrap.
-3. La chat verifica repository, branch, stato locale e PR; prepara un piano esecutivo concreto e implementa.
-4. La chat consegna una PR e un resoconto con SHA, test eseguiti, limiti e istruzioni runtime.
-5. L'utente riporta qui il link PR o il resoconto. La coordinatrice verifica autonomamente lo stato effettivo.
-6. Si esegue l'eventuale accettazione runtime e si integra solo con autorizzazione dell'utente.
+1. La chat implementatrice registra base, branch e working tree prima di modificare.
+2. Piano esecutivo prima delle modifiche funzionali.
+3. Commit funzionali separati da documentazione quando utile.
+4. Build, test e smoke devono essere riproducibili e usare fixture temporanee dedicate.
+5. PASS tecnico e accettazione visiva sono stati distinti.
+6. La chat implementatrice pubblica la PR ma non effettua merge.
+7. L'utente riporta la PR alla coordinatrice; la coordinatrice verifica autonomamente.
+8. Solo dopo autorizzazione esplicita dell'utente si integra.
+9. GRAPH.04 riceverà un bootstrap separato; nessun benchmark di scala viene anticipato in GRAPH.03.
 
-Per ogni nuova fase, usare un bootstrap dedicato. Non estendere una patch a funzionalità di fasi successive senza riportare la proposta alla coordinatrice.
+Un checkout condiviso non può essere cambiato di branch da due chat contemporaneamente.
+Nessuna chat deve resettare, force-pushare o fare rebase autonomo.
