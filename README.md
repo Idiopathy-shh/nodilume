@@ -4,15 +4,18 @@ Desktop Windows per esplorare mappe di idee come grafi 3D multiscala.
 
 ## Stato
 
-GRAPH.00-01 completate e GRAPH.02 integrata. GRAPH.03 è implementata e verificata
-tecnicamente sul branch `feat/graph-03-semantic-zoom`; l'accettazione visiva dell'utente
-e l'integrazione restano passaggi separati. GRAPH.04-08 non sono iniziate.
+GRAPH.00-03 integrate. GRAPH.03: PR #3, squash su main
+`1690c35fcde8f6e51bb17fda7e4f32da8c76d8a2`. GRAPH.04 è implementata e verificata
+tecnicamente sul branch `feat/graph-04-selective-loading`: caricamento progressivo,
+budget separati, cache bounded, ricerca indicizzata e benchmark 10k/100k/300k PASS
+sull'hardware documentato. Integrazione e accettazione visiva restano passaggi separati.
+GRAPH.05-08 non iniziate.
 
-GRAPH.03 introduce zoom semantico contestuale, proiezioni C# limitate, collegamenti
-concettuali aggregati con provenienza, scelta esplicita fra rappresentazioni multiple,
-navigazione trasversale e ritorno prevedibile. Non è ancora un editor completo:
-benchmark 10k/100k/300k, drag/pin, undo/redo e camera persistente appartengono alle fasi
-successive.
+GRAPH.03 introduce zoom semantico contestuale, aggregazioni e navigazione trasversale.
+GRAPH.04 rende raggiungibili i figli oltre la prima pagina, limita nodi/link/etichette,
+evita caricamenti globali nel renderer e misura la scala fino a 300.000 Idea. Non è
+ancora un editor completo: drag/pin, undo/redo e camera persistente appartengono a
+GRAPH.05; gestione completa e ricerca UI appartengono alle fasi successive.
 
 ## Architettura
 
@@ -41,9 +44,9 @@ dotnet run --project tests/Nodilume.Smoke -c Release --no-build
 ./scripts/run.ps1
 ```
 
-`build.ps1` esegue `npm ci`, otto test viewer/navigation, compilazione TypeScript,
+`build.ps1` esegue `npm ci`, nove test viewer/navigation, compilazione TypeScript,
 bundle, test Core/SQLite/proiezione semantica su database temporanei reali e build .NET
-con restore bloccato.
+con restore bloccato. Compila inoltre lo scale-smoke e il tool benchmark GRAPH.04.
 
 Lo smoke GRAPH.03 usa una fixture separata dalla demo personale. Apre due finestre
 WPF/WebView2 consecutive sullo stesso database temporaneo e verifica tre contesti
@@ -59,6 +62,7 @@ direzioni opposte, focus osservabile, resize e riapertura persistente. Salva
 - Doppio clic o «Entra» apre un nodo che possiede figli; una foglia viene soltanto messa a fuoco.
 - Avvicinarsi a un nodo selezionato o puntato stabilmente può aprirlo automaticamente; entrata e uscita usano soglie diverse.
 - «Livello superiore» oppure Esc esce dal contesto; il breadcrumb permette di scegliere un antenato.
+- «Pagina» / «Altri» sfogliano progressivamente i figli quando il contesto supera il budget.
 - «Panoramica» torna alla proiezione principale.
 - «Ritorna» ripristina il contesto/camera precedente dopo una navigazione trasversale.
 - Nei collegamenti con più rappresentazioni viene mostrato il percorso di ogni Placement: la vista non sceglie silenziosamente il primo ID.
@@ -71,11 +75,13 @@ trattato come un gruppo apribile.
 La demo persistente contiene 25 Placement, 24 Idea e 3 Relation concettuali; una Idea
 è rappresentata in due contesti con Placement distinti. Il database predefinito è
 `%LOCALAPPDATA%\Nodilume\Maps\demo.sqlite` e viene inizializzato solo se assente.
-GRAPH.03 non richiede il caricamento globale della mappa e non scrive posizioni durante
-lo zoom.
+GRAPH.04 non richiede il caricamento globale della mappa e non scrive posizioni durante
+zoom o paging. Se un budget viene esaurito la proiezione resta esplicitamente `partial`.
 
 Le prove GRAPH.02 sono in `docs/validation/graph-02.md`.
 Le prove e il playbook GRAPH.03 sono in `docs/validation/graph-03.md`.
+La validazione GRAPH.04 è in `docs/validation/graph-04.md` e i benchmark in
+`docs/benchmarks/graph-04.md`.
 La specifica completa è in `docs/specs/graph-3d-design.md`.
 La roadmap è in `docs/roadmap.md`.
 

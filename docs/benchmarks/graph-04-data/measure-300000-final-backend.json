@@ -1,0 +1,144 @@
+{
+  "database": "C:\\Temp\\nodilume-graph04-bench\\graph04-300000.sqlite",
+  "mapId": "00000040-0000-0000-e093-040036283501",
+  "mapRevision": 0,
+  "Ideas": 300000,
+  "Placements": 300150,
+  "Relations": 60000,
+  "databaseBytes": 311635968,
+  "budgets": {
+    "RootLimit": 32,
+    "ChildLimit": 128,
+    "AncestorDepthLimit": 64,
+    "RelationPlacementLimit": 1024,
+    "RelationLimit": 256,
+    "DestinationPlacementLimit": 512,
+    "NodeBudget": 160,
+    "LinkBudget": 256,
+    "LabelBudget": 64
+  },
+  "processColdBackendMs": 389.9086,
+  "firstPayloadBytes": 326535,
+  "firstVisibleNodes": 129,
+  "firstVisibleLinks": 142,
+  "firstState": "partial",
+  "firstPartialReasons": [
+    "child-limit:00000042-0000-0000-0000-000000000000",
+    "label-budget",
+    "relation-page"
+  ],
+  "childPage": {
+    "minMs": 0.7228,
+    "medianMs": 0.9657,
+    "p95Ms": 1.458,
+    "maxMs": 1.458
+  },
+  "relationPage": {
+    "minMs": 1.9234,
+    "medianMs": 2.3045,
+    "p95Ms": 5.5653,
+    "maxMs": 5.5653
+  },
+  "indexedSearch": {
+    "minMs": 0.4891,
+    "medianMs": 0.5383,
+    "p95Ms": 0.8806,
+    "maxMs": 0.8806
+  },
+  "projection": {
+    "minMs": 233.9761,
+    "medianMs": 246.7103,
+    "p95Ms": 274.5003,
+    "maxMs": 274.5003
+  },
+  "cachedProjection": {
+    "minMs": 0.5341,
+    "medianMs": 0.6577,
+    "p95Ms": 2.1299,
+    "maxMs": 2.1299
+  },
+  "cacheStats": {
+    "Hits": 9,
+    "Misses": 1,
+    "Entries": 1,
+    "EstimatedBytes": 572672
+  },
+  "serialization": {
+    "minMs": 0.5847,
+    "medianMs": 1.8673,
+    "p95Ms": 2.6935,
+    "maxMs": 2.6935
+  },
+  "raw": {
+    "childMs": [
+      1.458,
+      0.9657,
+      0.988,
+      0.7788,
+      0.7228,
+      0.831,
+      1.1326,
+      0.9028,
+      1.1406
+    ],
+    "relationMs": [
+      2.7066,
+      2.2776,
+      2.3125,
+      5.5653,
+      1.9695,
+      2.3045,
+      3.2058,
+      1.9234,
+      2.2836
+    ],
+    "searchMs": [
+      0.8806,
+      0.5383,
+      0.5577,
+      0.5294,
+      0.4891,
+      0.5644,
+      0.7499,
+      0.5085,
+      0.5037
+    ],
+    "projectionMs": [
+      253.1481,
+      269.105,
+      247.6416,
+      241.4539,
+      233.9761,
+      239.1207,
+      274.5003,
+      246.7103,
+      244.5665
+    ],
+    "cachedProjectionMs": [
+      2.1299,
+      0.7703,
+      0.5435,
+      0.5864,
+      0.5341,
+      0.6801,
+      0.5854,
+      0.6585,
+      0.6577
+    ],
+    "serializationMs": [
+      2.6935,
+      2.3689,
+      2.2755,
+      1.8673,
+      2.1639,
+      0.9625,
+      0.5847,
+      0.7376,
+      1.0236
+    ]
+  },
+  "workingSetBytes": 77893632,
+  "peakWorkingSetBytes": 77893632,
+  "runtime": "10.0.11",
+  "processorCount": 32
+}
