@@ -3,7 +3,7 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { focusPose } from './navigation';
 import './styles.css';
 
-type Node = { id: string; title: string; x: number; y: number; z: number; color: string };
+type Node = { id: string; placementId: string; ideaId: string; title: string; x: number; y: number; z: number; color: string; depth: number };
 type SceneMessage = { version: number; type: string; mapId: string; revision: number; nodes: Node[]; links: { source: string; target: string }[] };
 type Bridge = { postMessage: (message: unknown) => void; addEventListener: (type: string, handler: (e: {data: SceneMessage}) => void) => void };
 const bridge = (window as unknown as {chrome?: {webview?: Bridge}}).chrome?.webview;
@@ -36,11 +36,13 @@ try {
   const graph = new THREE.Group(); scene.add(graph);
   const geometry = new THREE.SphereGeometry(1, 24, 16);
   const nodes = new Map<string, {data: Node; mesh: THREE.Mesh; label: HTMLButtonElement}>();
+  const nodeScale = (node: Node) => node.depth === 0 ? 9 : node.depth === 1 ? 7 : 4;
   let selected: string | null = null;
   let animation: {start: number; from: THREE.Vector3; fromTarget: THREE.Vector3; to: THREE.Vector3; toTarget: THREE.Vector3} | null = null;
   let revision = -1;
   let rendered = false;
   let reportFrame = false;
+  let linkCount = 0;
   const keys = new Set<string>();
   const forward = new THREE.Vector3(), right = new THREE.Vector3(), movement = new THREE.Vector3();
   function moveTo(position: THREE.Vector3, target: THREE.Vector3) {
@@ -57,7 +59,7 @@ try {
     selected = id;
     for (const [key, item] of nodes) {
       item.label.classList.toggle('selected', key === id);
-      item.mesh.scale.setScalar((key === id ? 1.3 : 1) * (key === 'root' ? 9 : key.endsWith('-0') ? 7 : 4));
+      item.mesh.scale.setScalar((key === id ? 1.3 : 1) * nodeScale(item.data));
     }
     el('selection-title').textContent = nodes.get(id)!.data.title;
     el('selection-help').textContent = 'Avvicinati per osservarne le connessioni.';
@@ -96,8 +98,11 @@ try {
   const resize = () => { const {width, height} = el('scene').getBoundingClientRect(); camera.aspect = width / Math.max(1,height); camera.updateProjectionMatrix(); renderer.setSize(width, height); };
   new ResizeObserver(resize).observe(el('scene')); resize();
 
+  let activeMapId: string | null = null;
   bridge?.addEventListener('message', ({data}) => {
-    if (data.version !== 1 || data.type !== 'scene' || data.mapId !== 'demo' || data.revision <= revision) return;
+    if (data.version !== 1 || data.type !== 'scene' || typeof data.mapId !== 'string' || !Array.isArray(data.nodes) || !Array.isArray(data.links)) return;
+    if (activeMapId === data.mapId && data.revision <= revision) return;
+    activeMapId = data.mapId;
     revision = data.revision;
     for (const child of [...graph.children]) {
       graph.remove(child);
@@ -114,7 +119,7 @@ try {
       const material = new THREE.MeshStandardMaterial({color: node.color, emissive: node.color, emissiveIntensity: 0.35, roughness: 0.45});
       const mesh = new THREE.Mesh(geometry, material);
       mesh.position.set(node.x, node.y, node.z);
-      mesh.scale.setScalar(node.id === 'root' ? 9 : node.id.endsWith('-0') ? 7 : 4);
+      mesh.scale.setScalar(nodeScale(node));
       mesh.userData.id = node.id; graph.add(mesh);
       const label = document.createElement('button'); label.className = 'node-label'; label.textContent = node.title;
       label.onclick = () => select(node.id); label.ondblclick = () => { select(node.id); focus(); };
@@ -128,6 +133,7 @@ try {
     const edges = new THREE.BufferGeometry(); edges.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
     graph.add(new THREE.LineSegments(edges, new THREE.LineBasicMaterial({color: 0x69849e, transparent: true, opacity: 0.4})));
     el('counts').textContent = `${data.nodes.length} nodi · ${data.links.length} connessioni`;
+    linkCount = data.links.length;
     rendered = true; reportFrame = true;
   });
   const projected = new THREE.Vector3();
@@ -155,7 +161,7 @@ try {
       node.label.style.left = `${(projected.x * 0.5 + 0.5) * width}px`;
       node.label.style.top = `${(-projected.y * 0.5 + 0.5) * height + 18}px`;
     }
-    if (rendered && reportFrame) { reportFrame = false; document.body.dataset.state = 'ready'; bridge?.postMessage({version:1,type:'rendered',nodeCount:nodes.size,linkCount:27}); }
+    if (rendered && reportFrame) { reportFrame = false; document.body.dataset.state = 'ready'; bridge?.postMessage({version:1,type:'rendered',nodeCount:nodes.size,linkCount}); }
   }
   renderer.setAnimationLoop(frame);
   renderer.domElement.addEventListener('webglcontextlost', e => {e.preventDefault(); renderer.setAnimationLoop(null); fail('WebGL context lost');});

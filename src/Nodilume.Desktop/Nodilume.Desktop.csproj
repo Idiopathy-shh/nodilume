@@ -7,6 +7,8 @@
     <RootNamespace>Nodilume.Desktop</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <ProjectReference Include="../Nodilume.Application/Nodilume.Application.csproj" />
+    <ProjectReference Include="../Nodilume.Infrastructure/Nodilume.Infrastructure.csproj" />
     <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.4191.47" />
     <Content Include="../Nodilume.Viewer/dist/**/*" Link="viewer/%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
