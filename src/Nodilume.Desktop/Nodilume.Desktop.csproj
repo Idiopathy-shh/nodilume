@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <AssemblyName>Nodilume</AssemblyName>
+    <RootNamespace>Nodilume.Desktop</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.4191.47" />
+    <Content Include="../Nodilume.Viewer/dist/**/*" Link="viewer/%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+  <Target Name="RequireViewerBundle" BeforeTargets="BeforeBuild">
+    <Error Condition="!Exists('../Nodilume.Viewer/dist/index.html')" Text="Viewer bundle missing. Run scripts/build.ps1 from the repository root." />
+  </Target>
+</Project>

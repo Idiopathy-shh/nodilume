@@ -2,7 +2,7 @@
 
 Data: 18 settembre 2026. Versione: 0.2.
 
-Stato: perimetro del prototipo e stack approvati in conversazione. Questo documento consolida tali decisioni e propone i dettagli tecnici necessari. Nessun software è ancora implementato e nessuna prestazione è certificata. Nome approvato: Nodilume.
+Stato: perimetro del prototipo e stack approvati in conversazione. Questo documento consolida tali decisioni e propone i dettagli tecnici necessari. GRAPH.00 completata; prima scena desktop GRAPH.01 implementata e verificata tecnicamente. Accettazione complessiva confermata dall'utente; nessuna prestazione di scala è certificata. Nome approvato: Nodilume.
 
 ## 1. Obiettivo
 
@@ -164,7 +164,7 @@ Ogni fase richiede solo le verifiche che coprono rischi concreti introdotti. Una
 
 Repository dedicata: `Idiopathy-shh/nodilume`, privata. Checkout Windows: `C:\Sviluppo\Nodilume`. Nessuna modifica alle repository esistenti.
 
-Codice, documentazione, fixture sintetiche e risultati riproducibili possono stare in git. Database personali, libri, fotografie, chiavi e file locali dell’utente restano fuori. La visibilità iniziale consigliata è privata. Repository creata il 18 settembre 2026; implementazione iniziale in preparazione.
+Codice, documentazione, fixture sintetiche e risultati riproducibili possono stare in git. Database personali, libri, fotografie, chiavi e file locali dell’utente restano fuori. La visibilità iniziale consigliata è privata. Repository creata il 18 settembre 2026; prima implementazione su branch `feat/graph-01-desktop-scene`.
 
 Struttura documentale prevista nella repository: `docs/specs/graph-3d-design.md`, `docs/roadmap.md`, `docs/plans/`, `docs/benchmarks/` e un README con avvio e limiti attuali. Questo file è la consegna consolidata precedente alla creazione del repository.
 

@@ -1,0 +1,13 @@
+<Window x:Class="Nodilume.Desktop.MainWindow"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+ xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+ xmlns:wv="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
+ Title="Nodilume — Esplora le connessioni" Width="1280" Height="820"
+ MinWidth="860" MinHeight="600" Background="#0A111B" WindowStartupLocation="CenterScreen">
+ <DockPanel>
+  <Border DockPanel.Dock="Bottom" Background="#101C29" Padding="16,7">
+   <TextBlock x:Name="Status" Foreground="#B6C7D7" Text="Avvio della vista…" FontSize="12" />
+  </Border>
+  <wv:WebView2 x:Name="Viewer" DefaultBackgroundColor="#0A111B" />
+ </DockPanel>
+</Window>

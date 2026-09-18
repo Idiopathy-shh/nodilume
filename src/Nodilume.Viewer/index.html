@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="it">
+<head>
+ <meta charset="utf-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1">
+ <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'none'; font-src 'self'; base-uri 'none'; form-action 'none'">
+ <title>Nodilume</title>
+ <link rel="stylesheet" href="main.css">
+</head>
+<body>
+ <div id="scene" tabindex="0" aria-label="Grafo tridimensionale: trascina per ruotare, rotella per avvicinarti"></div>
+ <div id="labels"></div>
+ <header><div class="brand"><span class="mark">✳</span> Nodilume</div><div class="subtitle">UNO SPAZIO PER LE TUE IDEE</div></header>
+ <nav><span class="badge">Mappa dimostrativa</span><button id="home">↗ Panoramica</button></nav>
+ <aside>
+  <div class="eyebrow">ESPLORA LE CONNESSIONI</div>
+  <h1>Ogni idea apre<br>una prospettiva.</h1>
+  <p>Muoviti tra i nodi e segui i fili che li uniscono.</p>
+  <div class="divider"></div>
+  <div class="eyebrow">NODO SELEZIONATO</div>
+  <h2 id="selection-title">Scegli un'idea</h2>
+  <p id="selection-help">Un clic seleziona. Un doppio clic ti avvicina.</p>
+  <button id="focus" disabled>Avvicinati al nodo →</button>
+  <div class="legend"><span class="mint">● Conoscenza</span><span class="blue">● Progetti</span><span class="pink">● Connessioni</span></div>
+ </aside>
+ <footer><span id="counts">Preparazione della scena…</span><span>Trascina: ruota · Tasto destro: sposta · Rotella: zoom<br>WASD: attraversa · Q/E: scendi/sali · Maiusc: accelera</span></footer>
+ <div id="error" role="alert" hidden></div>
+ <script type="module" src="main.js"></script>
+</body>
+</html>

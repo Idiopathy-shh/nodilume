@@ -1,6 +1,6 @@
 # Nodilume — roadmap
 
-Stato 18 settembre 2026: GRAPH.00 in corso; GRAPH.01 pianificata.
+Stato 18 settembre 2026: GRAPH.00 completata. GRAPH.01 implementata e verificata tecnicamente; accettazione complessiva confermata dall'utente. GRAPH.02–08 non implementate.
 
 ## 11. Roadmap
 
