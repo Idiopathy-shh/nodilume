@@ -13,7 +13,6 @@ internal static class SqliteTests
         await PaginationIsStableAsync();
         await FutureSchemaDoesNotRewriteDataAsync();
         await SeparateDatabasesStayIndependentAsync();
-        await SceneProjectionAvoidsCartesianRelationsAsync();
     }
 
     private static async Task RoundTripAndIdempotentInitializationAsync()
@@ -177,22 +176,6 @@ internal static class SqliteTests
 
         Check.Equal(1, (await first.LoadGraphAsync()).Ideas.Count, "Rejected cross-map write changed first DB.");
         Check.Equal(1, (await second.LoadGraphAsync()).Ideas.Count, "Rejected cross-map write changed second DB.");
-    }
-
-    private static async Task SceneProjectionAvoidsCartesianRelationsAsync()
-    {
-        await using var temp = new TempDatabase("scene");
-        await using var store = new SqliteMapStore(temp.Path);
-        await DemoMapInitializer.EnsureAsync(store);
-        var scene = await new SceneService(store).LoadFirstPageAsync();
-
-        Check.Equal(25, scene.Nodes.Count, "Scene node count mismatch.");
-        Check.Equal(27, scene.Links.Count, "Scene link count mismatch.");
-        Check.Equal(3, scene.Links.Count(x => x.Kind == "relation"), "Concept relation was multiplied by placements.");
-
-        var duplicatedIdea = scene.Nodes.GroupBy(x => x.IdeaId).Single(x => x.Count() == 2).ToArray();
-        Check.True(duplicatedIdea[0].Id != duplicatedIdea[1].Id, "Renderer identity must be placement identity.");
-        Check.Equal(duplicatedIdea[0].IdeaId, duplicatedIdea[1].IdeaId, "Duplicate representation lost idea identity.");
     }
 
     private static MapGraph SmallGraph(int seed, string title)

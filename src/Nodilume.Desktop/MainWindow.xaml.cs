@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.Windows;
 using Microsoft.Web.WebView2.Core;
 using Nodilume.Application;
+using Nodilume.Core;
 using Nodilume.Infrastructure;
 using Nodilume.Infrastructure.Sqlite;
 
@@ -14,6 +15,11 @@ public partial class MainWindow : Window
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
     private readonly string _profile;
     private readonly string _databasePath;
+    private CancellationTokenSource? _projectionCancellation;
+    private PlacementId? _lastContextPlacementId;
+    private string? _activeMapId;
+    private long _activeRevision = -1;
+    private bool _recoveringViewer;
     private bool _closed;
 
     public MainWindow() : this(
@@ -31,6 +37,7 @@ public partial class MainWindow : Window
         Closed += (_, _) =>
         {
             _closed = true;
+            Interlocked.Exchange(ref _projectionCancellation, null)?.Cancel();
             Viewer.Dispose();
         };
     }
@@ -60,13 +67,11 @@ public partial class MainWindow : Window
             core.NewWindowRequested += (_, args) => args.Handled = true;
             core.PermissionRequested += (_, args) => args.State = CoreWebView2PermissionState.Deny;
             core.WebMessageReceived += ReceiveMessage;
-            core.ProcessFailed += (_, _) =>
-            {
-                if (!_closed) Status.Text = "La vista si è interrotta. Chiudi e riapri Nodilume.";
-            };
+            core.ProcessFailed += (_, _) => RecoverViewer(core);
             core.NavigationCompleted += (_, args) =>
             {
-                if (!args.IsSuccess && !_closed) Status.Text = $"Caricamento non riuscito: {args.WebErrorStatus}";
+                if (!args.IsSuccess && !_closed)
+                    Status.Text = $"Caricamento non riuscito: {args.WebErrorStatus}";
             };
             core.Navigate(Origin + "/index.html");
         }
@@ -81,31 +86,34 @@ public partial class MainWindow : Window
 
     private async void ReceiveMessage(object? sender, CoreWebView2WebMessageReceivedEventArgs e)
     {
-        if (!IsLocal(e.Source) || e.WebMessageAsJson.Length > 16_384) return;
+        if (!IsLocal(e.Source) || e.WebMessageAsJson.Length > 32_768) return;
         try
         {
             using var message = JsonDocument.Parse(e.WebMessageAsJson);
             var root = message.RootElement;
-            if (root.ValueKind != JsonValueKind.Object
-                || !root.TryGetProperty("version", out var v)
-                || v.ValueKind != JsonValueKind.Number
-                || !v.TryGetInt32(out var version)
-                || version != 1)
-                return;
-            if (!root.TryGetProperty("type", out var t) || t.ValueKind != JsonValueKind.String) return;
+            if (!TryReadProtocol(root, out var type, out var requestId)) return;
 
-            switch (t.GetString())
+            switch (type)
             {
                 case "ready":
-                    await SendSceneAsync();
+                    _recoveringViewer = false;
+                    await SendProjectionAsync(requestId, _lastContextPlacementId, null, null);
+                    break;
+                case "projectionRequest":
+                    await HandleProjectionRequestAsync(root, requestId);
                     break;
                 case "rendered":
                     if (!_closed)
-                        Status.Text = "Mappa persistente · SQLite locale · Identità e rappresentazioni conservate";
+                    {
+                        var state = ReadOptionalString(root, "state") ?? "ready";
+                        Status.Text = state == "partial"
+                            ? "Mappa persistente · dati parziali dichiarati · SQLite locale"
+                            : "Mappa persistente · zoom semantico contestuale · SQLite locale";
+                    }
                     break;
                 case "error":
                     if (!_closed)
-                        Status.Text = "La scena non può essere visualizzata. Verifica il supporto WebGL e riapri Nodilume.";
+                        Status.Text = "La vista 3D ha segnalato un errore; la scena precedente resta autorevole.";
                     break;
             }
         }
@@ -115,16 +123,146 @@ public partial class MainWindow : Window
         }
         catch (Exception ex)
         {
-            if (!_closed) Status.Text = $"Impossibile aprire la mappa persistente: {ex.Message}";
+            if (!_closed) Status.Text = $"Messaggio della vista rifiutato: {ex.Message}";
         }
     }
 
-    private async Task SendSceneAsync()
+    private async Task HandleProjectionRequestAsync(JsonElement root, string requestId)
     {
-        await using var store = new SqliteMapStore(_databasePath);
-        await DemoMapInitializer.EnsureAsync(store);
-        var scene = await new SceneService(store).LoadFirstPageAsync();
-        if (_closed) return;
-        Viewer.CoreWebView2.PostWebMessageAsJson(JsonSerializer.Serialize(scene, JsonOptions));
+        var mapId = ReadOptionalString(root, "mapId");
+        var revision = ReadOptionalInt64(root, "revision");
+        PlacementId? contextPlacementId = null;
+        if (root.TryGetProperty("context", out var context) && context.ValueKind == JsonValueKind.Object)
+        {
+            var placement = ReadOptionalString(context, "placementId");
+            if (!string.IsNullOrWhiteSpace(placement))
+                contextPlacementId = PlacementId.Parse(placement);
+        }
+
+        await SendProjectionAsync(requestId, contextPlacementId, mapId, revision);
     }
+    private async Task SendProjectionAsync(
+        string requestId,
+        PlacementId? contextPlacementId,
+        string? requestedMapId,
+        long? requestedRevision)
+    {
+        var cancellation = new CancellationTokenSource();
+        var previous = Interlocked.Exchange(ref _projectionCancellation, cancellation);
+        previous?.Cancel();
+        previous?.Dispose();
+
+        try
+        {
+            await using var store = new SqliteMapStore(_databasePath);
+            await DemoMapInitializer.EnsureAsync(store, cancellation.Token);
+            var map = await store.GetMapAsync(cancellation.Token)
+                ?? throw new InvalidOperationException("Map is not initialized.");
+            if (requestedMapId is not null && requestedMapId != map.Id.ToString())
+                throw new InvalidOperationException("Viewer requested a different map.");
+            if (requestedRevision is not null && requestedRevision > map.Revision)
+                throw new InvalidOperationException("Viewer revision is newer than the authoritative map.");
+
+            var projection = await new SceneService(store).LoadProjectionAsync(
+                requestId,
+                contextPlacementId,
+                cancellationToken: cancellation.Token);
+            if (_closed || cancellation.IsCancellationRequested
+                || !ReferenceEquals(_projectionCancellation, cancellation))
+                return;
+
+            _lastContextPlacementId = projection.ContextPlacementId is null
+                ? null
+                : PlacementId.Parse(projection.ContextPlacementId);
+            _activeMapId = projection.MapId;
+            _activeRevision = projection.Revision;
+            Status.Text = projection.State switch
+            {
+                "partial" => "Caricamento completato con dati parziali dichiarati.",
+                "leaf" => "Foglia caricata: nessun livello interno da espandere.",
+                "empty" => "Contesto vuoto caricato.",
+                _ => "Contesto caricato."
+            };
+            Viewer.CoreWebView2.PostWebMessageAsJson(JsonSerializer.Serialize(projection, JsonOptions));
+        }
+        catch (OperationCanceledException) when (cancellation.IsCancellationRequested)
+        {
+        }
+        catch (Exception ex)
+        {
+            if (_closed || cancellation.IsCancellationRequested
+                || !ReferenceEquals(_projectionCancellation, cancellation))
+                return;
+            var error = new SceneProjectionError(
+                2,
+                "projectionError",
+                requestId,
+                _activeMapId,
+                _activeRevision < 0 ? null : _activeRevision,
+                contextPlacementId?.ToString(),
+                ex is InvalidDataException ? "incomplete-context" : "projection-failed",
+                ex.Message);
+            Viewer.CoreWebView2.PostWebMessageAsJson(JsonSerializer.Serialize(error, JsonOptions));
+            Status.Text = $"Proiezione non caricata: {ex.Message}";
+        }
+        finally
+        {
+            if (ReferenceEquals(Interlocked.CompareExchange(
+                    ref _projectionCancellation, null, cancellation), cancellation))
+                cancellation.Dispose();
+        }
+    }
+
+    private async void RecoverViewer(CoreWebView2 core)
+    {
+        if (_closed || _recoveringViewer) return;
+        _recoveringViewer = true;
+        Interlocked.Exchange(ref _projectionCancellation, null)?.Cancel();
+        Status.Text = "Riavvio della vista 3D…";
+        try
+        {
+            await Task.Delay(150);
+            if (!_closed) core.Reload();
+        }
+        catch (Exception ex)
+        {
+            if (!_closed)
+                Status.Text = $"La vista non può essere riavviata automaticamente: {ex.Message}";
+            _recoveringViewer = false;
+        }
+    }
+
+    private static bool TryReadProtocol(
+        JsonElement root,
+        out string type,
+        out string requestId)
+    {
+        type = "";
+        requestId = "";
+        if (root.ValueKind != JsonValueKind.Object
+            || !root.TryGetProperty("version", out var versionElement)
+            || versionElement.ValueKind != JsonValueKind.Number
+            || !versionElement.TryGetInt32(out var version)
+            || version != 2
+            || !root.TryGetProperty("type", out var typeElement)
+            || typeElement.ValueKind != JsonValueKind.String
+            || !root.TryGetProperty("requestId", out var requestElement)
+            || requestElement.ValueKind != JsonValueKind.String)
+            return false;
+        type = typeElement.GetString() ?? "";
+        requestId = requestElement.GetString() ?? "";
+        return requestId.Length is > 0 and <= 128 && type.Length > 0;
+    }
+
+    private static string? ReadOptionalString(JsonElement root, string property) =>
+        root.TryGetProperty(property, out var value) && value.ValueKind == JsonValueKind.String
+            ? value.GetString()
+            : null;
+
+    private static long? ReadOptionalInt64(JsonElement root, string property) =>
+        root.TryGetProperty(property, out var value)
+        && value.ValueKind == JsonValueKind.Number
+        && value.TryGetInt64(out var result)
+            ? result
+            : null;
 }

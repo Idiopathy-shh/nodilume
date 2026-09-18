@@ -5,7 +5,8 @@ internal static class Program
         var tests = new (string Name, Func<Task> Run)[]
         {
             ("Domain invariants", DomainTests.RunAsync),
-            ("SQLite integration", SqliteTests.RunAsync)
+            ("SQLite integration", SqliteTests.RunAsync),
+            ("Semantic projection", SemanticProjectionTests.RunAsync)
         };
 
         var failed = 0;
