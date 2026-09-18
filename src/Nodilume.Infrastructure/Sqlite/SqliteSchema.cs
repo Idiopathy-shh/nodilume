@@ -2,7 +2,7 @@ namespace Nodilume.Infrastructure.Sqlite;
 
 internal static class SqliteSchema
 {
-    public const int CurrentVersion = 1;
+    public const int CurrentVersion = 2;
 
     public const string MigrationV1 = """
 CREATE TABLE IF NOT EXISTS schema_info (
@@ -66,5 +66,10 @@ CREATE INDEX IF NOT EXISTS ix_relations_source
     ON relations(map_id, source_idea_id, id);
 CREATE INDEX IF NOT EXISTS ix_relations_target
     ON relations(map_id, target_idea_id, id);
+""";
+
+    public const string MigrationV2 = """
+CREATE INDEX IF NOT EXISTS ix_relations_map_id
+    ON relations(map_id, id);
 """;
 }

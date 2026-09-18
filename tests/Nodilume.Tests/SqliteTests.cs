@@ -11,6 +11,7 @@ internal static class SqliteTests
         await RoundTripAndIdempotentInitializationAsync();
         await AtomicRollbackAndStaleRevisionAsync();
         await PaginationIsStableAsync();
+        await SelectivePagesAndIndexedSearchAreStableAsync();
         await FutureSchemaDoesNotRewriteDataAsync();
         await SeparateDatabasesStayIndependentAsync();
     }
@@ -110,6 +111,65 @@ internal static class SqliteTests
         Check.Equal(25, all.Select(x => x.Id).Distinct().Count(), "Pagination duplicated placements.");
         var ordered = all.Select(x => x.Id.ToString()).OrderBy(x => x, StringComparer.Ordinal).ToArray();
         Check.True(all.Select(x => x.Id.ToString()).SequenceEqual(ordered), "Pagination order is not stable.");
+    }
+
+    private static async Task SelectivePagesAndIndexedSearchAreStableAsync()
+    {
+        await using var temp = new TempDatabase("graph04-pages");
+        await using var store = new SqliteMapStore(temp.Path);
+        await store.InitializeAsync();
+        await store.CreateMapAsync(Graph03Fixture.Create());
+        var map = await store.GetMapAsync() ?? throw new InvalidOperationException("Map missing.");
+
+        var children = new List<Placement>();
+        PlacementId? childCursor = null;
+        while (true)
+        {
+            var page = await store.ReadChildrenPageAsync(map.Id, Graph03Fixture.Root, 1, childCursor);
+            children.AddRange(page.Items);
+            if (!page.HasMore) break;
+            Check.True(page.NextCursor is not null, "Child page with more data did not expose a cursor.");
+            childCursor = page.NextCursor;
+        }
+        Check.Equal(3, children.Count, "Child paging lost rows.");
+        Check.Equal(3, children.Select(x => x.Id).Distinct().Count(), "Child paging duplicated rows.");
+        Check.True(children.Select(x => x.Id.ToString()).SequenceEqual(
+            children.Select(x => x.Id.ToString()).OrderBy(x => x, StringComparer.Ordinal)),
+            "Child paging order is not stable.");
+
+        var search = new List<Idea>();
+        IdeaSearchCursor? searchCursor = null;
+        while (true)
+        {
+            var page = await store.SearchIdeasByTitlePrefixAsync(map.Id, "Gruppo", 2, searchCursor);
+            search.AddRange(page.Items);
+            if (!page.HasMore) break;
+            Check.True(page.NextCursor is not null, "Search page with more data did not expose a cursor.");
+            searchCursor = page.NextCursor;
+        }
+        Check.Equal(3, search.Count, "Indexed prefix search paging lost rows.");
+        Check.True(search.All(x => x.Title.StartsWith("Gruppo", StringComparison.Ordinal)),
+            "Prefix search returned an unrelated idea.");
+
+        var relations = new List<Relation>();
+        RelationId? relationCursor = null;
+        while (true)
+        {
+            var page = await store.ReadRelationPageAsync(map.Id, 2, relationCursor);
+            relations.AddRange(page.Items);
+            if (!page.HasMore) break;
+            Check.True(page.NextCursor is not null, "Relation page with more data did not expose a cursor.");
+            relationCursor = page.NextCursor;
+        }
+        Check.Equal(6, relations.Count, "Relation paging lost rows.");
+        Check.Equal(6, relations.Select(x => x.Id).Distinct().Count(), "Relation paging duplicated rows.");
+
+        await using var connection = new SqliteConnection($"Data Source={temp.Path}");
+        await connection.OpenAsync();
+        await using var index = connection.CreateCommand();
+        index.CommandText = "SELECT COUNT(*) FROM sqlite_master WHERE type='index' AND name='ix_relations_map_id';";
+        Check.Equal(1L, Convert.ToInt64(await index.ExecuteScalarAsync()),
+            "GRAPH.04 relation paging index was not migrated.");
     }
 
     private static async Task FutureSchemaDoesNotRewriteDataAsync()

@@ -15,6 +15,7 @@ public partial class MainWindow : Window
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
     private readonly string _profile;
     private readonly string _databasePath;
+    private readonly SceneProjectionCache _projectionCache = new();
     private CancellationTokenSource? _projectionCancellation;
     private PlacementId? _lastContextPlacementId;
     private string? _activeMapId;
@@ -38,6 +39,7 @@ public partial class MainWindow : Window
         {
             _closed = true;
             Interlocked.Exchange(ref _projectionCancellation, null)?.Cancel();
+            _projectionCache.Clear();
             Viewer.Dispose();
         };
     }
@@ -97,7 +99,7 @@ public partial class MainWindow : Window
             {
                 case "ready":
                     _recoveringViewer = false;
-                    await SendProjectionAsync(requestId, _lastContextPlacementId, null, null);
+                    await SendProjectionAsync(requestId, _lastContextPlacementId, null, null, null, null);
                     break;
                 case "projectionRequest":
                     await HandleProjectionRequestAsync(root, requestId);
@@ -139,13 +141,36 @@ public partial class MainWindow : Window
                 contextPlacementId = PlacementId.Parse(placement);
         }
 
-        await SendProjectionAsync(requestId, contextPlacementId, mapId, revision);
+        PlacementId? afterPlacementId = null;
+        if (root.TryGetProperty("page", out var page) && page.ValueKind == JsonValueKind.Object)
+        {
+            var after = ReadOptionalString(page, "afterPlacementId");
+            if (!string.IsNullOrWhiteSpace(after)) afterPlacementId = PlacementId.Parse(after);
+        }
+
+        PlacementId? preserveSelectionPlacementId = null;
+        if (root.TryGetProperty("selection", out var selection) && selection.ValueKind == JsonValueKind.Object)
+        {
+            var selected = ReadOptionalString(selection, "placementId");
+            if (!string.IsNullOrWhiteSpace(selected))
+                preserveSelectionPlacementId = PlacementId.Parse(selected);
+        }
+
+        await SendProjectionAsync(
+            requestId,
+            contextPlacementId,
+            mapId,
+            revision,
+            afterPlacementId,
+            preserveSelectionPlacementId);
     }
     private async Task SendProjectionAsync(
         string requestId,
         PlacementId? contextPlacementId,
         string? requestedMapId,
-        long? requestedRevision)
+        long? requestedRevision,
+        PlacementId? afterPlacementId,
+        PlacementId? preserveSelectionPlacementId)
     {
         var cancellation = new CancellationTokenSource();
         var previous = Interlocked.Exchange(ref _projectionCancellation, cancellation);
@@ -163,9 +188,12 @@ public partial class MainWindow : Window
             if (requestedRevision is not null && requestedRevision > map.Revision)
                 throw new InvalidOperationException("Viewer revision is newer than the authoritative map.");
 
-            var projection = await new SceneService(store).LoadProjectionAsync(
+            _projectionCache.RetainMapRevision(map.Id.ToString(), map.Revision);
+            var projection = await new SceneService(store, _projectionCache).LoadProjectionAsync(
                 requestId,
                 contextPlacementId,
+                afterPlacementId: afterPlacementId,
+                preserveSelectionPlacementId: preserveSelectionPlacementId,
                 cancellationToken: cancellation.Token);
             if (_closed || cancellation.IsCancellationRequested
                 || !ReferenceEquals(_projectionCancellation, cancellation))

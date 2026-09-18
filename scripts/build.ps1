@@ -22,4 +22,14 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'Locked desktop restore failed' }
     dotnet build tests/Nodilume.Smoke -c Release --no-restore
     if ($LASTEXITCODE -ne 0) { throw 'Desktop build failed' }
+
+    dotnet restore tests/Nodilume.ScaleSmoke --locked-mode
+    if ($LASTEXITCODE -ne 0) { throw 'Locked scale smoke restore failed' }
+    dotnet build tests/Nodilume.ScaleSmoke -c Release --no-restore
+    if ($LASTEXITCODE -ne 0) { throw 'Scale smoke build failed' }
+
+    dotnet restore tools/Nodilume.Benchmarks --locked-mode
+    if ($LASTEXITCODE -ne 0) { throw 'Locked benchmark restore failed' }
+    dotnet build tools/Nodilume.Benchmarks -c Release --no-restore
+    if ($LASTEXITCODE -ne 0) { throw 'Benchmark tool build failed' }
 } finally { Pop-Location }

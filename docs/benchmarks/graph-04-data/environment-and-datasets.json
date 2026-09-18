@@ -1,0 +1,47 @@
+{
+  "date": "2026-09-18",
+  "seed": 20260918,
+  "host": {
+    "cpu": "AMD Ryzen 9 5950X 16-Core Processor",
+    "cores": 16,
+    "logicalProcessors": 32,
+    "ramBytes": 34233339904,
+    "ramGiB": 31.88,
+    "gpu": "Radeon RX 460",
+    "gpuAdapterRamBytes": 4293918720,
+    "gpuDriver": "31.0.21925.1001",
+    "display": "1920x1080",
+    "os": "Microsoft Windows 11 Pro 10.0.26200 build 26200",
+    "dotnetSdk": "10.0.400",
+    "dotnetRuntime": "10.0.11",
+    "node": "v24.19.0",
+    "webView2": "153.0.4234.32"
+  },
+  "profiles": ["wide-hub", "deep-60", "sparse", "multi-placement"],
+  "datasets": [
+    {
+      "ideas": 10000,
+      "placements": 10005,
+      "relations": 2000,
+      "maxDepth": 60,
+      "maxDegree": 506,
+      "databaseBytes": 10821632
+    },
+    {
+      "ideas": 100000,
+      "placements": 100050,
+      "relations": 20000,
+      "maxDepth": 60,
+      "maxDegree": 5051,
+      "databaseBytes": 104800256
+    },
+    {
+      "ideas": 300000,
+      "placements": 300150,
+      "relations": 60000,
+      "maxDepth": 60,
+      "maxDegree": 5151,
+      "databaseBytes": 311635968
+    }
+  ]
+}

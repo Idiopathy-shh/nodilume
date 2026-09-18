@@ -20,6 +20,7 @@ public sealed record SceneNode(
     string Color,
     int Depth,
     string Role,
+    bool ShowLabel,
     bool HasChildren,
     int DirectChildCount);
 
@@ -55,17 +56,26 @@ public sealed record SceneRelationNavigation(
     SceneEndpointResolution Source,
     SceneEndpointResolution Target);
 
+public sealed record ScenePageInfo(
+    string? AfterPlacementId,
+    string? NextPlacementId,
+    bool HasPrevious,
+    bool HasMore,
+    int PageItemCount);
+
 public sealed record SceneProjection(
     int Version,
     string Type,
     string RequestId,
     string MapId,
     long Revision,
+    long TransferSentUnixMs,
     string State,
     string? ContextPlacementId,
     string? ParentContextPlacementId,
     SceneVector FrameOrigin,
     IReadOnlyList<SceneContextItem> Path,
+    ScenePageInfo Page,
     IReadOnlyList<SceneNode> Nodes,
     IReadOnlyList<SceneLink> Links,
     IReadOnlyList<SceneRelationNavigation> Relations,
@@ -87,8 +97,11 @@ public sealed record SceneProjectionLimits(
     int ChildLimit = 128,
     int AncestorDepthLimit = 64,
     int RelationPlacementLimit = 1024,
-    int RelationLimit = 2048,
-    int DestinationPlacementLimit = 512)
+    int RelationLimit = 256,
+    int DestinationPlacementLimit = 512,
+    int NodeBudget = 160,
+    int LinkBudget = 256,
+    int LabelBudget = 64)
 {
     public void Validate()
     {
@@ -98,5 +111,9 @@ public sealed record SceneProjectionLimits(
         if (RelationPlacementLimit is < 1 or > 4096) throw new ArgumentOutOfRangeException(nameof(RelationPlacementLimit));
         if (RelationLimit is < 1 or > 4096) throw new ArgumentOutOfRangeException(nameof(RelationLimit));
         if (DestinationPlacementLimit is < 1 or > 4096) throw new ArgumentOutOfRangeException(nameof(DestinationPlacementLimit));
+        if (NodeBudget is < 4 or > 1024) throw new ArgumentOutOfRangeException(nameof(NodeBudget));
+        if (LinkBudget is < 1 or > 4096) throw new ArgumentOutOfRangeException(nameof(LinkBudget));
+        if (LabelBudget is < 0 or > 1024) throw new ArgumentOutOfRangeException(nameof(LabelBudget));
+        if (LabelBudget > NodeBudget) throw new ArgumentOutOfRangeException(nameof(LabelBudget));
     }
 }

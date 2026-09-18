@@ -1,0 +1,121 @@
+{
+  "database": "C:\\Temp\\nodilume-graph04-bench\\graph04-300000.sqlite",
+  "mapId": "00000040-0000-0000-e093-040036283501",
+  "mapRevision": 0,
+  "Ideas": 300000,
+  "Placements": 300150,
+  "Relations": 60000,
+  "databaseBytes": 311635968,
+  "budgets": {
+    "RootLimit": 32,
+    "ChildLimit": 128,
+    "AncestorDepthLimit": 64,
+    "RelationPlacementLimit": 1024,
+    "RelationLimit": 256,
+    "DestinationPlacementLimit": 512,
+    "NodeBudget": 160,
+    "LinkBudget": 256,
+    "LabelBudget": 64
+  },
+  "processColdBackendMs": 2629.5062,
+  "firstPayloadBytes": 326535,
+  "firstVisibleNodes": 129,
+  "firstVisibleLinks": 142,
+  "firstState": "partial",
+  "firstPartialReasons": [
+    "child-limit:00000042-0000-0000-0000-000000000000",
+    "label-budget",
+    "relation-page"
+  ],
+  "childPage": {
+    "minMs": 1179.2437,
+    "medianMs": 1666.4763,
+    "p95Ms": 2271.8276,
+    "maxMs": 2271.8276
+  },
+  "relationPage": {
+    "minMs": 2.2002,
+    "medianMs": 2.6501,
+    "p95Ms": 4.28,
+    "maxMs": 4.28
+  },
+  "indexedSearch": {
+    "minMs": 0.491,
+    "medianMs": 0.6261,
+    "p95Ms": 0.9418,
+    "maxMs": 0.9418
+  },
+  "projection": {
+    "minMs": 2609.3172,
+    "medianMs": 3814.1844,
+    "p95Ms": 5884.4615,
+    "maxMs": 5884.4615
+  },
+  "serialization": {
+    "minMs": 0.7922,
+    "medianMs": 1.1502,
+    "p95Ms": 4.6958,
+    "maxMs": 4.6958
+  },
+  "raw": {
+    "childMs": [
+      1179.2437,
+      1218.9135,
+      1194.4304,
+      1232.6655,
+      2026.5873,
+      2271.8276,
+      1840.6924,
+      1666.4763,
+      1974.8593
+    ],
+    "relationMs": [
+      2.6102,
+      2.2258,
+      2.2002,
+      2.3563,
+      4.28,
+      3.1289,
+      2.6501,
+      3.8756,
+      3.289
+    ],
+    "searchMs": [
+      0.9149,
+      0.5411,
+      0.5881,
+      0.491,
+      0.9418,
+      0.6261,
+      0.5079,
+      0.8591,
+      0.6751
+    ],
+    "projectionMs": [
+      2696.7439,
+      2609.3172,
+      2849.937,
+      3915.3275,
+      5490.8607,
+      4342.801,
+      3697.515,
+      5884.4615,
+      3814.1844
+    ],
+    "serializationMs": [
+      2.5367,
+      1.9316,
+      1.1502,
+      0.9147,
+      1.2623,
+      1.0059,
+      4.6958,
+      0.7922,
+      1.1301
+    ]
+  },
+  "workingSetBytes": 75702272,
+  "peakWorkingSetBytes": 76537856,
+  "runtime": "10.0.11",
+  "processorCount": 32
+}

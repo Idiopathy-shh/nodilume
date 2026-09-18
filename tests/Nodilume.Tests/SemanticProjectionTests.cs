@@ -7,6 +7,9 @@ internal static class SemanticProjectionTests
     public static async Task RunAsync()
     {
         await ContextUsesRealAncestorPathWhenChildrenArePartialAsync();
+        await ChildPagesRemainReachableAndPreserveSelectionAsync();
+        await ProjectionBudgetsAreIndependentAndExplicitAsync();
+        await ProjectionCacheIsBoundedAndKeyedByPageAndRevisionAsync();
         await RelationsAggregateAndRedistributeAsync();
         await MultiplePlacementsAndUnplacedIdeasStayExplicitAsync();
         await LeafIsNotTreatedAsEmptyGroupAsync();
@@ -34,6 +37,111 @@ internal static class SemanticProjectionTests
             "Requested context was not retained.");
         Check.True(projection.PartialReasons.Any(x => x.StartsWith("child-limit:", StringComparison.Ordinal)),
             "Child limit exhaustion was not disclosed.");
+    }
+
+    private static async Task ChildPagesRemainReachableAndPreserveSelectionAsync()
+    {
+        await using var temp = new TempDatabase("graph04-child-pages");
+        await using var store = new SqliteMapStore(temp.Path);
+        await store.InitializeAsync();
+        await store.CreateMapAsync(Graph03Fixture.Create());
+        var service = new SceneService(store);
+        var limits = new SceneProjectionLimits(ChildLimit: 1);
+
+        var first = await service.LoadProjectionAsync("page-1", Graph03Fixture.GroupA1, limits);
+        Check.True(first.Page.HasMore, "First child page did not disclose remaining data.");
+        Check.True(first.Page.NextPlacementId is not null, "First child page did not expose its cursor.");
+        var firstChild = first.Nodes.Single(x =>
+            x.ParentPlacementId == Graph03Fixture.GroupA1.ToString() && x.Role == "child");
+
+        var second = await service.LoadProjectionAsync(
+            "page-2",
+            Graph03Fixture.GroupA1,
+            limits,
+            afterPlacementId: PlacementId.Parse(first.Page.NextPlacementId!),
+            preserveSelectionPlacementId: PlacementId.Parse(firstChild.PlacementId));
+        Check.True(second.Page.HasPrevious, "Second child page did not disclose previous data.");
+        Check.True(second.Nodes.Any(x => x.PlacementId == firstChild.PlacementId),
+            "Selection from the previous page was not preserved.");
+        var secondPageChildren = second.Nodes
+            .Where(x => x.ParentPlacementId == Graph03Fixture.GroupA1.ToString()
+                && x.Role == "child"
+                && x.PlacementId != firstChild.PlacementId)
+            .ToArray();
+        Check.Equal(1, secondPageChildren.Length, "Second page did not expose exactly one new child.");
+        Check.True(secondPageChildren[0].PlacementId != firstChild.PlacementId,
+            "Child paging duplicated the cursor item.");
+
+        var firstRelations = first.Relations.Select(x => x.RelationId).OrderBy(x => x, StringComparer.Ordinal).ToArray();
+        var secondRelations = second.Relations.Select(x => x.RelationId).OrderBy(x => x, StringComparer.Ordinal).ToArray();
+        Check.True(firstRelations.SequenceEqual(secondRelations),
+            "Child paging lost or duplicated relation provenance.");
+        Check.Equal(
+            first.Links.SelectMany(x => x.RelationIds).Distinct().Count(),
+            first.Links.SelectMany(x => x.RelationIds).Count(),
+            "A relation contributed more than once to a first-page aggregation.");
+        Check.Equal(
+            second.Links.SelectMany(x => x.RelationIds).Distinct().Count(),
+            second.Links.SelectMany(x => x.RelationIds).Count(),
+            "A relation contributed more than once to a second-page aggregation.");
+    }
+
+    private static async Task ProjectionBudgetsAreIndependentAndExplicitAsync()
+    {
+        await using var temp = new TempDatabase("graph04-budgets");
+        await using var store = new SqliteMapStore(temp.Path);
+        await store.InitializeAsync();
+        await store.CreateMapAsync(Graph03Fixture.Create());
+
+        var projection = await new SceneService(store).LoadProjectionAsync(
+            "budgets",
+            Graph03Fixture.GroupA1,
+            new SceneProjectionLimits(
+                ChildLimit: 128,
+                NodeBudget: 4,
+                LinkBudget: 1,
+                LabelBudget: 2));
+
+        Check.True(projection.Nodes.Count <= 4, "Node budget was exceeded.");
+        Check.True(projection.Links.Count <= 1, "Link budget was exceeded.");
+        Check.True(projection.Nodes.Count(x => x.ShowLabel) <= 2, "Label budget was exceeded.");
+        Check.True(projection.PartialReasons.Contains("node-budget"), "Node budget exhaustion was not explicit.");
+        Check.True(projection.PartialReasons.Contains("link-budget"), "Link budget exhaustion was not explicit.");
+        Check.True(projection.PartialReasons.Contains("label-budget"), "Label budget exhaustion was not explicit.");
+        Check.Equal("partial", projection.State, "Budget exhaustion must keep the projection explicitly partial.");
+    }
+
+    private static async Task ProjectionCacheIsBoundedAndKeyedByPageAndRevisionAsync()
+    {
+        await using var temp = new TempDatabase("graph04-cache");
+        await using var store = new SqliteMapStore(temp.Path);
+        await store.InitializeAsync();
+        await store.CreateMapAsync(Graph03Fixture.Create());
+        var map = await store.GetMapAsync() ?? throw new InvalidOperationException("Map missing.");
+        var cache = new SceneProjectionCache(maxEntries: 2, maxEstimatedBytes: 1024 * 1024);
+        var service = new SceneService(store, cache);
+        var limits = new SceneProjectionLimits(ChildLimit: 1);
+
+        var first = await service.LoadProjectionAsync("cache-1", Graph03Fixture.GroupA1, limits);
+        var repeat = await service.LoadProjectionAsync("cache-2", Graph03Fixture.GroupA1, limits);
+        Check.Equal("cache-2", repeat.RequestId, "Cached projection leaked the original requestId.");
+        var afterFirstHit = cache.Stats;
+        Check.Equal(1L, afterFirstHit.Hits, "Identical projection did not hit the cache.");
+        Check.Equal(1L, afterFirstHit.Misses, "Unexpected cache miss count.");
+
+        await service.LoadProjectionAsync(
+            "cache-page-2",
+            Graph03Fixture.GroupA1,
+            limits,
+            afterPlacementId: PlacementId.Parse(first.Page.NextPlacementId!));
+        var afterSecondPage = cache.Stats;
+        Check.Equal(2L, afterSecondPage.Misses, "A different cursor reused the wrong cache entry.");
+
+        await service.LoadProjectionAsync("cache-third-context", Graph03Fixture.GroupA, limits);
+        Check.Equal(2, cache.Stats.Entries, "LRU entry budget was not enforced.");
+
+        cache.RetainMapRevision(map.Id.ToString(), map.Revision + 1);
+        Check.Equal(0, cache.Stats.Entries, "Stale map revision entries were not invalidated.");
     }
 
     private static async Task RelationsAggregateAndRedistributeAsync()

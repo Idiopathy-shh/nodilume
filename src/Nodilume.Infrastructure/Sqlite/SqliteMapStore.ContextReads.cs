@@ -31,25 +31,42 @@ LIMIT 1;
         int limit,
         CancellationToken cancellationToken = default)
     {
+        var page = await ReadChildrenPageAsync(mapId, parentId, limit, null, cancellationToken);
+        return new BoundedResult<Placement>(page.Items, page.HasMore);
+    }
+
+    public async Task<PlacementPage> ReadChildrenPageAsync(
+        MapId mapId,
+        PlacementId? parentId,
+        int limit,
+        PlacementId? after = null,
+        CancellationToken cancellationToken = default)
+    {
         ValidateBoundedLimit(limit, 512);
         await using var connection = await OpenConnectionAsync(cancellationToken);
         await using var command = connection.CreateCommand();
-        command.CommandText = """
+        var parentPredicate = parentId is null ? "parent_id IS NULL" : "parent_id=@parent";
+        var afterPredicate = after is null ? "" : "AND id>@after";
+        command.CommandText = $"""
 SELECT id, idea_id, parent_id, x, y, z, is_pinned, annotation
 FROM placements
 WHERE map_id=@map
-  AND ((@parent IS NULL AND parent_id IS NULL) OR parent_id=@parent)
+  AND {parentPredicate}
+  {afterPredicate}
 ORDER BY id
 LIMIT @take;
 """;
         command.Parameters.AddWithValue("@map", mapId.ToString());
-        command.Parameters.AddWithValue("@parent", parentId is null ? DBNull.Value : parentId.Value.ToString());
+        if (parentId is not null) command.Parameters.AddWithValue("@parent", parentId.Value.ToString());
+        if (after is not null) command.Parameters.AddWithValue("@after", after.Value.ToString());
         command.Parameters.AddWithValue("@take", limit + 1);
         var rows = new List<Placement>(limit + 1);
         await using var reader = await command.ExecuteReaderAsync(cancellationToken);
         while (await reader.ReadAsync(cancellationToken))
             rows.Add(ReadPlacement(reader, mapId));
-        return ToBounded(rows, limit);
+        var hasMore = rows.Count > limit;
+        if (hasMore) rows.RemoveRange(limit, rows.Count - limit);
+        return new PlacementPage(rows, hasMore, hasMore && rows.Count > 0 ? rows[^1].Id : null);
     }
 
     public async Task<IReadOnlyList<Placement>> ReadAncestorPathAsync(

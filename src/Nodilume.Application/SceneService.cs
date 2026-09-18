@@ -13,7 +13,7 @@ public static class DemoMapInitializer
     }
 }
 
-public sealed class SceneService(IMapStore store)
+public sealed class SceneService(IMapStore store, SceneProjectionCache? cache = null)
 {
     private static readonly string[] BranchColors =
         ["#65d8bf", "#8caafa", "#db9aca", "#7fd3ff", "#efaa7a"];
@@ -22,6 +22,8 @@ public sealed class SceneService(IMapStore store)
         string requestId,
         PlacementId? contextPlacementId = null,
         SceneProjectionLimits? limits = null,
+        PlacementId? afterPlacementId = null,
+        PlacementId? preserveSelectionPlacementId = null,
         CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(requestId) || requestId.Length > 128)
@@ -31,22 +33,57 @@ public sealed class SceneService(IMapStore store)
 
         var map = await store.GetMapAsync(cancellationToken)
             ?? throw new InvalidOperationException("Map is not initialized.");
+        var cacheKey = new SceneProjectionCacheKey(
+            map.Id.ToString(),
+            map.Revision,
+            contextPlacementId?.ToString(),
+            afterPlacementId?.ToString(),
+            preserveSelectionPlacementId?.ToString(),
+            limits);
+        if (cache?.TryGet(cacheKey, out var cachedProjection) == true)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            return cachedProjection with
+            {
+                RequestId = requestId,
+                TransferSentUnixMs = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
+            };
+        }
+
+        SceneProjection CacheResult(SceneProjection projection)
+        {
+            cache?.Set(cacheKey, projection);
+            return projection;
+        }
+
         var partialReasons = new HashSet<string>(StringComparer.Ordinal);
-        var roots = await store.ReadChildrenAsync(map.Id, null, limits.RootLimit, cancellationToken);
+        var reserveSelection = preserveSelectionPlacementId is null ? 0 : 1;
+        var rootLimit = Math.Max(1, Math.Min(limits.RootLimit, limits.NodeBudget - reserveSelection));
+        var rootCursor = contextPlacementId is null ? afterPlacementId : null;
+        var roots = await store.ReadChildrenPageAsync(
+            map.Id, null, rootLimit, rootCursor, cancellationToken);
         if (roots.HasMore) partialReasons.Add("root-limit");
+        if (rootCursor is not null) partialReasons.Add("root-page");
 
         if (roots.Items.Count == 0)
         {
-            return new SceneProjection(
-                2, "projection", requestId, map.Id.ToString(), map.Revision, "empty",
-                null, null, new SceneVector(0, 0, 0), [], [], [], [], 0,
-                partialReasons.OrderBy(x => x, StringComparer.Ordinal).ToArray());
+            if (rootCursor is not null)
+                throw new InvalidOperationException("Requested root page cursor has no data.");
+            return CacheResult(new SceneProjection(
+                2, "projection", requestId, map.Id.ToString(), map.Revision,
+                DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), "empty",
+                null, null, new SceneVector(0, 0, 0), [],
+                new ScenePageInfo(null, null, false, false, 0),
+                [], [], [], 0,
+                partialReasons.OrderBy(x => x, StringComparer.Ordinal).ToArray()));
         }
 
         IReadOnlyList<Placement> path;
         if (contextPlacementId is null)
         {
-            path = roots.Items.Count == 1 ? [roots.Items[0]] : [];
+            path = roots.Items.Count == 1 && !roots.HasMore && rootCursor is null
+                ? [roots.Items[0]]
+                : [];
         }
         else
         {
@@ -61,20 +98,69 @@ public sealed class SceneService(IMapStore store)
         var visible = new Dictionary<PlacementId, Placement>();
         foreach (var root in roots.Items) visible[root.Id] = root;
         foreach (var item in path) visible[item.Id] = item;
-        var childrenByParent = new Dictionary<PlacementId, IReadOnlyList<Placement>>();
-        foreach (var item in path)
+        var context = path.Count == 0 ? null : path[^1];
+
+        Placement? preservedSelection = null;
+        if (preserveSelectionPlacementId is { } selectionId && !visible.ContainsKey(selectionId))
         {
-            var children = await store.ReadChildrenAsync(
-                map.Id, item.Id, limits.ChildLimit, cancellationToken);
+            var candidate = await store.ReadPlacementAsync(map.Id, selectionId, cancellationToken);
+            var belongsToActivePage = candidate is not null
+                && (context is null ? candidate.ParentId is null : candidate.ParentId == context.Id);
+            if (belongsToActivePage) preservedSelection = candidate;
+        }
+
+        PlacementPage? activePage = context is null ? roots : null;
+        var childrenByParent = new Dictionary<PlacementId, IReadOnlyList<Placement>>();
+        if (context is not null)
+        {
+            var available = Math.Max(1, limits.NodeBudget - visible.Count - (preservedSelection is null ? 0 : 1));
+            var take = Math.Min(limits.ChildLimit, available);
+            activePage = await store.ReadChildrenPageAsync(
+                map.Id, context.Id, take, afterPlacementId, cancellationToken);
+            childrenByParent[context.Id] = activePage.Items;
+            if (activePage.HasMore) partialReasons.Add($"child-limit:{context.Id}");
+            if (afterPlacementId is not null) partialReasons.Add($"child-page:{context.Id}");
+            if (take < limits.ChildLimit && activePage.HasMore) partialReasons.Add("node-budget");
+            foreach (var child in activePage.Items) visible[child.Id] = child;
+        }
+
+        if (preservedSelection is not null && visible.Count < limits.NodeBudget)
+            visible[preservedSelection.Id] = preservedSelection;
+
+        foreach (var item in path.Where(x => context is null || x.Id != context.Id).Reverse())
+        {
+            var remaining = limits.NodeBudget - visible.Count;
+            if (remaining <= 0)
+            {
+                partialReasons.Add("node-budget");
+                break;
+            }
+            var take = Math.Min(limits.ChildLimit, remaining);
+            var children = await store.ReadChildrenPageAsync(
+                map.Id, item.Id, take, null, cancellationToken);
             childrenByParent[item.Id] = children.Items;
             if (children.HasMore) partialReasons.Add($"child-limit:{item.Id}");
             foreach (var child in children.Items) visible[child.Id] = child;
         }
 
-        var context = path.Count == 0 ? null : path[^1];
-        var activeChildren = context is null
-            ? roots.Items
-            : childrenByParent.GetValueOrDefault(context.Id, []);
+        if (visible.Count > limits.NodeBudget)
+        {
+            partialReasons.Add("node-budget");
+            foreach (var id in visible.Keys
+                .Where(id => !path.Any(p => p.Id == id))
+                .Skip(limits.NodeBudget - path.Count)
+                .ToArray())
+                visible.Remove(id);
+        }
+
+        activePage ??= new PlacementPage([], false, null);
+        var activeChildren = activePage.Items;
+        var pageInfo = new ScenePageInfo(
+            afterPlacementId?.ToString(),
+            activePage.NextCursor?.ToString(),
+            afterPlacementId is not null,
+            activePage.HasMore,
+            activePage.Items.Count);
 
         var childCounts = await store.ReadChildCountsAsync(
             map.Id, visible.Keys.ToArray(), cancellationToken);
@@ -107,10 +193,11 @@ public sealed class SceneService(IMapStore store)
 
         var frame = context is null ? Vector3Value.Zero : ResolveGlobal(context);
         var pathIds = path.Select(x => x.Id).ToHashSet();
+        if (visible.Count > limits.LabelBudget) partialReasons.Add("label-budget");
         var nodes = visible.Values
             .OrderBy(ResolveDepth)
             .ThenBy(x => x.Id.ToString(), StringComparer.Ordinal)
-            .Select(placement =>
+            .Select((placement, index) =>
             {
                 var position = ResolveGlobal(placement) - frame;
                 return new SceneNode(
@@ -123,6 +210,7 @@ public sealed class SceneService(IMapStore store)
                     ResolveColor(placement, visible),
                     ResolveDepth(placement),
                     ResolveRole(placement, context, pathIds),
+                    index < limits.LabelBudget,
                     childCounts.TryGetValue(placement.Id, out var count) && count > 0,
                     childCounts.GetValueOrDefault(placement.Id, 0));
             })
@@ -145,12 +233,16 @@ public sealed class SceneService(IMapStore store)
 
         var relationProjection = await BuildRelationProjectionAsync(
             map.Id,
-            roots.Items,
             visible,
             limits,
             partialReasons,
             cancellationToken);
         links.AddRange(relationProjection.Links);
+        if (links.Count > limits.LinkBudget)
+        {
+            partialReasons.Add("link-budget");
+            links.RemoveRange(limits.LinkBudget, links.Count - limits.LinkBudget);
+        }
 
         var pathItems = path
             .Select((placement, depth) => new SceneContextItem(
@@ -163,46 +255,36 @@ public sealed class SceneService(IMapStore store)
         var state = activeChildren.Count == 0
             ? context is null ? "empty" : "leaf"
             : partialReasons.Count > 0 ? "partial" : "ready";
-        return new SceneProjection(
+        return CacheResult(new SceneProjection(
             2,
             "projection",
             requestId,
             map.Id.ToString(),
             map.Revision,
+            DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
             state,
             context?.Id.ToString(),
             context?.ParentId?.ToString(),
             new SceneVector(frame.X, frame.Y, frame.Z),
             pathItems,
+            pageInfo,
             nodes,
             links,
             relationProjection.Relations,
             relationProjection.HiddenInternalCount,
-            partialReasons.OrderBy(x => x, StringComparer.Ordinal).ToArray());
+            partialReasons.OrderBy(x => x, StringComparer.Ordinal).ToArray()));
     }
 
     private async Task<RelationProjectionResult> BuildRelationProjectionAsync(
         MapId mapId,
-        IReadOnlyList<Placement> roots,
         IReadOnlyDictionary<PlacementId, Placement> visible,
         SceneProjectionLimits limits,
         HashSet<string> partialReasons,
         CancellationToken cancellationToken)
     {
-        if (roots.Count == 0)
-            return new RelationProjectionResult([], [], 0);
-
-        var scopeResult = await store.ReadDescendantsAsync(
-            mapId, roots.Select(x => x.Id).ToArray(), limits.RelationPlacementLimit, cancellationToken);
-        if (scopeResult.HasMore) partialReasons.Add("relation-placement-limit");
-        var scope = scopeResult.Items.ToDictionary(x => x.Id);
-        var scopeIdeaIds = scope.Values.Select(x => x.IdeaId).Distinct().ToArray();
-        if (scopeIdeaIds.Length == 0)
-            return new RelationProjectionResult([], [], 0);
-
-        var relationResult = await store.ReadRelationsTouchingIdeasAsync(
-            mapId, scopeIdeaIds, limits.RelationLimit, cancellationToken);
-        if (relationResult.HasMore) partialReasons.Add("relation-limit");
+        var relationResult = await store.ReadRelationPageAsync(
+            mapId, limits.RelationLimit, null, cancellationToken);
+        if (relationResult.HasMore) partialReasons.Add("relation-page");
         if (relationResult.Items.Count == 0)
             return new RelationProjectionResult([], [], 0);
 
@@ -227,7 +309,7 @@ public sealed class SceneService(IMapStore store)
         foreach (var placement in destinationResult.Items)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            var candidatePath = TryBuildPathFromScope(placement, scope);
+            var candidatePath = TryBuildPathFromScope(placement, visible);
             if (candidatePath is null)
             {
                 candidatePath = await store.ReadAncestorPathAsync(
