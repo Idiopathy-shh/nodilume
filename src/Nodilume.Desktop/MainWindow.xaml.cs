@@ -116,6 +116,9 @@ public partial class MainWindow : Window
                 case "projectionRequest":
                     await HandleProjectionRequestAsync(root, requestId);
                     break;
+                case "selectionChanged":
+                    await HandleEditorSelectionAsync(root);
+                    break;
                 case "rendered":
                     if (!_closed)
                     {
@@ -219,6 +222,7 @@ public partial class MainWindow : Window
                 : PlacementId.Parse(projection.ContextPlacementId);
             _activeMapId = projection.MapId;
             _activeRevision = projection.Revision;
+            if (!_editorBusy) SetEditorBusy(false);
             Status.Text = projection.State switch
             {
                 "partial" => "Caricamento completato con dati parziali dichiarati.",

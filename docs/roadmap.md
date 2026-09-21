@@ -3,8 +3,10 @@
 Stato 21 settembre 2026: GRAPH.00-04 integrate (GRAPH.04 PR #5);
 GRAPH.06.01 PR #7 integrata con squash c515f79af7f326c6846e26acce4955dda6e6e8f6.
 GRAPH.06.02 PR #9 integrata con squash a9df2bd15cfde495c120bdf2b754b8052fa5ef62:
-gestione multi-mappa WPF/SQLite implementata e verificata su OFFICE-PC,
-indipendente da GRAPH.05.
+gestione multi-mappa WPF/SQLite verificata su OFFICE-PC.
+GRAPH.06.03 candidata indipendente da GRAPH.05: editor di Idea e
+rappresentazioni, note locali e creazione gerarchica WPF; viewer 9/9,
+.NET 6/6, smoke WPF/WebView2 e scale-smoke 300k PASS.
 GRAPH.05 PR #6 resta DRAFT: test .NET 4/4 e scale-smoke 300k PASS;
 smoke UI Undo/Redo non ancora PASS e DLL smoke bloccata da Smart App Control.
 La firma RSA di sviluppo non e' ancora disponibile. GRAPH.07-08 non iniziate.
@@ -22,7 +24,8 @@ La firma RSA di sviluppo non e' ancora disponibile. GRAPH.07-08 non iniziate.
 | GRAPH.06 | Primo editor personale completo | Avviato a slice; editor completo non implementato |
 | GRAPH.06.01 | Contratto JSON portabile del grafo | PR #7 integrata; codec/test PASS, non UI/import file |
 | GRAPH.06.02 | Gestione mappe personali | PR #9 integrata; elenco, creazione, selezione e rinomina WPF + SQLite; smoke PASS |
-| GRAPH.06.03+ | Editor nodi/relazioni, ricerca UI, import/export file, backup/recovery, integrazione | Da pianificare e implementare; non incluse in 06.02 |
+| GRAPH.06.03 | Editor idee e nodi | Candidata: crea radici/figli, contenuti condivisi, note locali, rappresentazioni multiple; smoke PASS |
+| GRAPH.06.04+ | Editor relazioni, ricerca UI, import/export file, backup/recovery, integrazione | Da pianificare e implementare; fuori scope 06.03 |
 | GRAPH.07 | Automazioni AI | Non implementata |
 | GRAPH.08 | Modalità libri | Non implementata |
 
@@ -62,7 +65,11 @@ e `docs/validation/graph-06-01.md`. GRAPH.06.02 e' stata avviata separatamente
 da main in `C:\Sviluppo\Nodilume-graph06-02` e integrata con PR #9:
 elenco/creazione/rinomina/passaggio mappe persistenti (vedere
 `docs/plans/graph-06-02-map-manager.md` e `docs/validation/graph-06-02.md`). Le integrazioni fra 05 e 06 necessitano
-di gate separati: ne' la slice portabile ne' il catalogo sono un editor completo.
+di gate separati. La candidata GRAPH.06.03 sviluppata in
+`C:\Sviluppo\Nodilume-graph06-03` da main non incorpora GRAPH.05:
+vedere `docs/plans/graph-06-03-idea-node-editor.md` e
+`docs/validation/graph-06-03.md`. Nessuna singola slice finora costituisce
+l'editor personale GRAPH.06 completo.
 
 Ogni fase richiede verifiche sui rischi concreti introdotti. Una fase non è conclusa
 per il solo fatto che il codice compila.

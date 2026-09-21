@@ -79,6 +79,12 @@ WHERE id = @map AND revision = @expected;
             case UpdateIdeaChange update:
                 await UpdateIdeaAsync(connection, transaction, update.Idea, cancellationToken);
                 break;
+            case AddPlacementChange addPlacement:
+                await InsertPlacementAsync(connection, transaction, addPlacement.Placement, cancellationToken);
+                break;
+            case UpdatePlacementDetailsChange details:
+                await UpdatePlacementAsync(connection, transaction, details.Placement, cancellationToken);
+                break;
             case MovePlacementChange move:
                 await UpdatePlacementAsync(connection, transaction, move.Placement, cancellationToken);
                 break;
@@ -232,6 +238,8 @@ WHERE id=@id AND map_id=@map;
                 && x.Placement.MapId == mapId
                 && x.Placement.IdeaId == x.Idea.Id,
             UpdateIdeaChange x => x.Idea.MapId == mapId,
+            AddPlacementChange x => x.Placement.MapId == mapId,
+            UpdatePlacementDetailsChange x => x.Placement.MapId == mapId,
             MovePlacementChange x => x.Placement.MapId == mapId,
             RemovePlacementChange => true,
             AddRelationChange x => x.Relation.MapId == mapId,

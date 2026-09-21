@@ -302,11 +302,16 @@ try {
     for (const [key, item] of nodes)
       item.label?.classList.toggle('selected', key === id);
     updateSelectionUI();
+    bridge?.postMessage({version: protocolVersion, type: 'selectionChanged',
+      requestId: nextRequestId(), mapId: activeMapId, revision,
+      placementId: nodes.get(id)?.data.placementId ?? null});
   }
   function clearSelection(): void {
     selected = null;
     for (const item of nodes.values()) item.label?.classList.remove('selected');
     updateSelectionUI();
+    bridge?.postMessage({version: protocolVersion, type: 'selectionChanged',
+      requestId: nextRequestId(), mapId: activeMapId, revision, placementId: null});
   }
   function snapshotReturn(): ReturnSnapshot {
     return {
@@ -946,6 +951,14 @@ try {
 
   bridge?.addEventListener('message', ({data}) => {
     if (!data || data.version !== protocolVersion) return;
+
+    if ((data as {type: string}).type === 'refreshProjection') {
+      const refresh = data as unknown as {mapId: string; revision: number};
+      if (refresh.mapId === activeMapId && refresh.revision >= revision && !pending)
+        requestProjection(projection?.contextPlacementId ?? null, 'page',
+          {pageAfterPlacementId: null});
+      return;
+    }
 
     if (data.type === 'projectionError') {
       if (data.requestId !== latestRequestId) return;

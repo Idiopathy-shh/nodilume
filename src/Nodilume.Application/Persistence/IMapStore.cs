@@ -100,6 +100,8 @@ public sealed record RelationPage(
 public abstract record MapChange;
 public sealed record CreateIdeaWithPlacementChange(Idea Idea, Placement Placement) : MapChange;
 public sealed record UpdateIdeaChange(Idea Idea) : MapChange;
+public sealed record AddPlacementChange(Placement Placement) : MapChange;
+public sealed record UpdatePlacementDetailsChange(Placement Placement) : MapChange;
 public sealed record MovePlacementChange(Placement Placement) : MapChange;
 public sealed record RemovePlacementChange(PlacementId PlacementId) : MapChange;
 public sealed record AddRelationChange(Relation Relation) : MapChange;
