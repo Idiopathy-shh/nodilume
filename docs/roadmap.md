@@ -2,7 +2,9 @@
 
 Stato 21 settembre 2026: GRAPH.00-04 integrate. GRAPH.04 PR #5 merged, main
 `0f6bdac9d988bb1a6a6c3ddb8b3f71d02bd872f5`. GRAPH.05 candidata: compilazione
-e viewer PASS; runtime BLOCCATO da criterio Windows 0x800711C7. GRAPH.06-08 non iniziate.
+viewer 13/13 e suite .NET 4/4 PASS; scale-smoke 300k PASS, ma smoke UI
+Undo/Redo incompleto e nuova DLL bloccata da SAC 0x800711C7.
+GRAPH.06.01 avviata in parallelo da main su worktree separata; GRAPH.07-08 non iniziate.
 
 ## Roadmap
 
@@ -14,7 +16,8 @@ e viewer PASS; runtime BLOCCATO da criterio Windows 0x800711C7. GRAPH.06-08 non 
 | GRAPH.03 | Zoom semantico continuo e collegamenti aggregati | Integrata PR #3; PASS tecnico e smoke confermati |
 | GRAPH.04 | Caricamento selettivo e prove di scala | Integrata tramite PR #5; limiti del report invariati |
 | GRAPH.05 | Spostamento, fissaggio, undo e ripristino | Candidata; runtime bloccato, non PASS complessivo |
-| GRAPH.06 | Primo editor personale completo | Non implementata |
+| GRAPH.06 | Primo editor personale completo | In corso a slice; editor completo NON implementato |
+| GRAPH.06.01 | Codec JSON portabile del grafo | Implementato/testato sul branch indipendente; non UI/import file |
 | GRAPH.07 | Automazioni AI | Non implementata |
 | GRAPH.08 | Modalità libri | Non implementata |
 
@@ -44,7 +47,10 @@ non introduce una UX separata per sfogliare tutte le pagine Relation. L'accettaz
 visiva manuale resta distinta dal PASS tecnico. Dettagli in
 `docs/validation/graph-04.md` e `docs/benchmarks/graph-04.md`.
 
-GRAPH.05 è in corso; GRAPH.06 resta non assegnata. Vedere docs/validation/graph-05.md.
+GRAPH.05 resta Draft: lo smoke UI e l'accettazione richiedono prove separate.
+L'utente autorizza GRAPH.06.01 in parallelo, senza attendere la firma RSA:
+worktree C:\Sviluppo\Nodilume-graph06-01 da main, non da GRAPH.05.
+Il lavoro sul codec portabile non costituisce completamento di GRAPH.06.
 
 Ogni fase richiede verifiche sui rischi concreti introdotti. Una fase non è conclusa
 per il solo fatto che il codice compila.

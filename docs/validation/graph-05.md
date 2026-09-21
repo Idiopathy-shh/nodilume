@@ -101,7 +101,9 @@ Lo scale-smoke e' gia' PASS sulla candidata: ripeterlo solo dopo modifiche funzi
 Diagnosticare il mancato invio/accettazione dei comandi Undo/Redo nello smoke reale
 senza confondere pulsanti disabilitati, transizioni UI e mancato commit SQLite.
 Completare i passi del playbook e registrare SHA, esiti, limiti e accettazione manuale;
-nessun merge e nessun GRAPH.06 prima dello smoke completo PASS.
+nessun merge GRAPH.05 prima dello smoke completo PASS. GRAPH.06.01 e'
+autorizzata in parallelo sul ramo indipendente da main, senza trasportare
+codice o PASS della GRAPH.05: vedere docs/coordination.md.
 
 ## Playbook utente
 1. Aprire solo una fixture di test; selezionare un nodo del contesto.

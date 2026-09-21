@@ -10,7 +10,9 @@ Commit funzionale: 75655f7985326ee83d67aeed68351793598c8b61.
 Implementazione candidata committata. PR #6 da mantenere DRAFT: NON PASS complessivo.
 Su OFFICE-PC la suite .NET 4/4 e lo scale-smoke 300k sono PASS; lo smoke UI
 GRAPH.03+05 non e' ancora PASS (attese Undo/Redo, poi blocco SAC della DLL ricompilata).
-Non effettuare merge; GRAPH.06 non iniziata.
+Non effettuare merge GRAPH.05. GRAPH.06.01 (codec JSON portabile) e'
+autorizzata in parallelo su worktree separata basata su main; non implica PASS
+per la candidata GRAPH.05.
 
 ## Lavoro recuperato e completato
 Riprese le modifiche non committate lasciate dalla chat precedente: piano, contratti,
@@ -45,5 +47,7 @@ senza cambiare percorsi/binari per eludere SAC o disattivare le protezioni.
 Rieseguire lo smoke completo con le attese dei pulsanti, indagare eventuali
 mancati comandi Undo/Redo, correggere errori e completare accettazione manuale.
 Ripetere scale-smoke se cambia codice funzionale; altrimenti il PASS e' registrato.
-Non assegnare GRAPH.06 e non mergiare GRAPH.05 fino ai gate PASS.
+Non mergiare GRAPH.05 fino ai suoi gate PASS. GRAPH.06.01 e' assegnata
+separatamente da main; nessun codice o PASS di GRAPH.05 va trasferito sul
+branch GRAPH.06 prima di una integrazione verificata.
 GitHub resta autorevole per SHA finale, URL PR e stato.

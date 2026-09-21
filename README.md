@@ -7,9 +7,11 @@ Desktop Windows per esplorare mappe di idee come grafi 3D multiscala.
 GRAPH.00-04 integrate. GRAPH.04: PR #5, main `0f6bdac9d988bb1a6a6c3ddb8b3f71d02bd872f5`.
 GRAPH.05 è una candidata sul branch `feat/graph-05-editing-viewstate`: drag locale,
 pin, undo/redo persistente e ripristino della vista. Non è ancora PASS complessivo.
-Viewer 13/13 e compilazione PASS; test .NET bloccati dal criterio Windows 0x800711C7.
-Smoke reale e scale-smoke della candidata non eseguiti.
-Dettagli in `docs/validation/graph-05.md`; GRAPH.06-08 non iniziate.
+Viewer 13/13 e suite .NET 4/4 PASS; scale-smoke 300k della candidata PASS.
+Smoke reale Undo/Redo non ancora PASS; la DLL ricompilata dello smoke resta
+bloccata da Smart App Control 0x800711C7 su OFFICE-PC.
+GRAPH.06.01 e' avviata in parallelo da main su worktree distinta: solo codec
+JSON portabile, non editor completo. Dettagli in `docs/validation/graph-05.md`.
 
 ## Architettura
 

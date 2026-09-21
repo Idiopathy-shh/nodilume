@@ -9,7 +9,8 @@ su richiesta dell'utente, dopo i problemi della chat web implementatrice.
 - PR documentale #4 chiusa, contenuti precedenti incorporati in GRAPH.04.
 - GRAPH.05 candidata su feat/graph-05-editing-viewstate, C:\Sviluppo\Nodilume-graph05.
 - GRAPH.05 NON PASS complessivo: smoke UI Undo/Redo da validare e nuova DLL smoke bloccata da Smart App Control 0x800711C7.
-- GRAPH.06-08 non iniziate.
+- GRAPH.06.01 avviata in parallelo su richiesta dell'utente: codec JSON portabile, worktree C:\Sviluppo\Nodilume-graph06-01, branch feat/graph-06-01-portable-map da main, indipendente da GRAPH.05.
+- GRAPH.06 editor completo ancora non disponibile; GRAPH.07-08 non iniziate.
 
 ## Evidenze GRAPH.05 (riesecuzione OFFICE-PC, 21/09/2026)
 Viewer 13/13 PASS; TypeScript/bundle e build .NET PASS senza errori/avvisi.
@@ -31,6 +32,8 @@ Registrare stato git, SHA e istruzioni applicabili prima di modificare.
 Usare fixture temporanee e preservare database personali.
 Nessun reset distruttivo, force-push o rebase autonomo.
 Distinguere compilazione, test runtime, benchmark e accettazione visiva.
-La candidata resta draft fino alla verifica dei gate mancanti; nessun merge da questo handoff.
+GRAPH.05 resta Draft fino alla verifica dei gate mancanti; nessun merge di GRAPH.05
+prima dello smoke completo. GRAPH.06.01 e' autorizzata in parallelo come slice
+indipendente da main: il suo PASS non certifica ne' sblocca GRAPH.05.
 GRAPH.04 mantiene limiti dichiarati: Relation parziali, misure specifiche del PC,
 frame stabilizzati fuori transizioni e campioni memoria limitati.
