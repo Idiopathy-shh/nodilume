@@ -3,6 +3,7 @@
 Data 21/09/2026. Repository Idiopathy-shh/nodilume.
 Worktree C:\Sviluppo\Nodilume-graph06-03; branch feat/graph-06-03-idea-node-editor.
 Base main@06d92e744e84dbaa4cd8b704ec291096ad3208ab (GRAPH.06.02 integrata).
+PR #11 MERGED, squash 9478973e7a5be33c5487499e6e3ab560c342267e.
 GRAPH.05 PR #6 resta DRAFT; non e' stata incorporata in questa slice.
 
 ## Funzionalita' realmente implementate

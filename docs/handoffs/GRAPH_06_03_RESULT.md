@@ -3,6 +3,7 @@ Data: 21/09/2026; repository Idiopathy-shh/nodilume; OFFICE-PC.
 Base main@06d92e744e84dbaa4cd8b704ec291096ad3208ab.
 Branch feat/graph-06-03-idea-node-editor;
 worktree C:\Sviluppo\Nodilume-graph06-03.
+PR #11 MERGED, squash main@9478973e7a5be33c5487499e6e3ab560c342267e.
 
 ## Consegna
 Crea Idea radice/figlia e rappresentazioni multiple in una mappa personale;
