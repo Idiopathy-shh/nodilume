@@ -74,6 +74,21 @@ Risultati: C:\Temp\nodilume-graph05-scale-20260921.json;
 openingToFirstUsefulMs=4004.4717, frameP95Ms=16.7, finalFrameP95Ms=16.8,
 selectionP95Ms=13.0. Sono risultati di questa esecuzione su OFFICE-PC, non SLA.
 
+## Blocco di firma: diagnosi ripetuta OFFICE-PC
+Il 21/09/2026, dopo il commit 1cf2cc5, la riesecuzione della stessa DLL
+Nodilume.Smoke.dll senza rebuild ha restituito FileLoadException 0x800711C7.
+Code Integrity evento 3077 identifica la policy
+{0283ac0f-fff1-49ae-ada1-8a933130cad6}. Smart App Control resta attivo.
+Nessun certificato Code Signing disponibile negli archivi CurrentUser/My
+o LocalMachine/My interrogati; SignTool non risulta installato.
+La documentazione Microsoft afferma che SAC non offre eccezioni per singola app
+e, per una firma ammessa, richiede certificati RSA attendibili, non ECC:
+https://support.microsoft.com/en-us/windows/security/threat-malware-protection/smart-app-control-frequently-asked-questions
+https://learn.microsoft.com/en-us/windows/apps/develop/smart-app-control/code-signing-for-smart-app-control
+La firma deve coprire i binari caricati, non solo l'EXE. Non attribuire un
+eventuale PASS intermittente della suite .NET alla rimozione della policy.
+Non cambiare criteri di sicurezza, protezioni o percorsi per eludere il blocco.
+
 ## Ripresa
 Continuare ESCLUSIVAMENTE su OFFICE-PC, C:\Sviluppo\Nodilume-graph05, PR #6 Draft.
 Non cambiare criterio di sicurezza, percorso dei binari o protezioni per eludere SAC.
