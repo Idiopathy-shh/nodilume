@@ -1,6 +1,7 @@
 # GRAPH.06.01 — validazione contratto JSON portabile
 Data: 21 settembre 2026; PC: OFFICE-PC; branch feat/graph-06-01-portable-map.
-Base: main@0f6bdac9 (GRAPH.04). GRAPH.05 non e' stata mergiata.
+Base: main@0f6bdac9 (GRAPH.04). PR #7 MERGED, squash
+c515f79af7f326c6846e26acce4955dda6e6e8f6. GRAPH.05 non e' stata mergiata.
 Questa e' una slice preliminare di GRAPH.06, non un editor completo.
 
 ## Funzionalita' implementate
