@@ -1,40 +1,37 @@
-# Nodilume - coordinamento delle chat
-## Ruoli
-Questa chat è la coordinatrice per continuità, architettura, roadmap, dipendenze, assegnazioni e verifica delle consegne.
-Le chat implementatrici eseguono incarichi circoscritti e consegnano PR con verifiche riproducibili; non effettuano merge.
-GitHub conserva lo stato ufficiale. La coordinatrice integra dopo autorizzazione dell'utente.
-## Checkpoint del 18 settembre 2026
-- GRAPH.00-01: completate; GRAPH.01 accettata, PR #1.
-- GRAPH.02: integrata PR #2, squash 5272f297bc58d4f1b69b17ad1eb2f236ec40c4db.
-- GRAPH.03: integrata PR #3 su main, squash 1690c35fcde8f6e51bb17fda7e4f32da8c76d8a2.
-- Ultimo head verificato prima del merge: 69dd2b08db1555507dcd3fc92638e011a4ae38f6.
-- Verifiche rieseguite dalla coordinatrice: viewer 9/9, C#/SQLite/proiezioni 3/3 gruppi, build 0 errori/avvisi, smoke WPF/WebView2 PASS.
-- Merge espressamente richiesto dall'utente; non si dichiara retroattivamente eseguito ogni punto del playbook visivo manuale.
-- GRAPH.04: implementata e PASS tecnico sul branch `feat/graph-04-selective-loading`;
-  build, smoke GRAPH.03, scale-smoke 300k e benchmark 10k/100k/300k completati.
-  PR #5 è pubblicata come draft; restano verifica coordinatrice, accettazione visiva
-  separata e integrazione.
-- GRAPH.05-08: non iniziate.
-## Assegnazioni e accesso
-GRAPH.04 è la sola consegna implementatrice attiva in questo checkpoint.
-Worktree: `C:\Sviluppo\Nodilume-graph04`; branch: `feat/graph-04-selective-loading`;
-base `1690c35fcde8f6e51bb17fda7e4f32da8c76d8a2`; checkpoint funzionale `35dc3ca`.
-Non avviare GRAPH.05 prima della verifica e integrazione di GRAPH.04.
-Repository Idiopathy-shh/nodilume; OFFICE-PC; checkout originale C:\Sviluppo\Nodilume.
-GitHub CLI sul PC accede alla repository con la sessione già configurata.
-Worktree documentale coordinatrice: `C:\Sviluppo\Nodilume-coordination`, branch
-`docs/coordination-post-graph03`, PR #4 draft. Il suo checkpoint post-GRAPH.03 è stato
-incorporato nel branch GRAPH.04; la coordinatrice dovrà riconciliare/chiudere la PR #4
-prima dell'integrazione per evitare una PR documentale ormai sovrapposta.
-Il checkout originale resta separato; non cambiarne branch mentre altre chat potrebbero usarlo.
-## Regole di integrazione
-1. Registrare base, branch, working tree e incarichi concorrenti prima delle modifiche.
-2. Piano esecutivo prima del codice; worktree dedicata per ogni incarico.
-3. Build, test e smoke riproducibili con fixture temporanee; preservare database personali.
-4. PASS tecnico, accettazione visiva e risultati prestazionali restano distinti.
-5. La implementatrice pubblica la PR; la coordinatrice verifica autonomamente prima dell'integrazione.
-6. Integrare solo con autorizzazione dell'utente; nessun reset, force-push o rebase autonomo.
-7. Non cambiare branch in un checkout condiviso usato da un'altra chat.
-8. Le misure GRAPH.04 valgono per l'hardware/runtime documentato e non sono una promessa universale.
-9. PASS tecnico, benchmark e accettazione visiva manuale restano distinti.
-10. Le Relation oltre il budget restano esplicitamente `partial`; non dichiarare completezza globale non misurata.
+# Nodilume — coordinamento operativo
+Checkpoint: 21 settembre 2026. Repository privata: Idiopathy-shh/nodilume.
+PC autorizzato per sviluppo e test: OFFICE-PC. GitHub CLI autenticata.
+
+## Stato GitHub verificato
+GRAPH.00-04 integrate, main@0f6bdac9d988bb1a6a6c3ddb8b3f71d02bd872f5.
+GRAPH.04 PR #5 MERGED; PR documentale #4 CLOSED (contenuti assorbiti).
+GRAPH.05 PR #6 OPEN/DRAFT, branch feat/graph-05-editing-viewstate,
+worktree C:\Sviluppo\Nodilume-graph05, head 946c2e019d32e157a483d2c68fdddc4e2f001e59.
+GRAPH.05: viewer 13/13, .NET 4/4, scale-smoke 300k PASS; smoke reale
+Undo/Redo NON PASS, successiva esecuzione bloccata dal criterio SAC 0x800711C7.
+Accettazione manuale non conclusa. Non attribuire PASS/merge alla GRAPH.05.
+La firma RSA di sviluppo deve ancora arrivare; non modificare protezioni Windows.
+
+## GRAPH.06 senza attesa firma: incarico parallelo autorizzato
+GRAPH.06 e' il primo editor personale completo (multi-map, nodi, relazioni,
+ricerca, import/export, recupero). GRAPH.06.01 ne sviluppa soltanto il
+contratto JSON portabile di Idea/Placement/Relation e il relativo codec:
+worktree C:\Sviluppo\Nodilume-graph06-01; branch feat/graph-06-01-portable-map.
+Base autonoma main@0f6bdac, NON GRAPH.05; nessuna migrazione SQLite v3
+o UX editing copiata dalla candidata GRAPH.05.
+Nuove mappe importate con MapId distinto e revisione 0; mai sovrascrivere
+database esistenti. Non confondere codec in-memory con backup/restore SQLite.
+Dettagli e gate in docs/plans/graph-06-01-portable-map.md e
+docs/validation/graph-06-01.md.
+## Governance e gate
+La GRAPH.06.01 puo' progredire in branch/PR autonomi mentre GRAPH.05 resta Draft.
+Non iniziare integrazioni che dipendono da GRAPH.05 finche' non e' validata.
+Una eventuale PR di GRAPH.06.01 verso main e' indipendente; la chiusura
+della slice NON certifica UI multi-map, import/export file, backup o
+l'editor GRAPH.06 completo. I gate futuri verranno pianificati separatamente.
+Usare fixture sintetiche e percorsi temporanei; non leggere o alterare mappe
+personali, chiavi o token. Nessun reset distruttivo, rebase o force-push.
+Registrare risultati di build, test runtime, scale, visione e limiti distinti.
+Non disattivare Smart App Control per aggirare un errore di caricamento DLL.
+Le altre worktree restano su branch propri e non vanno spostate.
+Le Relation oltre RelationLimit restano partial, non globalmente esaustive.

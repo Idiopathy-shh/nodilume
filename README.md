@@ -4,18 +4,21 @@ Desktop Windows per esplorare mappe di idee come grafi 3D multiscala.
 
 ## Stato
 
-GRAPH.00-03 integrate. GRAPH.03: PR #3, squash su main
-`1690c35fcde8f6e51bb17fda7e4f32da8c76d8a2`. GRAPH.04 è implementata e verificata
-tecnicamente sul branch `feat/graph-04-selective-loading`: caricamento progressivo,
-budget separati, cache bounded, ricerca indicizzata e benchmark 10k/100k/300k PASS
-sull'hardware documentato. PR #5 pubblicata come draft; verifica coordinatrice,
-integrazione e accettazione visiva restano passaggi separati. GRAPH.05-08 non iniziate.
+GRAPH.00-04 integrate (GRAPH.04 PR #5; main@0f6bdac). GRAPH.05 PR #6 e'
+una candidata DRAFT: viewer 13/13, test .NET 4/4 e scale-smoke 300k PASS
+sul relativo branch, ma smoke UI Undo/Redo e accettazione manuale ancora mancanti;
+Smart App Control blocca la DLL smoke non firmata su OFFICE-PC.
+GRAPH.06.01 procede IN PARALLELO da main su una worktree distinta: codec JSON
+portabile del grafo, senza interfaccia editor completa o file backup. GRAPH.07-08
+non iniziate. Vedere docs/coordination.md e docs/roadmap.md.
 
 GRAPH.03 introduce zoom semantico contestuale, aggregazioni e navigazione trasversale.
 GRAPH.04 rende raggiungibili i figli oltre la prima pagina, limita nodi/link/etichette,
 evita caricamenti globali nel renderer e misura la scala fino a 300.000 Idea. Non è
-ancora un editor completo: drag/pin, undo/redo e camera persistente appartengono a
+ancora un editor completo: drag/pin, undo/redo e camera persistente sono candidate
 GRAPH.05; gestione completa e ricerca UI appartengono alle fasi successive.
+Il codec GRAPH.06.01 esporta/importa il grafo in memoria, senza file dialog o
+integrazione con la shell WPF e senza dipendere dalla migrazione SQLite v3.
 
 ## Architettura
 
@@ -82,6 +85,11 @@ Le prove GRAPH.02 sono in `docs/validation/graph-02.md`.
 Le prove e il playbook GRAPH.03 sono in `docs/validation/graph-03.md`.
 La validazione GRAPH.04 è in `docs/validation/graph-04.md` e i benchmark in
 `docs/benchmarks/graph-04.md`.
+GRAPH.06.01: `docs/plans/graph-06-01-portable-map.md` e
+`docs/validation/graph-06-01.md`; per verificare solo questa slice:
+`dotnet restore tests/Nodilume.Tests --locked-mode`,
+`dotnet build tests/Nodilume.Tests -c Release --no-restore`,
+`dotnet run --project tests/Nodilume.Tests -c Release --no-build`.
 La specifica completa è in `docs/specs/graph-3d-design.md`.
 La roadmap è in `docs/roadmap.md`.
 
