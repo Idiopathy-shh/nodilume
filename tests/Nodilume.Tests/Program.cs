@@ -7,7 +7,8 @@ internal static class Program
             ("Domain invariants", DomainTests.RunAsync),
             ("SQLite integration", SqliteTests.RunAsync),
             ("Semantic projection", SemanticProjectionTests.RunAsync),
-            ("Portable map JSON", PortableMapJsonTests.RunAsync)
+            ("Portable map JSON", PortableMapJsonTests.RunAsync),
+            ("Multi-map catalog", MapCatalogTests.RunAsync)
         };
 
         var failed = 0;

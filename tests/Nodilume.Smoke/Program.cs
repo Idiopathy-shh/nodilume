@@ -44,6 +44,7 @@ internal static class Program
                         if (firstEvidence is null || firstEvidence != evidence)
                             throw new Exception("Persistent graph identity or values changed across real window reopen.");
 
+                        await MapManagementSmoke.RunAsync(window, root, databasePath);
                         result = 0;
                         Console.WriteLine(
                             "PASS: GRAPH.03 WPF/WebView2 semantic navigation, three nested contexts, "
