@@ -10,11 +10,13 @@ import {
   transitionScalar
 } from './semantic';
 import './styles.css';
+import { localDragPosition, acceptsEditResult } from './editing';
 
 type NodeData = {
   id: string; placementId: string; ideaId: string; parentPlacementId: string | null;
   title: string; x: number; y: number; z: number; color: string; depth: number;
   role: string; showLabel: boolean; hasChildren: boolean; directChildCount: number;
+  isPinned: boolean; localX: number; localY: number; localZ: number;
 };
 type LinkData = {
   id: string; category: 'containment' | 'relation'; source: string; target: string;
@@ -82,7 +84,7 @@ type ReturnSnapshot = {
 };
 type PendingRequest = {
   requestId: string;
-  kind: 'initial' | 'enter' | 'exit' | 'overview' | 'navigate' | 'return' | 'page';
+  kind: 'initial' | 'enter' | 'exit' | 'overview' | 'navigate' | 'return' | 'page' | 'edit';
   contextId: string | null; focusPlacementId?: string; restore?: ReturnSnapshot;
   pageAfterPlacementId?: string | null;
 };
@@ -173,6 +175,210 @@ try {
   const pointer = new THREE.Vector2();
   let downX = 0;
   let downY = 0;
+
+
+  type SavedView = {
+    path: string[]; camera: number[]; target: number[]; up?: number[];
+    selectedPlacementId: string | null; pageAfterPlacementId: string | null;
+  };
+  type EditMessage = {
+    version: 2; type: 'editResult' | 'editStatus' | 'restoreView';
+    requestId: string; mapId: string; revision?: number; success?: boolean;
+    canUndo?: boolean; canRedo?: boolean; message?: string; state?: SavedView;
+    selectedPlacementId?: string | null;
+  };
+  let editingRequest: string | null = null;
+  let canUndo = false, canRedo = false;
+  let savedRestore: SavedView | null = null;
+  let initialSelection: string | null = null;
+  let restoredIdle = false;
+  let lastSavedView = '';
+  let suppressClickUntil = 0;
+  let drag: {
+    item: VisualNode; pointerId: number; original: THREE.Vector3;
+    plane: THREE.Plane; offset: THREE.Vector3; startX: number; startY: number;
+  } | null = null;
+  function editNotice(message: string): void {
+    el('edit-status').textContent = message;
+  }
+  function editable(item: VisualNode | undefined | null): item is VisualNode {
+    return !!item && !item.removing && !!projection
+      && item.data.parentPlacementId === projection.contextPlacementId;
+  }
+  function updateEditUI(): void {
+    const busy = !!pending || !!visualTransition || !!editingRequest || !!drag;
+    const item = selected ? nodes.get(selected) : null;
+    el<HTMLButtonElement>('pin').disabled = busy || !editable(item);
+    el('pin').textContent = item?.data.isPinned ? 'Sblocca' : 'Fissa';
+    el<HTMLButtonElement>('undo').disabled = busy || !canUndo;
+    el<HTMLButtonElement>('redo').disabled = busy || !canRedo;
+    document.body.dataset.editPending = String(!!editingRequest);
+    document.body.dataset.dragging = String(!!drag);
+    document.body.dataset.selectedPlacement = selected ?? '';
+  }
+  function cancelDrag(): void {
+    if (!drag) return;
+    const old = drag;
+    drag = null;
+    old.item.mesh.position.copy(old.original);
+    old.item.from.copy(old.original); old.item.to.copy(old.original);
+    if (renderer.domElement.hasPointerCapture(old.pointerId))
+      renderer.domElement.releasePointerCapture(old.pointerId);
+    controls.enabled = true;
+    semanticCooldownUntil = performance.now() + 1000;
+    updateEditUI();
+  }
+  function submitEdit(action: string, payload: Record<string, unknown> = {}): void {
+    if (!projection || pending || visualTransition || editingRequest) return;
+    editingRequest = nextRequestId();
+    latestRequestId = editingRequest; // A previous projection cannot overwrite the preview.
+    controls.enabled = false;
+    keys.clear(); cameraAnimation = null;
+    editNotice('Salvataggio…');
+    updateEditUI();
+    bridge?.postMessage({version: 2, type: 'editCommand', requestId: editingRequest,
+      mapId: activeMapId, revision, action, ...payload});
+  }
+  el<HTMLButtonElement>('pin').onclick = () => {
+    const item = selected ? nodes.get(selected) : null;
+    if (editable(item)) submitEdit('pin', {
+      placementId: item.data.placementId, isPinned: !item.data.isPinned
+    });
+  };
+  el<HTMLButtonElement>('undo').onclick = () => { if (canUndo) submitEdit('undo'); };
+  el<HTMLButtonElement>('redo').onclick = () => { if (canRedo) submitEdit('redo'); };
+  function saveView(closeRequestId?: string): void {
+    if (closeRequestId && (pending || visualTransition || editingRequest || drag)) {
+      cancelDrag();
+      setTimeout(() => saveView(closeRequestId), 50);
+      return;
+    }
+    if (!projection || pending || visualTransition || editingRequest || drag) return;
+    const state: SavedView = {
+      path: projection.path.map(item => item.placementId),
+      camera: camera.position.toArray(), target: controls.target.toArray(),
+      up: camera.up.toArray(), selectedPlacementId: selected,
+      pageAfterPlacementId: projection.page.afterPlacementId
+    };
+    const payload = JSON.stringify(state);
+    lastSavedView = payload;
+    bridge?.postMessage({version: 2, type: 'viewState', requestId: closeRequestId ?? nextRequestId(),
+      mapId: activeMapId, state});
+  }
+  (window as unknown as {nodilumeSaveView: () => void}).nodilumeSaveView = saveView;
+  setInterval(() => {
+    if (!projection || pending || visualTransition || editingRequest || drag) return;
+    const state = {path: projection.path.map(item => item.placementId),
+      camera: camera.position.toArray(), target: controls.target.toArray(),
+      up: camera.up.toArray(), selectedPlacementId: selected,
+      pageAfterPlacementId: projection.page.afterPlacementId};
+    if (JSON.stringify(state) !== lastSavedView) saveView();
+  }, 500);
+  bridge?.addEventListener('message', event => {
+    const data = event.data as unknown as EditMessage;
+    if (!data || data.version !== 2) return;
+    if (data.type === 'restoreView' && data.requestId === latestRequestId) {
+      savedRestore = data.state ?? null;
+      initialSelection = data.selectedPlacementId ?? data.state?.selectedPlacementId ?? null;
+      return;
+    }
+    if (data.type === 'editStatus' && data.requestId === latestRequestId) {
+      canUndo = !!data.canUndo; canRedo = !!data.canRedo;
+      updateEditUI();
+      return;
+    }
+    if (data.type !== 'editResult' || !acceptsEditResult(editingRequest, activeMapId, data)) return;
+    editingRequest = null;
+    controls.enabled = true;
+    if (data.success) {
+      revision = Math.max(revision, data.revision ?? revision);
+      canUndo = !!data.canUndo; canRedo = !!data.canRedo;
+      editNotice('Modifica salvata');
+    } else {
+      editNotice('Modifica non salvata: ' + (data.message ?? 'errore'));
+    }
+    requestProjection(projection?.contextPlacementId ?? null, 'edit', {
+      pageAfterPlacementId: projection?.page.afterPlacementId ?? null,
+      restore: snapshotReturn()
+    });
+    updateEditUI();
+  });
+  // Capture runs before OrbitControls, including when the pointer starts on a label.
+  document.addEventListener('pointerdown', event => {
+    const target = event.target as HTMLElement;
+    if (target !== renderer.domElement && !target.closest('.node-label')) return;
+    if (!event.shiftKey || event.button !== 0) return;
+    event.preventDefault(); event.stopImmediatePropagation();
+    if (pending || visualTransition || editingRequest) return;
+    const label = (event.target as HTMLElement).closest<HTMLButtonElement>('.node-label');
+    const id = label?.dataset.placementId ?? pick(event.clientX, event.clientY);
+    const item = id ? nodes.get(id) : null;
+    if (!editable(item)) { editNotice('Sposta un nodo del contesto corrente.'); return; }
+    select(item.data.id);
+    if (item.data.isPinned) { editNotice('Sblocca il nodo prima di spostarlo.'); return; }
+    cameraAnimation = null; keys.clear(); controls.enabled = false;
+    const normal = camera.getWorldDirection(new THREE.Vector3());
+    const plane = new THREE.Plane().setFromNormalAndCoplanarPoint(normal, item.mesh.position);
+    pick(event.clientX, event.clientY); // update ray
+    const hit = raycaster.ray.intersectPlane(plane, new THREE.Vector3());
+    if (!hit) { controls.enabled = true; return; }
+    drag = {item, pointerId: event.pointerId, original: item.mesh.position.clone(),
+      plane, offset: item.mesh.position.clone().sub(hit),
+      startX: event.clientX, startY: event.clientY};
+    renderer.domElement.setPointerCapture(event.pointerId);
+    el('scene').focus();
+    editNotice('Trascina · Esc annulla');
+    updateEditUI();
+  }, true);
+  renderer.domElement.addEventListener('pointermove', event => {
+    if (!drag || event.pointerId !== drag.pointerId) return;
+    event.preventDefault(); event.stopImmediatePropagation();
+    pick(event.clientX, event.clientY);
+    const hit = raycaster.ray.intersectPlane(drag.plane, new THREE.Vector3());
+    if (!hit) return;
+    hit.add(drag.offset);
+    if (hit.toArray().every(Number.isFinite)) {
+      drag.item.mesh.position.copy(hit);
+      drag.item.from.copy(hit); drag.item.to.copy(hit);
+    }
+  }, true);
+  renderer.domElement.addEventListener('pointerup', event => {
+    if (!drag || event.pointerId !== drag.pointerId) return;
+    event.preventDefault(); event.stopImmediatePropagation();
+    const old = drag;
+    const position = old.item.mesh.position.clone();
+    const delta = position.clone().sub(old.original);
+    drag = null;
+    if (renderer.domElement.hasPointerCapture(event.pointerId))
+      renderer.domElement.releasePointerCapture(event.pointerId);
+    controls.enabled = true;
+    suppressClickUntil = performance.now() + 350;
+    if (delta.lengthSq() < 1e-10) {
+      old.item.from.copy(old.original); old.item.to.copy(old.original);
+      updateEditUI(); return;
+    }
+    const [x, y, z] = localDragPosition(
+      [old.item.data.localX, old.item.data.localY, old.item.data.localZ],
+      old.original.toArray(), position.toArray());
+    submitEdit('move', {placementId: old.item.data.placementId, x, y, z});
+  }, true);
+  renderer.domElement.addEventListener('lostpointercapture', cancelDrag);
+  renderer.domElement.addEventListener('pointercancel', cancelDrag);
+  window.addEventListener('blur', cancelDrag);
+  window.addEventListener('keydown', event => {
+    if (event.code === 'Escape' && drag) {
+      event.preventDefault(); event.stopImmediatePropagation();
+      cancelDrag(); editNotice('Spostamento annullato'); return;
+    }
+    const target = event.target as HTMLElement;
+    if (target.isContentEditable || /INPUT|TEXTAREA|SELECT/.test(target.tagName)) return;
+    if (event.ctrlKey && ['KeyZ', 'KeyY'].includes(event.code)) {
+      event.preventDefault();
+      if (event.code === 'KeyY' || event.shiftKey) {
+        if (canRedo) submitEdit('redo');
+      } else if (canUndo) submitEdit('undo');
+    }
+  }, true);
 
   function baseScale(data: NodeData): number {
     if (data.role === 'context') return data.hasChildren ? 10 : 5;
@@ -285,6 +491,7 @@ try {
   }
 
   function updateSelectionUI(): void {
+    updateEditUI();
     const item = selected ? nodes.get(selected) : null;
     el<HTMLButtonElement>('focus').disabled = !item;
     el<HTMLButtonElement>('enter').disabled = !item?.data.hasChildren;
@@ -331,6 +538,7 @@ try {
     };
   }
   function updateNavigationButtons(): void {
+    updateEditUI();
     el<HTMLButtonElement>('up').disabled = !projection?.parentContextPlacementId || pending !== null;
     el<HTMLButtonElement>('back').disabled = returnStack.length === 0 || pending !== null;
     el<HTMLButtonElement>('page-prev').disabled = !projection?.page.hasPrevious || pending !== null;
@@ -358,6 +566,8 @@ try {
     kind: PendingRequest['kind'],
     options: Pick<PendingRequest, 'focusPlacementId' | 'restore' | 'pageAfterPlacementId'> = {}
   ): void {
+    if (editingRequest) return;
+    cancelDrag();
     const requestId = nextRequestId();
     latestRequestId = requestId;
     pending = {requestId, kind, contextId, ...options};
@@ -467,6 +677,7 @@ try {
     hoveredSince = 0;
   });
   renderer.domElement.addEventListener('click', event => {
+    if (editingRequest || performance.now() < suppressClickUntil) return;
     if (Math.hypot(event.clientX - downX, event.clientY - downY) > 5) return;
     const id = pick(event.clientX, event.clientY);
     if (id) select(id);
@@ -479,9 +690,11 @@ try {
     if (item?.data.hasChildren) enterSelected();
     else focusPlacement(id);
   });
-  controls.addEventListener('start', () => cameraAnimation = null);
+  controls.addEventListener('start', () => { cameraAnimation = null; restoredIdle = false; });
 
   window.addEventListener('keydown', event => {
+    if (editingRequest || drag) return;
+    restoredIdle = false;
     if (event.ctrlKey || event.altKey || event.metaKey || document.activeElement !== el('scene')) return;
     if (event.code === 'Enter') {
       enterSelected();
@@ -507,6 +720,7 @@ try {
   function createNodeLabel(data: NodeData): HTMLButtonElement {
     const label = document.createElement('button');
     label.className = 'node-label';
+    label.dataset.placementId = data.placementId;
     label.textContent = data.title;
     label.onclick = () => select(data.id);
     label.ondblclick = () => {
@@ -694,6 +908,8 @@ try {
         }
         if (item.label) item.label.textContent = node.title;
       }
+      item.label?.classList.toggle('pinned', node.isPinned);
+      if (item.label) item.label.title = node.isPinned ? 'Nodo fissato: sblocca per spostarlo' : 'Maiusc + trascina per spostare';
       item.removing = false;
       item.from.copy(item.mesh.position);
       item.to.copy(target);
@@ -784,6 +1000,15 @@ try {
 
     const completed = pending;
     pending = null;
+    if (completed?.kind === 'initial' && initialSelection) select(initialSelection);
+    if (completed?.kind === 'initial' && savedRestore) {
+      camera.position.fromArray(savedRestore.camera);
+      controls.target.fromArray(savedRestore.target);
+      camera.up.fromArray(savedRestore.up ?? [0,1,0]);
+      controls.update();
+      if (savedRestore.selectedPlacementId) select(savedRestore.selectedPlacementId);
+      savedRestore = null; restoredIdle = true;
+    }
     if (completed?.restore) {
       restoreCamera(completed.restore);
       semanticCooldownUntil = now + 900;
@@ -939,7 +1164,7 @@ try {
   }
 
   function runSemanticZoom(now: number): void {
-    if (!projection || pending || visualTransition || now < semanticCooldownUntil) return;
+    if (!projection || pending || visualTransition || editingRequest || drag || restoredIdle || now < semanticCooldownUntil) return;
     const candidate = semanticCandidate(now);
     const decision = semanticDecision({
       candidateEligible: candidate !== null,
@@ -1053,10 +1278,12 @@ try {
 
     sampleTransition(now);
     finishTransition(now);
-    controls.update();
+    if (!drag && !editingRequest) controls.update();
 
     for (const item of links.values()) updateLinkGeometry(item);
     renderer.render(scene, camera);
+    document.body.dataset.cameraPosition = JSON.stringify(camera.position.toArray());
+    document.body.dataset.cameraTarget = JSON.stringify(controls.target.toArray());
     updateLabels();
     if (selectionRequestedAt !== null) {
       document.body.dataset.selectionLatencyMs = (now - selectionRequestedAt).toFixed(2);

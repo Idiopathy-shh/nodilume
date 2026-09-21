@@ -212,7 +212,8 @@ public sealed class SceneService(IMapStore store, SceneProjectionCache? cache = 
                     ResolveRole(placement, context, pathIds),
                     index < limits.LabelBudget,
                     childCounts.TryGetValue(placement.Id, out var count) && count > 0,
-                    childCounts.GetValueOrDefault(placement.Id, 0));
+                    childCounts.GetValueOrDefault(placement.Id, 0),
+                    placement.IsPinned, placement.X, placement.Y, placement.Z);
             })
             .ToArray();
 

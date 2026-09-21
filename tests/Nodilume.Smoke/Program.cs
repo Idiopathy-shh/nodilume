@@ -34,7 +34,7 @@ internal static class Program
                 var success = false;
                 try
                 {
-                    await VerifyWindowAsync(window, fullInteraction: currentPass == 1);
+                    await VerifyWindowAsync(window, databasePath, fullInteraction: currentPass == 1);
                     var evidence = await ReadEvidenceAsync(databasePath);
                     if (currentPass == 1)
                     {
@@ -67,7 +67,10 @@ internal static class Program
                 }
                 finally
                 {
+                    var closed = new TaskCompletionSource<bool>();
+                    window.Closed += (_, _) => closed.TrySetResult(true);
                     window.Close();
+                    await closed.Task.WaitAsync(TimeSpan.FromSeconds(10));
                     if (success && currentPass == 1)
                         _ = app.Dispatcher.BeginInvoke(StartWindow);
                     else
@@ -86,7 +89,7 @@ internal static class Program
         return result;
     }
 
-    private static async Task VerifyWindowAsync(MainWindow window, bool fullInteraction)
+    private static async Task VerifyWindowAsync(MainWindow window, string databasePath, bool fullInteraction)
     {
         var web = (WebView2)window.FindName("Viewer");
         using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(35));
@@ -126,6 +129,11 @@ internal static class Program
         if (JsonSerializer.Deserialize<string[]>(resources)!.Any(x => !x.StartsWith("https://nodilume.local/")))
             throw new Exception("Remote resource requested.");
 
+        if (!fullInteraction)
+        {
+            await EditingSmoke.VerifyAsync(web, databasePath, reopen:true);
+            return;
+        }
         var rootPath = await Script("document.querySelector('#breadcrumbs .current')?.textContent");
         if (!rootPath.Contains("Radice"))
             throw new Exception("Initial semantic context is not the fixture root.");
@@ -214,8 +222,9 @@ internal static class Program
             "innerWidth === " + initialWidth
             + " && document.querySelector('canvas').clientWidth === innerWidth");
 
+        await EditingSmoke.VerifyAsync(web, databasePath, reopen:false);
         Directory.CreateDirectory("artifacts");
-        await using var image = File.Create("artifacts/graph-03-smoke.png");
+        await using var image = File.Create("artifacts/graph-05-smoke.png");
         await web.CoreWebView2.CapturePreviewAsync(
             CoreWebView2CapturePreviewImageFormat.Png,
             image).WaitAsync(timeout.Token);

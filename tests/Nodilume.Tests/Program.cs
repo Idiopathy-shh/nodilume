@@ -13,7 +13,8 @@ internal static class Program
             ("Multi-map catalog", MapCatalogTests.RunAsync),
             ("Idea and node editor", MapContentEditorTests.RunAsync),
             ("Relation editor", MapRelationEditorTests.RunAsync),
-            ("Map search", MapSearchServiceTests.RunAsync)
+            ("Map search", MapSearchServiceTests.RunAsync),
+            ("Local edits and view state", LocalEditTests.RunAsync)
         };
 
         var failed = 0;
