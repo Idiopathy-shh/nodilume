@@ -12,7 +12,24 @@ internal static class EditingSmoke
         Task<string> Script(string s) => web.ExecuteScriptAsync(s).WaitAsync(timeout.Token);
         async Task Wait(string expression)
         {
-            while (await Script(expression) != "true") await Task.Delay(50, timeout.Token);
+            var started = DateTime.UtcNow;
+            while (await Script(expression) != "true")
+            {
+                if (DateTime.UtcNow - started > TimeSpan.FromSeconds(12))
+                {
+                    var diagnostic = await Script(
+                        "JSON.stringify({state:document.body.dataset.state,"
+                        + "dragging:document.body.dataset.dragging,"
+                        + "editPending:document.body.dataset.editPending,"
+                        + "undoDisabled:document.getElementById('undo').disabled,"
+                        + "redoDisabled:document.getElementById('redo').disabled,"
+                        + "status:document.getElementById('edit-status').textContent,"
+                        + "projectionStatus:document.getElementById('projection-status').textContent,"
+                        + "loadState:document.body.dataset.loadState})");
+                    throw new Exception("Editing wait timed out: " + expression + " DOM=" + diagnostic);
+                }
+                await Task.Delay(50, timeout.Token);
+            }
         }
         await using var store = new SqliteMapStore(databasePath);
         await store.InitializeAsync();
@@ -68,10 +85,12 @@ internal static class EditingSmoke
         var moved = (await store.ReadPlacementAsync(map.Id,id))!;
         if (moved == before || moved.ParentId != before.ParentId)
             throw new Exception("Real pointer drag did not persist a local move.");
+        await Wait("document.body.dataset.editPending==='false' && document.body.dataset.state==='ready' && !document.getElementById('undo').disabled");
         await Script("document.getElementById('undo').click()");
         await Wait("document.body.dataset.editPending==='false' && document.body.dataset.state==='ready' && !document.getElementById('redo').disabled");
         if ((await store.ReadPlacementAsync(map.Id,id))! != before)
             throw new Exception("UI undo did not restore the exact placement.");
+        await Wait("document.body.dataset.editPending==='false' && document.body.dataset.state==='ready' && !document.getElementById('redo').disabled");
         await Script("document.getElementById('redo').click()");
         await Wait("document.body.dataset.editPending==='false' && document.body.dataset.state==='ready' && document.getElementById('redo').disabled");
         if ((await store.ReadPlacementAsync(map.Id,id))! != moved)
