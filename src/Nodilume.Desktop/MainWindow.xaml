@@ -32,6 +32,50 @@
     <TextBlock x:Name="Status" Foreground="#B6C7D7" Text="Avvio della vista…" FontSize="12" />
    </StackPanel>
   </Border>
-  <wv:WebView2 x:Name="Viewer" DefaultBackgroundColor="#0A111B" />
+  <Grid>
+   <Grid.ColumnDefinitions>
+    <ColumnDefinition Width="*"/>
+    <ColumnDefinition Width="310"/>
+   </Grid.ColumnDefinitions>
+   <wv:WebView2 Grid.Column="0" x:Name="Viewer" DefaultBackgroundColor="#0A111B" />
+   <Border Grid.Column="1" Background="#142331" Padding="12">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+     <StackPanel>
+      <TextBlock Text="EDITOR IDEE" Foreground="#DCEBF8" FontWeight="Bold"
+        FontSize="14" Margin="0,0,0,8"/>
+      <TextBlock x:Name="EditorSelectionText" Text="Nessuna idea selezionata"
+        TextWrapping="Wrap" Foreground="#AAD6CE" Margin="0,0,0,10"/>
+      <TextBlock Text="Titolo idea" Foreground="#DCEBF8"/>
+      <TextBox x:Name="IdeaTitleInput" MaxLength="160" Margin="0,4,0,9"
+        AutomationProperties.Name="Titolo idea"/>
+      <TextBlock Text="Contenuto condiviso" Foreground="#DCEBF8"/>
+      <TextBox x:Name="IdeaContentInput" MaxLength="200000" Height="108"
+        AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto"
+        Margin="0,4,0,8" AutomationProperties.Name="Contenuto idea"/>
+      <WrapPanel Margin="0,0,0,12">
+       <Button x:Name="CreateRootIdeaButton" Content="Nuova radice" Click="CreateRootIdeaButton_Click"
+         Padding="8,5" Margin="0,0,6,5"/>
+       <Button x:Name="CreateChildIdeaButton" Content="Nuova figlia" Click="CreateChildIdeaButton_Click"
+         Padding="8,5" Margin="0,0,6,5"/>
+       <Button x:Name="SaveIdeaButton" Content="Salva idea" Click="SaveIdeaButton_Click"
+         Padding="8,5" Margin="0,0,6,5"/>
+      </WrapPanel>
+      <TextBlock Text="Annotazione della rappresentazione selezionata"
+        TextWrapping="Wrap" Foreground="#DCEBF8"/>
+      <TextBox x:Name="PlacementAnnotationInput" MaxLength="4000" Height="64"
+        AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto"
+        Margin="0,4,0,8" AutomationProperties.Name="Annotazione locale"/>
+      <Button x:Name="SaveAnnotationButton" Content="Salva annotazione locale"
+        Click="SaveAnnotationButton_Click" Padding="8,5" Margin="0,0,0,8"/>
+      <Button x:Name="CreateRepresentationButton" Content="Aggiungi rappresentazione qui"
+        Click="CreateRepresentationButton_Click" Padding="8,5" Margin="0,0,0,8"
+        ToolTip="Aggiunge un altro nodo della stessa idea nel contesto corrente"/>
+      <TextBlock Text="Seleziona un nodo nella scena per modificarlo. Una nuova figlia usa il nodo selezionato come genitore. La rappresentazione aggiuntiva usa il contesto corrente."
+        TextWrapping="Wrap" FontSize="11" Foreground="#9FB6C8" Margin="0,4,0,12"/>
+      <TextBlock x:Name="EditorStatus" Foreground="#AAD6CE" TextWrapping="Wrap"/>
+     </StackPanel>
+    </ScrollViewer>
+   </Border>
+  </Grid>
  </DockPanel>
 </Window>

@@ -10,9 +10,10 @@ sul relativo branch, ma smoke UI Undo/Redo e accettazione manuale ancora mancant
 Smart App Control blocca la DLL smoke non firmata su OFFICE-PC.
 GRAPH.06.01 e' stata integrata tramite PR #7, squash c515f79: codec JSON
 portabile del grafo, senza interfaccia editor completa o file backup.
-GRAPH.06.02 e' integrata tramite PR #9 (squash a9df2bd): elenco,
-creazione vuota, apertura, rinomina, switch e selezione persistente
-di mappe personali in database SQLite isolati.
+GRAPH.06.02 e' integrata tramite PR #9 (squash a9df2bd): gestione
+di mappe personali in database SQLite separati. GRAPH.06.03 e' candidata:
+editor di Idee/nodi con gerarchie, rappresentazioni multiple e note locali,
+su worktree indipendente da GRAPH.05. Smoke WPF/WebView2 e regressioni PASS.
 GRAPH.07-08 non iniziate. Vedere docs/coordination.md e docs/roadmap.md.
 
 GRAPH.03 introduce zoom semantico contestuale, aggregazioni e navigazione trasversale.
@@ -22,8 +23,10 @@ ancora un editor completo: drag/pin, undo/redo e camera persistente sono candida
 GRAPH.05; gestione completa e ricerca UI appartengono alle fasi successive.
 Il codec GRAPH.06.01 esporta/importa il grafo in memoria, senza file dialog o
 integrazione con la shell WPF e senza dipendere dalla migrazione SQLite v3.
-La GRAPH.06.02 introduce la sola gestione mappe: i contenuti delle mappe
-vuote saranno editabili nella successiva GRAPH.06.03.
+GRAPH.06.02 introduce la gestione mappe; GRAPH.06.03 rende possibile
+aggiungere e modificare idee radice o figlie in tali mappe. Le operazioni
+Undo/Redo, drag/pin e camera persistente rimangono candidate in GRAPH.05,
+non sono comprese nel ramo indipendente GRAPH.06.03.
 
 ## Architettura
 
@@ -53,7 +56,8 @@ dotnet run --project tests/Nodilume.Smoke -c Release --no-build
 ```
 
 `build.ps1` esegue `npm ci`, nove test viewer/navigation, compilazione TypeScript,
-bundle, test Core/SQLite/proiezione semantica/catalogo mappe su database temporanei reali e build .NET
+bundle, test Core/SQLite/proiezione semantica/catalogo mappe/editor idee su database
+temporanei reali e build .NET
 con restore bloccato. Compila inoltre lo scale-smoke e il tool benchmark GRAPH.04.
 
 Lo smoke GRAPH.03 usa una fixture separata dalla demo personale. Apre due finestre
@@ -71,6 +75,21 @@ cambiare il nome di quella attiva. La selezione viene ripristinata alla
 riapertura. L'antica demo.sqlite resta disponibile: non viene spostata
 o sovrascritta da nuovi file mappa GUID.sqlite. Nessuna cancellazione mappe
 e nessun editor di contenuti ancora introdotti da questa patch.
+
+## Editor di idee e nodi (GRAPH.06.03)
+
+Nel pannello a destra scrivi titolo e contenuto, quindi scegli
+`Nuova radice` per creare un'Idea indipendente. Seleziona un nodo
+della scena per caricare il titolo e il contenuto condiviso della sua
+Idea e l'annotazione propria di quel Placement. `Salva idea` aggiorna
+il contenuto comune a tutte le sue rappresentazioni; `Salva annotazione
+locale` modifica solo il nodo selezionato. `Nuova figlia` crea
+una nuova Idea sotto il nodo selezionato usando i campi del pannello.
+`Aggiungi rappresentazione qui` colloca la stessa Idea sotto il
+contesto corrente, se non viola gli invarianti della gerarchia.
+Le modifiche vengono scritte su SQLite; se rifiutate viene mostrato
+un messaggio. La creazione di contenuti non include ancora
+cancellazione, editor Relation o Undo/Redo.
 
 ## Comandi della vista
 
@@ -102,6 +121,8 @@ La validazione GRAPH.04 è in `docs/validation/graph-04.md` e i benchmark in
 `docs/benchmarks/graph-04.md`.
 GRAPH.06.02: `docs/plans/graph-06-02-map-manager.md`,
 `docs/validation/graph-06-02.md` e `docs/handoffs/GRAPH_06_02_RESULT.md`.
+GRAPH.06.03: `docs/plans/graph-06-03-idea-node-editor.md`,
+`docs/validation/graph-06-03.md` e `docs/handoffs/GRAPH_06_03_RESULT.md`.
 GRAPH.06.01: `docs/plans/graph-06-01-portable-map.md` e
 `docs/validation/graph-06-01.md`; per verificare solo questa slice:
 `dotnet restore tests/Nodilume.Tests --locked-mode`,

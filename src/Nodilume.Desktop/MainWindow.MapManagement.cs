@@ -49,6 +49,7 @@ public partial class MainWindow
     private async Task ActivateMapAsync(CatalogMap selected)
     {
         _mapGeneration++;
+        ResetIdeaEditor();
         Interlocked.Exchange(ref _projectionCancellation, null)?.Cancel();
         _projectionCache.Clear();
         _lastContextPlacementId = null;
