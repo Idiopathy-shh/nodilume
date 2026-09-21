@@ -2,6 +2,7 @@
 
 Data: 21/09/2026. Base main@21e7ea92e28329164763be60d0c172de3a12d7f9;
 branch feat/graph-06-02-map-manager; worktree C:\Sviluppo\Nodilume-graph06-02.
+PR #9 MERGED, squash a9df2bd15cfde495c120bdf2b754b8052fa5ef62.
 GRAPH.05 PR #6 e' DRAFT e NON fa parte di questa patch.
 
 ## Scope e contratti verificati

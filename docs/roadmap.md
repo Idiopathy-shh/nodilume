@@ -2,8 +2,9 @@
 
 Stato 21 settembre 2026: GRAPH.00-04 integrate (GRAPH.04 PR #5);
 GRAPH.06.01 PR #7 integrata con squash c515f79af7f326c6846e26acce4955dda6e6e8f6.
-GRAPH.06.02: gestione multi-mappa WPF/SQLite implementata e verificata
-nella worktree feat/graph-06-02-map-manager, indipendente da GRAPH.05.
+GRAPH.06.02 PR #9 integrata con squash a9df2bd15cfde495c120bdf2b754b8052fa5ef62:
+gestione multi-mappa WPF/SQLite implementata e verificata su OFFICE-PC,
+indipendente da GRAPH.05.
 GRAPH.05 PR #6 resta DRAFT: test .NET 4/4 e scale-smoke 300k PASS;
 smoke UI Undo/Redo non ancora PASS e DLL smoke bloccata da Smart App Control.
 La firma RSA di sviluppo non e' ancora disponibile. GRAPH.07-08 non iniziate.
@@ -20,7 +21,7 @@ La firma RSA di sviluppo non e' ancora disponibile. GRAPH.07-08 non iniziate.
 | GRAPH.05 | Spostamento, fissaggio, undo e ripristino | PR #6 Draft; smoke UI e accettazione mancanti |
 | GRAPH.06 | Primo editor personale completo | Avviato a slice; editor completo non implementato |
 | GRAPH.06.01 | Contratto JSON portabile del grafo | PR #7 integrata; codec/test PASS, non UI/import file |
-| GRAPH.06.02 | Gestione mappe personali | Candidata indipendente da main; elenco, creazione, selezione e rinomina WPF + SQLite; smoke PASS |
+| GRAPH.06.02 | Gestione mappe personali | PR #9 integrata; elenco, creazione, selezione e rinomina WPF + SQLite; smoke PASS |
 | GRAPH.06.03+ | Editor nodi/relazioni, ricerca UI, import/export file, backup/recovery, integrazione | Da pianificare e implementare; non incluse in 06.02 |
 | GRAPH.07 | Automazioni AI | Non implementata |
 | GRAPH.08 | Modalità libri | Non implementata |
@@ -58,9 +59,9 @@ senza attendere il certificato RSA: GRAPH.06.01 e' stata sviluppata sulla
 worktree separata `C:\Sviluppo\Nodilume-graph06-01`, da main (non da GRAPH.05),
 quindi integrata tramite PR #7. Vedere `docs/plans/graph-06-01-portable-map.md`
 e `docs/validation/graph-06-01.md`. GRAPH.06.02 e' stata avviata separatamente
-da main in `C:\Sviluppo\Nodilume-graph06-02`: elenco/creazione/rinomina/
-passaggio mappe persistenti (vedere `docs/plans/graph-06-02-map-manager.md`
-e `docs/validation/graph-06-02.md`). Le integrazioni fra 05 e 06 necessitano
+da main in `C:\Sviluppo\Nodilume-graph06-02` e integrata con PR #9:
+elenco/creazione/rinomina/passaggio mappe persistenti (vedere
+`docs/plans/graph-06-02-map-manager.md` e `docs/validation/graph-06-02.md`). Le integrazioni fra 05 e 06 necessitano
 di gate separati: ne' la slice portabile ne' il catalogo sono un editor completo.
 
 Ogni fase richiede verifiche sui rischi concreti introdotti. Una fase non è conclusa

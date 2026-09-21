@@ -10,8 +10,9 @@ sul relativo branch, ma smoke UI Undo/Redo e accettazione manuale ancora mancant
 Smart App Control blocca la DLL smoke non firmata su OFFICE-PC.
 GRAPH.06.01 e' stata integrata tramite PR #7, squash c515f79: codec JSON
 portabile del grafo, senza interfaccia editor completa o file backup.
-GRAPH.06.02 e' la candidata di gestione mappe WPF: elenco, creazione vuota,
-apertura, rinomina, switch e selezione persistente in database SQLite isolati.
+GRAPH.06.02 e' integrata tramite PR #9 (squash a9df2bd): elenco,
+creazione vuota, apertura, rinomina, switch e selezione persistente
+di mappe personali in database SQLite isolati.
 GRAPH.07-08 non iniziate. Vedere docs/coordination.md e docs/roadmap.md.
 
 GRAPH.03 introduce zoom semantico contestuale, aggregazioni e navigazione trasversale.
