@@ -2,6 +2,7 @@
 Data: 21 settembre 2026; repository Idiopathy-shh/nodilume.
 PC: OFFICE-PC; worktree C:\Sviluppo\Nodilume-graph06-02;
 branch feat/graph-06-02-map-manager, base main@21e7ea92e28329164763be60d0c172de3a12d7f9.
+PR #9 MERGED, squash main@a9df2bd15cfde495c120bdf2b754b8052fa5ef62.
 
 ## Consegna
 Gestione WPF della mappa attiva (elenco, creazione vuota, rinomina e switch),
