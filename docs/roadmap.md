@@ -1,11 +1,8 @@
 # Nodilume — roadmap
 
-Stato 18 settembre 2026: GRAPH.00-03 integrate. GRAPH.03 PR #3 squash su main
-`1690c35fcde8f6e51bb17fda7e4f32da8c76d8a2`. GRAPH.04 è implementata sul branch
-`feat/graph-04-selective-loading` e ha PASS tecnico su build, smoke GRAPH.03,
-scale-smoke WPF/WebView2 e benchmark 10k/100k/300k. PR #5 è pubblicata come draft;
-restano verifica della coordinatrice, accettazione visiva separata e integrazione.
-GRAPH.05-08 non iniziate.
+Stato 21 settembre 2026: GRAPH.00-04 integrate. GRAPH.04 PR #5 merged, main
+`0f6bdac9d988bb1a6a6c3ddb8b3f71d02bd872f5`. GRAPH.05 candidata: compilazione
+e viewer PASS; runtime BLOCCATO da criterio Windows 0x800711C7. GRAPH.06-08 non iniziate.
 
 ## Roadmap
 
@@ -15,8 +12,8 @@ GRAPH.05-08 non iniziate.
 | GRAPH.01 | Finestra Windows e scena 3D locale | Completata e accettata |
 | GRAPH.02 | Identità, rappresentazioni, contenimento e SQLite | Integrata tramite PR #2 |
 | GRAPH.03 | Zoom semantico continuo e collegamenti aggregati | Integrata PR #3; PASS tecnico e smoke confermati |
-| GRAPH.04 | Caricamento selettivo e prove di scala | Implementata e PASS tecnico sul branch dedicato; PR/verifica coordinatrice e integrazione ancora pendenti |
-| GRAPH.05 | Spostamento, fissaggio, undo e ripristino | Non implementata |
+| GRAPH.04 | Caricamento selettivo e prove di scala | Integrata tramite PR #5; limiti del report invariati |
+| GRAPH.05 | Spostamento, fissaggio, undo e ripristino | Candidata; runtime bloccato, non PASS complessivo |
 | GRAPH.06 | Primo editor personale completo | Non implementata |
 | GRAPH.07 | Automazioni AI | Non implementata |
 | GRAPH.08 | Modalità libri | Non implementata |
@@ -47,7 +44,7 @@ non introduce una UX separata per sfogliare tutte le pagine Relation. L'accettaz
 visiva manuale resta distinta dal PASS tecnico. Dettagli in
 `docs/validation/graph-04.md` e `docs/benchmarks/graph-04.md`.
 
-GRAPH.05 non deve iniziare prima della verifica/infrastruttura di integrazione GRAPH.04.
+GRAPH.05 è in corso; GRAPH.06 resta non assegnata. Vedere docs/validation/graph-05.md.
 
 Ogni fase richiede verifiche sui rischi concreti introdotti. Una fase non è conclusa
 per il solo fatto che il codice compila.

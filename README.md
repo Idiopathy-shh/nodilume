@@ -4,18 +4,12 @@ Desktop Windows per esplorare mappe di idee come grafi 3D multiscala.
 
 ## Stato
 
-GRAPH.00-03 integrate. GRAPH.03: PR #3, squash su main
-`1690c35fcde8f6e51bb17fda7e4f32da8c76d8a2`. GRAPH.04 è implementata e verificata
-tecnicamente sul branch `feat/graph-04-selective-loading`: caricamento progressivo,
-budget separati, cache bounded, ricerca indicizzata e benchmark 10k/100k/300k PASS
-sull'hardware documentato. PR #5 pubblicata come draft; verifica coordinatrice,
-integrazione e accettazione visiva restano passaggi separati. GRAPH.05-08 non iniziate.
-
-GRAPH.03 introduce zoom semantico contestuale, aggregazioni e navigazione trasversale.
-GRAPH.04 rende raggiungibili i figli oltre la prima pagina, limita nodi/link/etichette,
-evita caricamenti globali nel renderer e misura la scala fino a 300.000 Idea. Non è
-ancora un editor completo: drag/pin, undo/redo e camera persistente appartengono a
-GRAPH.05; gestione completa e ricerca UI appartengono alle fasi successive.
+GRAPH.00-04 integrate. GRAPH.04: PR #5, main `0f6bdac9d988bb1a6a6c3ddb8b3f71d02bd872f5`.
+GRAPH.05 è una candidata sul branch `feat/graph-05-editing-viewstate`: drag locale,
+pin, undo/redo persistente e ripristino della vista. Non è ancora PASS complessivo.
+Viewer 13/13 e compilazione PASS; test .NET bloccati dal criterio Windows 0x800711C7.
+Smoke reale e scale-smoke della candidata non eseguiti.
+Dettagli in `docs/validation/graph-05.md`; GRAPH.06-08 non iniziate.
 
 ## Architettura
 
@@ -44,7 +38,7 @@ dotnet run --project tests/Nodilume.Smoke -c Release --no-build
 ./scripts/run.ps1
 ```
 
-`build.ps1` esegue `npm ci`, nove test viewer/navigation, compilazione TypeScript,
+`build.ps1` esegue `npm ci`, 13 test viewer/navigation/editing, compilazione TypeScript,
 bundle, test Core/SQLite/proiezione semantica su database temporanei reali e build .NET
 con restore bloccato. Compila inoltre lo scale-smoke e il tool benchmark GRAPH.04.
 
@@ -90,3 +84,10 @@ La roadmap è in `docs/roadmap.md`.
 Solo codice e fixture sintetiche appartengono a questa repository privata.
 Libri, database personali, fotografie e credenziali restano fuori da git.
 Nome scelto dall'utente; disponibilità legale del marchio non accertata.
+
+## Modifiche locali GRAPH.05 (candidate)
+
+Maiusc+trascina sposta un nodo del contesto. Fissa/Sblocca protegge il Placement;
+sbloccare prima del drag. Annulla/Ripeti (Ctrl+Z/Ctrl+Y) conserva fino a 100
+operazioni per mappa anche dopo riapertura. Il punto di vista viene salvato
+separatamente; la nuova UX richiede ancora esecuzione smoke e accettazione.
