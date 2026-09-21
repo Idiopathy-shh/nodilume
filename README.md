@@ -10,6 +10,8 @@ sul relativo branch, ma smoke UI Undo/Redo e accettazione manuale ancora mancant
 Smart App Control blocca la DLL smoke non firmata su OFFICE-PC.
 GRAPH.06.01 e' stata integrata tramite PR #7, squash c515f79: codec JSON
 portabile del grafo, senza interfaccia editor completa o file backup.
+GRAPH.06.02 e' la candidata di gestione mappe WPF: elenco, creazione vuota,
+apertura, rinomina, switch e selezione persistente in database SQLite isolati.
 GRAPH.07-08 non iniziate. Vedere docs/coordination.md e docs/roadmap.md.
 
 GRAPH.03 introduce zoom semantico contestuale, aggregazioni e navigazione trasversale.
@@ -19,6 +21,8 @@ ancora un editor completo: drag/pin, undo/redo e camera persistente sono candida
 GRAPH.05; gestione completa e ricerca UI appartengono alle fasi successive.
 Il codec GRAPH.06.01 esporta/importa il grafo in memoria, senza file dialog o
 integrazione con la shell WPF e senza dipendere dalla migrazione SQLite v3.
+La GRAPH.06.02 introduce la sola gestione mappe: i contenuti delle mappe
+vuote saranno editabili nella successiva GRAPH.06.03.
 
 ## Architettura
 
@@ -48,7 +52,7 @@ dotnet run --project tests/Nodilume.Smoke -c Release --no-build
 ```
 
 `build.ps1` esegue `npm ci`, nove test viewer/navigation, compilazione TypeScript,
-bundle, test Core/SQLite/proiezione semantica su database temporanei reali e build .NET
+bundle, test Core/SQLite/proiezione semantica/catalogo mappe su database temporanei reali e build .NET
 con restore bloccato. Compila inoltre lo scale-smoke e il tool benchmark GRAPH.04.
 
 Lo smoke GRAPH.03 usa una fixture separata dalla demo personale. Apre due finestre
@@ -56,6 +60,16 @@ WPF/WebView2 consecutive sullo stesso database temporaneo e verifica tre contest
 annidati, entrata/uscita, scelta fra rappresentazioni, destinazione trasversale e ritorno,
 direzioni opposte, focus osservabile, resize e riapertura persistente. Salva
 `artifacts/graph-03-smoke.png` e non sovrascrive database esistenti.
+
+## Gestione delle mappe (GRAPH.06.02)
+
+Il menu `Mappa` in alto elenca le mappe personali nella cartella locale.
+Scrivi un nome nel campo e premi `Nuova mappa` per creare una mappa
+vuota distinta; scegli una voce dal menu per aprirla o usa `Rinomina` per
+cambiare il nome di quella attiva. La selezione viene ripristinata alla
+riapertura. L'antica demo.sqlite resta disponibile: non viene spostata
+o sovrascritta da nuovi file mappa GUID.sqlite. Nessuna cancellazione mappe
+e nessun editor di contenuti ancora introdotti da questa patch.
 
 ## Comandi della vista
 
@@ -85,6 +99,8 @@ Le prove GRAPH.02 sono in `docs/validation/graph-02.md`.
 Le prove e il playbook GRAPH.03 sono in `docs/validation/graph-03.md`.
 La validazione GRAPH.04 è in `docs/validation/graph-04.md` e i benchmark in
 `docs/benchmarks/graph-04.md`.
+GRAPH.06.02: `docs/plans/graph-06-02-map-manager.md`,
+`docs/validation/graph-06-02.md` e `docs/handoffs/GRAPH_06_02_RESULT.md`.
 GRAPH.06.01: `docs/plans/graph-06-01-portable-map.md` e
 `docs/validation/graph-06-01.md`; per verificare solo questa slice:
 `dotnet restore tests/Nodilume.Tests --locked-mode`,

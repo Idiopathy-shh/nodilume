@@ -14,7 +14,14 @@ public partial class MainWindow : Window
     private const string Origin = "https://nodilume.local";
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
     private readonly string _profile;
-    private readonly string _databasePath;
+    private string _databasePath;
+    private readonly string _legacyDatabasePath;
+    private readonly bool _seedDemoOnStartup;
+    private readonly MapCatalog _mapCatalog;
+    private CatalogMap? _selectedMap;
+    private int _mapGeneration;
+    private bool _updatingPicker;
+    private bool _mapActionBusy;
     private readonly SceneProjectionCache _projectionCache = new();
     private CancellationTokenSource? _projectionCancellation;
     private PlacementId? _lastContextPlacementId;
@@ -24,8 +31,7 @@ public partial class MainWindow : Window
     private bool _closed;
 
     public MainWindow() : this(
-        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Nodilume", "WebView2"),
-        MapDatabasePaths.Demo)
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Nodilume", "WebView2"))
     {
     }
 
@@ -33,7 +39,11 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
         _profile = profile;
+        _seedDemoOnStartup = databasePath is null;
         _databasePath = databasePath ?? MapDatabasePaths.Demo;
+        _legacyDatabasePath = _databasePath;
+        _mapCatalog = new MapCatalog(Path.GetDirectoryName(Path.GetFullPath(_databasePath))!,
+            _legacyDatabasePath);
         Loaded += InitializeViewer;
         Closed += (_, _) =>
         {
@@ -49,6 +59,8 @@ public partial class MainWindow : Window
         Loaded -= InitializeViewer;
         try
         {
+            await InitializeMapCatalogAsync();
+            if (_closed) return;
             var assets = Path.Combine(AppContext.BaseDirectory, "viewer");
             if (!File.Exists(Path.Combine(assets, "index.html")))
                 throw new IOException("Risorse grafiche mancanti. Esegui scripts/build.ps1.");
@@ -172,15 +184,18 @@ public partial class MainWindow : Window
         PlacementId? afterPlacementId,
         PlacementId? preserveSelectionPlacementId)
     {
+        var generation = _mapGeneration;
         var cancellation = new CancellationTokenSource();
         var previous = Interlocked.Exchange(ref _projectionCancellation, cancellation);
         previous?.Cancel();
-        previous?.Dispose();
 
         try
         {
-            await using var store = new SqliteMapStore(_databasePath);
-            await DemoMapInitializer.EnsureAsync(store, cancellation.Token);
+            var databasePath = _databasePath;
+            if (!File.Exists(databasePath))
+                throw new FileNotFoundException("La mappa selezionata non esiste.");
+            await using var store = new SqliteMapStore(databasePath);
+            await store.InitializeAsync(cancellation.Token);
             var map = await store.GetMapAsync(cancellation.Token)
                 ?? throw new InvalidOperationException("Map is not initialized.");
             if (requestedMapId is not null && requestedMapId != map.Id.ToString())
@@ -195,7 +210,7 @@ public partial class MainWindow : Window
                 afterPlacementId: afterPlacementId,
                 preserveSelectionPlacementId: preserveSelectionPlacementId,
                 cancellationToken: cancellation.Token);
-            if (_closed || cancellation.IsCancellationRequested
+            if (_closed || cancellation.IsCancellationRequested || generation != _mapGeneration
                 || !ReferenceEquals(_projectionCancellation, cancellation))
                 return;
 
@@ -218,7 +233,7 @@ public partial class MainWindow : Window
         }
         catch (Exception ex)
         {
-            if (_closed || cancellation.IsCancellationRequested
+            if (_closed || cancellation.IsCancellationRequested || generation != _mapGeneration
                 || !ReferenceEquals(_projectionCancellation, cancellation))
                 return;
             var error = new SceneProjectionError(
@@ -235,9 +250,8 @@ public partial class MainWindow : Window
         }
         finally
         {
-            if (ReferenceEquals(Interlocked.CompareExchange(
-                    ref _projectionCancellation, null, cancellation), cancellation))
-                cancellation.Dispose();
+            Interlocked.CompareExchange(ref _projectionCancellation, null, cancellation);
+            cancellation.Dispose();
         }
     }
 
