@@ -8,9 +8,9 @@ GRAPH.00-04 integrate (GRAPH.04 PR #5; main@0f6bdac). GRAPH.05 PR #6 e'
 una candidata DRAFT: viewer 13/13, test .NET 4/4 e scale-smoke 300k PASS
 sul relativo branch, ma smoke UI Undo/Redo e accettazione manuale ancora mancanti;
 Smart App Control blocca la DLL smoke non firmata su OFFICE-PC.
-GRAPH.06.01 procede IN PARALLELO da main su una worktree distinta: codec JSON
-portabile del grafo, senza interfaccia editor completa o file backup. GRAPH.07-08
-non iniziate. Vedere docs/coordination.md e docs/roadmap.md.
+GRAPH.06.01 e' stata integrata tramite PR #7, squash c515f79: codec JSON
+portabile del grafo, senza interfaccia editor completa o file backup.
+GRAPH.07-08 non iniziate. Vedere docs/coordination.md e docs/roadmap.md.
 
 GRAPH.03 introduce zoom semantico contestuale, aggregazioni e navigazione trasversale.
 GRAPH.04 rende raggiungibili i figli oltre la prima pagina, limita nodi/link/etichette,
