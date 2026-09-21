@@ -17,10 +17,13 @@ internal static class Program
             return 2;
         }
 
-        var databasePath = Path.GetFullPath(args[0]);
+        var sourceDatabasePath = Path.GetFullPath(args[0]);
         var outputPath = args.Length == 2 ? Path.GetFullPath(args[1]) : null;
         var profile = Path.Combine(Path.GetTempPath(), "NodilumeScaleSmoke", Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(profile);
+        var databasePath = Path.Combine(profile, "graph05-scale.sqlite");
+        try { ScaleEditingChecks.CloneAndVerifyAsync(sourceDatabasePath, databasePath).GetAwaiter().GetResult(); }
+        catch (Exception exception) { Console.Error.WriteLine(exception); return 1; }
         var app = new Application { ShutdownMode = ShutdownMode.OnExplicitShutdown };
         var result = 1;
         var opening = Stopwatch.StartNew();
@@ -49,7 +52,10 @@ internal static class Program
             }
             finally
             {
+                var closed = new TaskCompletionSource<bool>();
+                window.Closed += (_, _) => closed.TrySetResult(true);
                 window.Close();
+                await closed.Task.WaitAsync(TimeSpan.FromSeconds(10));
                 app.Shutdown();
             }
         };

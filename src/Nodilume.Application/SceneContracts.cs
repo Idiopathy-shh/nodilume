@@ -22,7 +22,9 @@ public sealed record SceneNode(
     string Role,
     bool ShowLabel,
     bool HasChildren,
-    int DirectChildCount);
+    int DirectChildCount,
+    bool IsPinned,
+    double LocalX, double LocalY, double LocalZ);
 
 public sealed record SceneLink(
     string Id,

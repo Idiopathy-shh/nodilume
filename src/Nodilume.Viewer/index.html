@@ -18,6 +18,8 @@
   <button id="up" disabled>↑ Livello superiore</button>
   <button id="page-prev" disabled>← Pagina</button>
   <button id="page-next" disabled>Altri →</button>
+  <button id="undo" disabled>↶ Annulla</button>
+  <button id="redo" disabled>↷ Ripeti</button>
   <button id="home">↗ Panoramica</button>
  </nav>
  <div id="breadcrumbs" aria-label="Percorso del contesto"></div>
@@ -32,13 +34,15 @@
   <div class="action-grid">
    <button id="focus" disabled>Metti a fuoco</button>
    <button id="enter" disabled>Entra →</button>
+   <button id="pin" disabled>Fissa</button>
   </div>
+  <p id="edit-status" role="status" aria-live="polite"></p>
   <div class="divider compact"></div>
   <div class="eyebrow">COLLEGAMENTI</div>
   <div id="relations"><p class="muted">Seleziona un nodo per vedere le destinazioni.</p></div>
   <div class="legend"><span class="containment">— contenimento</span><span class="conceptual">→ relazione concettuale</span></div>
  </aside>
- <footer><span id="counts">Preparazione della scena…</span><span>Trascina: ruota · Tasto destro: sposta · Rotella: zoom<br>WASD: attraversa · Q/E: scendi/sali · Invio: entra · Esc: esci</span></footer>
+ <footer><span id="counts">Preparazione della scena…</span><span>Trascina: ruota · Maiusc+trascina nodo: sposta · Tasto destro: pan · Rotella: zoom<br>WASD: attraversa · Q/E: scendi/sali · Invio: entra · Esc: esci</span></footer>
  <div id="error" role="alert" hidden></div>
  <script type="module" src="main.js"></script>
 </body>

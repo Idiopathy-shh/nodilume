@@ -2,7 +2,7 @@ namespace Nodilume.Infrastructure.Sqlite;
 
 internal static class SqliteSchema
 {
-    public const int CurrentVersion = 2;
+    public const int CurrentVersion = 3;
 
     public const string MigrationV1 = """
 CREATE TABLE IF NOT EXISTS schema_info (
@@ -72,4 +72,28 @@ CREATE INDEX IF NOT EXISTS ix_relations_target
 CREATE INDEX IF NOT EXISTS ix_relations_map_id
     ON relations(map_id, id);
 """;
+    public const string MigrationV3 = """
+CREATE TABLE IF NOT EXISTS graph_edits (
+ seq INTEGER PRIMARY KEY AUTOINCREMENT,
+ map_id TEXT NOT NULL, placement_id TEXT NOT NULL,
+ before_x REAL NOT NULL, before_y REAL NOT NULL, before_z REAL NOT NULL, before_pin INTEGER NOT NULL,
+ after_x REAL NOT NULL, after_y REAL NOT NULL, after_z REAL NOT NULL, after_pin INTEGER NOT NULL,
+ FOREIGN KEY(map_id) REFERENCES maps(id) ON DELETE CASCADE
+);
+CREATE INDEX IF NOT EXISTS ix_graph_edits_map_seq ON graph_edits(map_id, seq);
+CREATE TABLE IF NOT EXISTS edit_cursor (
+ map_id TEXT PRIMARY KEY, seq INTEGER NOT NULL DEFAULT 0,
+ FOREIGN KEY(map_id) REFERENCES maps(id) ON DELETE CASCADE
+);
+CREATE TABLE IF NOT EXISTS edit_receipts (
+ map_id TEXT NOT NULL, request_id TEXT NOT NULL, fingerprint TEXT NOT NULL,
+ revision INTEGER NOT NULL, PRIMARY KEY(map_id, request_id),
+ FOREIGN KEY(map_id) REFERENCES maps(id) ON DELETE CASCADE
+);
+CREATE TABLE IF NOT EXISTS view_state (
+ map_id TEXT PRIMARY KEY, payload TEXT NOT NULL,
+ FOREIGN KEY(map_id) REFERENCES maps(id) ON DELETE CASCADE
+);
+""";
+
 }

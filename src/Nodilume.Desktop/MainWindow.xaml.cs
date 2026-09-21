@@ -35,6 +35,7 @@ public partial class MainWindow : Window
         _profile = profile;
         _databasePath = databasePath ?? MapDatabasePaths.Demo;
         Loaded += InitializeViewer;
+        ConfigureViewSaveOnClose();
         Closed += (_, _) =>
         {
             _closed = true;
@@ -99,7 +100,13 @@ public partial class MainWindow : Window
             {
                 case "ready":
                     _recoveringViewer = false;
-                    await SendProjectionAsync(requestId, _lastContextPlacementId, null, null, null, null);
+                    await SendInitialProjectionAsync(requestId);
+                    break;
+                case "editCommand":
+                    await HandleEditCommandAsync(root, requestId);
+                    break;
+                case "viewState":
+                    await HandleViewStateAsync(root);
                     break;
                 case "projectionRequest":
                     await HandleProjectionRequestAsync(root, requestId);

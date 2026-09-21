@@ -6,7 +6,8 @@ internal static class Program
         {
             ("Domain invariants", DomainTests.RunAsync),
             ("SQLite integration", SqliteTests.RunAsync),
-            ("Semantic projection", SemanticProjectionTests.RunAsync)
+            ("Semantic projection", SemanticProjectionTests.RunAsync),
+            ("Local edits and view state", LocalEditTests.RunAsync)
         };
 
         var failed = 0;
