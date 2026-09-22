@@ -10,7 +10,7 @@ editor di Idea/rappresentazioni, note locali e creazione gerarchica WPF;
 viewer 9/9, .NET 6/6, smoke WPF/WebView2 e scale-smoke 300k PASS.
 GRAPH.06.04 PR #13 integrata con squash
 550ce57916d274b12606ce60f97f33a7d9f10d7a: editor Relation.
-GRAPH.06.05 candidata sul branch feat/graph-06-05-search-ui: ricerca UI;
+GRAPH.06.05 PR #15 candidata: ricerca UI;
 viewer 10/10, .NET 8/8, smoke e scale-smoke 300k PASS su OFFICE-PC.
 GRAPH.05 PR #6 resta DRAFT: test .NET 4/4 e scale-smoke 300k PASS;
 smoke UI Undo/Redo non ancora PASS e DLL smoke bloccata da Smart App Control.

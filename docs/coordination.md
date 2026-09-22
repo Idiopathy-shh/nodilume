@@ -11,7 +11,7 @@ GRAPH.06.03 PR #11 MERGED con squash
 9478973e7a5be33c5487499e6e3ab560c342267e.
 GRAPH.06.04 PR #13 MERGED con squash
 550ce57916d274b12606ce60f97f33a7d9f10d7a.
-GRAPH.06.05 candidata sul branch feat/graph-06-05-search-ui,
+GRAPH.06.05 PR #15 OPEN sul branch feat/graph-06-05-search-ui,
 worktree C:\Sviluppo\Nodilume-graph06-05, base main@2f3eb05.
 Ricerca UI: viewer 10/10, .NET 8/8, smoke e scala 300k PASS.
 PR documentale #4 CLOSED (contenuti assorbiti in GRAPH.04).
