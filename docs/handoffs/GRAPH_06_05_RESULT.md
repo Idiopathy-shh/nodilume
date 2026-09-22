@@ -3,7 +3,7 @@
 Data: 22 settembre 2026.
 Branch: feat/graph-06-05-search-ui.
 Base: main@2f3eb05d654ea3846400c514d7e5cbca4acc0179.
-PR: #15, aperta.
+Integrata: PR #15, squash main@cbde11114713d2e0f317c4fc82e28de5d5cf7283.
 
 ## Consegnato
 

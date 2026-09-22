@@ -11,8 +11,8 @@ GRAPH.06.03 PR #11 MERGED con squash
 9478973e7a5be33c5487499e6e3ab560c342267e.
 GRAPH.06.04 PR #13 MERGED con squash
 550ce57916d274b12606ce60f97f33a7d9f10d7a.
-GRAPH.06.05 PR #15 OPEN sul branch feat/graph-06-05-search-ui,
-worktree C:\Sviluppo\Nodilume-graph06-05, base main@2f3eb05.
+GRAPH.06.05 PR #15 MERGED con squash
+cbde11114713d2e0f317c4fc82e28de5d5cf7283.
 Ricerca UI: viewer 10/10, .NET 8/8, smoke e scala 300k PASS.
 PR documentale #4 CLOSED (contenuti assorbiti in GRAPH.04).
 GRAPH.05 PR #6 OPEN/DRAFT, branch feat/graph-05-editing-viewstate,
@@ -22,7 +22,7 @@ Undo/Redo NON PASS, successiva esecuzione bloccata dal criterio SAC 0x800711C7.
 Accettazione manuale non conclusa. Non attribuire PASS/merge alla GRAPH.05.
 La firma RSA di sviluppo deve ancora arrivare; non modificare protezioni Windows.
 
-## GRAPH.06 in parallelo: 06.01/06.02/06.03/06.04 integrate
+## GRAPH.06 in parallelo: 06.01–06.05 integrate
 GRAPH.06 e' il primo editor personale completo (multi-map, nodi, relazioni,
 ricerca, import/export, recupero). GRAPH.06.01 ha integrato SOLO il codec
 JSON portabile di Idea/Placement/Relation: PR #7 MERGED in main, dalla
@@ -60,9 +60,8 @@ Ricerca backend 300k p95 0,9661 ms. Vedere
 e `docs/handoffs/GRAPH_06_05_RESULT.md`.
 
 ## Governance e gate
-GRAPH.06.01, GRAPH.06.02, GRAPH.06.03 e GRAPH.06.04 sono integrate
-in main. GRAPH.06.05 e' candidata e non va dichiarata integrata prima del merge.
-GRAPH.05 resta Draft con gate indipendenti.
+GRAPH.06.01, GRAPH.06.02, GRAPH.06.03, GRAPH.06.04 e GRAPH.06.05
+sono integrate in main. GRAPH.05 resta Draft con gate indipendenti.
 Non iniziare integrazioni che dipendono da GRAPH.05 finche' non e' validata.
 Il PASS della 06.01 non certifica la gestione mappe: questa viene verificata
 separatamente in GRAPH.06.02. Il PASS della 06.02 NON certifica editor

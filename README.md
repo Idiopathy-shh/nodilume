@@ -15,8 +15,8 @@ di mappe personali in database SQLite separati. GRAPH.06.03 e' integrata
 tramite PR #11, squash 9478973: editor di Idee/nodi con gerarchie,
 rappresentazioni multiple e note locali, indipendente da GRAPH.05.
 GRAPH.06.04 e' integrata tramite PR #13, squash 550ce57: editor Relation
-con create/update/inversione/delete. GRAPH.06.05 e' candidata in PR #15:
-ricerca indicizzata con scelte Placement esplicite;
+con create/update/inversione/delete. GRAPH.06.05 e' integrata tramite PR #15,
+squash cbde111: ricerca indicizzata con scelte Placement esplicite;
 viewer 10/10, .NET 8/8, smoke e scala 300k PASS su OFFICE-PC.
 GRAPH.07-08 non iniziate. Vedere docs/coordination.md e docs/roadmap.md.
 
