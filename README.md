@@ -16,21 +16,24 @@ tramite PR #11, squash 9478973: editor di Idee/nodi con gerarchie,
 rappresentazioni multiple e note locali, indipendente da GRAPH.05.
 GRAPH.06.04 e' integrata tramite PR #13, squash 550ce57: editor Relation
 con create/update/inversione/delete. GRAPH.06.05 e' integrata tramite PR #15,
-squash cbde111: ricerca indicizzata con scelte Placement esplicite;
-viewer 10/10, .NET 8/8, smoke e scala 300k PASS su OFFICE-PC.
+squash cbde111: ricerca indicizzata con scelte Placement esplicite.
+GRAPH.06.06 e' candidata sul branch `feat/graph-06-06-file-import-export`:
+file JSON portabili, import sempre in una nuova mappa e limite 64 MiB;
+viewer 10/10, .NET 9/9 e smoke WPF/WebView2 PASS su OFFICE-PC.
 GRAPH.07-08 non iniziate. Vedere docs/coordination.md e docs/roadmap.md.
 
 GRAPH.03 introduce zoom semantico contestuale, aggregazioni e navigazione trasversale.
 GRAPH.04 rende raggiungibili i figli oltre la prima pagina, limita nodi/link/etichette,
 evita caricamenti globali nel renderer e misura la scala fino a 300.000 Idea. Non è
 ancora un editor completo: drag/pin, undo/redo e camera persistente sono candidate
-GRAPH.05; file import/export e backup/recovery appartengono alle fasi successive.
-Il codec GRAPH.06.01 esporta/importa il grafo in memoria, senza file dialog o
-integrazione con la shell WPF e senza dipendere dalla migrazione SQLite v3.
+GRAPH.05; backup/recovery appartiene alle fasi successive.
+Il codec GRAPH.06.01 esporta/importa il grafo in memoria. GRAPH.06.06 lo espone
+come file JSON tramite dialog WPF, senza confonderlo con un backup SQLite.
 GRAPH.06.02 introduce la gestione mappe; GRAPH.06.03 rende possibile
 aggiungere e modificare idee radice o figlie in tali mappe. GRAPH.06.04
 aggiunge le Relation concettuali fra Idea con direzione, tipo e spiegazione.
 GRAPH.06.05 espone la ricerca per prefisso e apre una rappresentazione scelta.
+GRAPH.06.06 esporta file JSON UTF-8 e importa copie indipendenti in nuove mappe.
 Le operazioni Undo/Redo, drag/pin e camera persistente rimangono candidate
 in GRAPH.05 e non sono comprese nelle slice indipendenti GRAPH.06.
 
@@ -62,7 +65,7 @@ dotnet run --project tests/Nodilume.Smoke -c Release --no-build
 ```
 
 `build.ps1` esegue `npm ci`, dieci test viewer/navigation, compilazione TypeScript,
-bundle, otto gruppi .NET Core/SQLite/proiezione/codec/catalogo/editor/ricerca
+bundle, nove gruppi .NET Core/SQLite/proiezione/codec/catalogo/editor/ricerca/file
 su database temporanei reali e build .NET con restore bloccato. Compila inoltre
 lo scale-smoke e il tool benchmark GRAPH.04.
 
@@ -114,6 +117,14 @@ separata con percorso e ID breve. Seleziona una riga per vedere il contenuto
 condiviso e premi `Apri` per raggiungere quel nodo esatto. I risultati vengono
 azzerati al cambio mappa; limiti su rappresentazioni o percorso sono dichiarati.
 
+## Import/export file (GRAPH.06.06)
+
+`Esporta file` salva la mappa selezionata come JSON portabile UTF-8 con sostituzione
+atomica del file finale. `Importa file` valida interamente il documento prima di
+creare una nuova mappa con MapId distinto e revisione 0; non sovrascrive mai la
+mappa di origine. Sono accettati solo file `.json` fino a 64 MiB. Questa funzione
+e' pensata per mappe piccole/medie e non sostituisce backup/recovery SQLite.
+
 ## Comandi della vista
 
 - Trascina col tasto sinistro per ruotare; col destro per spostare.
@@ -150,6 +161,8 @@ GRAPH.06.04: `docs/plans/graph-06-04-relation-editor.md`,
 `docs/validation/graph-06-04.md` e `docs/handoffs/GRAPH_06_04_RESULT.md`.
 GRAPH.06.05: `docs/plans/graph-06-05-search-ui.md`,
 `docs/validation/graph-06-05.md` e `docs/handoffs/GRAPH_06_05_RESULT.md`.
+GRAPH.06.06: `docs/plans/graph-06-06-file-import-export.md`,
+`docs/validation/graph-06-06.md` e `docs/handoffs/GRAPH_06_06_RESULT.md`.
 GRAPH.06.01: `docs/plans/graph-06-01-portable-map.md` e
 `docs/validation/graph-06-01.md`; per verificare solo questa slice:
 `dotnet restore tests/Nodilume.Tests --locked-mode`,

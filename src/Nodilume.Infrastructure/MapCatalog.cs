@@ -1,3 +1,4 @@
+using System.Text;
 using Microsoft.Data.Sqlite;
 using Nodilume.Core;
 using Nodilume.Infrastructure.Sqlite;
@@ -10,9 +11,11 @@ public sealed record CatalogMap(MapInfo Map, string DatabasePath)
 }
 
 /// <summary>Maps stored in a single application-controlled folder; no discovery outside it.</summary>
-public sealed class MapCatalog
+public sealed partial class MapCatalog
 {
+    public const long MaxPortableFileBytes = 64L * 1024 * 1024;
     private const string SelectionFile = "active-map.txt";
+    private static readonly UTF8Encoding StrictUtf8 = new(false, true);
     private readonly string _directory;
     private readonly string _legacyPath;
 
@@ -85,29 +88,12 @@ public sealed class MapCatalog
         return trimmed;
     }
 
-    public async Task<CatalogMap> CreateAsync(string title, CancellationToken cancellationToken = default)
+    public Task<CatalogMap> CreateAsync(
+        string title, CancellationToken cancellationToken = default)
     {
-        var valid = ValidateTitle(title);
-        Directory.CreateDirectory(_directory);
-        var id = MapId.New();
-        var path = Path.Combine(_directory, id + ".sqlite");
-        // Reserve the new filename exclusively before SqliteOpenMode.ReadWriteCreate.
-        await using (var reservation = new FileStream(path, FileMode.CreateNew, FileAccess.Write,
-                         FileShare.None, 1, useAsync: true)) { }
-        try
-        {
-            await using var store = new SqliteMapStore(path);
-            await store.InitializeAsync(cancellationToken);
-            var graph = new MapGraph(new MapInfo(id, valid, 0, 2));
-            await store.CreateMapAsync(graph, cancellationToken);
-            return new CatalogMap(graph.Map, path);
-        }
-        catch
-        {
-            // Only the exact filename created by this call may be cleaned up.
-            if (File.Exists(path)) File.Delete(path);
-            throw;
-        }
+        var graph = new MapGraph(new MapInfo(
+            MapId.New(), ValidateTitle(title), 0, SqliteSchema.CurrentVersion));
+        return CreateDatabaseAsync(graph, cancellationToken);
     }
 
     public async Task<CatalogMap> RenameAsync(MapId id, long expectedRevision, string title,
