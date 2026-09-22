@@ -65,6 +65,8 @@ public interface IMapStore : IAsyncDisposable
         int limit,
         IdeaSearchCursor? after = null,
         CancellationToken cancellationToken = default);
+    Task<Relation?> ReadRelationAsync(MapId mapId, RelationId relationId,
+        CancellationToken cancellationToken = default);
     Task<IReadOnlyList<Relation>> ReadRelationsForIdeasAsync(
         MapId mapId,
         IReadOnlyCollection<IdeaId> ideaIds,
@@ -105,6 +107,8 @@ public sealed record UpdatePlacementDetailsChange(Placement Placement) : MapChan
 public sealed record MovePlacementChange(Placement Placement) : MapChange;
 public sealed record RemovePlacementChange(PlacementId PlacementId) : MapChange;
 public sealed record AddRelationChange(Relation Relation) : MapChange;
+public sealed record UpdateRelationChange(Relation Relation) : MapChange;
+public sealed record RemoveRelationChange(RelationId RelationId) : MapChange;
 
 public sealed class StaleMapRevisionException(long expectedRevision)
     : InvalidOperationException($"Map revision {expectedRevision} is stale.");

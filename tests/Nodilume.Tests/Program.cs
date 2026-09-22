@@ -9,7 +9,8 @@ internal static class Program
             ("Semantic projection", SemanticProjectionTests.RunAsync),
             ("Portable map JSON", PortableMapJsonTests.RunAsync),
             ("Multi-map catalog", MapCatalogTests.RunAsync),
-            ("Idea and node editor", MapContentEditorTests.RunAsync)
+            ("Idea and node editor", MapContentEditorTests.RunAsync),
+            ("Relation editor", MapRelationEditorTests.RunAsync)
         };
 
         var failed = 0;

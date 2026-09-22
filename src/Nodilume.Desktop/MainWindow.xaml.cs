@@ -38,6 +38,7 @@ public partial class MainWindow : Window
     public MainWindow(string profile, string? databasePath = null)
     {
         InitializeComponent();
+        ResetIdeaEditor();
         _profile = profile;
         _seedDemoOnStartup = databasePath is null;
         _databasePath = databasePath ?? MapDatabasePaths.Demo;

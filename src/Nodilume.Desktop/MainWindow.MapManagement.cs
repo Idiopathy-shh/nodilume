@@ -72,6 +72,7 @@ public partial class MainWindow
         MapNameInput.IsEnabled = !busy;
         NewMapButton.IsEnabled = !busy;
         RenameMapButton.IsEnabled = !busy;
+        SetRelationControlsBusy(busy || _editorBusy);
     }
 
     private async void MapPicker_SelectionChanged(object sender, SelectionChangedEventArgs e)
