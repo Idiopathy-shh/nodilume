@@ -3,7 +3,7 @@
 Data: 22 settembre 2026.
 Branch: feat/graph-06-06-file-import-export.
 Base: main@5624163e47c439bdbde757c75cd36a22b89e0330.
-PR: da aprire.
+PR: #17 OPEN.
 
 ## Consegnato
 

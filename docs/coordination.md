@@ -14,7 +14,7 @@ GRAPH.06.04 PR #13 MERGED con squash
 GRAPH.06.05 PR #15 MERGED con squash
 cbde11114713d2e0f317c4fc82e28de5d5cf7283.
 GRAPH.06.06 candidata sul branch feat/graph-06-06-file-import-export,
-base main@5624163e47c439bdbde757c75cd36a22b89e0330; PR da aprire.
+base main@5624163e47c439bdbde757c75cd36a22b89e0330; PR #17 OPEN.
 File transfer: viewer 10/10, .NET 9/9 e smoke WPF/WebView2 PASS.
 PR documentale #4 CLOSED (contenuti assorbiti in GRAPH.04).
 GRAPH.05 PR #6 OPEN/DRAFT, branch feat/graph-05-editing-viewstate,
