@@ -5,6 +5,7 @@ Repository: Idiopathy-shh/nodilume.
 Branch: feat/graph-06-04-relation-editor.
 Worktree: C:\Sviluppo\Nodilume-graph06-04.
 Base: main@fdd65e06ffb8f2f3837262d5b1e93fda888a6baa.
+PR #13 MERGED con squash main@550ce57916d274b12606ce60f97f33a7d9f10d7a.
 
 ## Consegna
 

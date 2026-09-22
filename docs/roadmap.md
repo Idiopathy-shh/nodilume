@@ -8,7 +8,8 @@ GRAPH.06.03 PR #11 integrata con squash
 9478973e7a5be33c5487499e6e3ab560c342267e, indipendente da GRAPH.05:
 editor di Idea/rappresentazioni, note locali e creazione gerarchica WPF;
 viewer 9/9, .NET 6/6, smoke WPF/WebView2 e scale-smoke 300k PASS.
-GRAPH.06.04 candidata: editor Relation create/update/inversione/delete;
+GRAPH.06.04 PR #13 integrata con squash
+550ce57916d274b12606ce60f97f33a7d9f10d7a: editor Relation;
 viewer 9/9, .NET 7/7 e smoke WPF/WebView2 PASS su OFFICE-PC.
 GRAPH.05 PR #6 resta DRAFT: test .NET 4/4 e scale-smoke 300k PASS;
 smoke UI Undo/Redo non ancora PASS e DLL smoke bloccata da Smart App Control.
@@ -28,7 +29,7 @@ La firma RSA di sviluppo non e' ancora disponibile. GRAPH.07-08 non iniziate.
 | GRAPH.06.01 | Contratto JSON portabile del grafo | PR #7 integrata; codec/test PASS, non UI/import file |
 | GRAPH.06.02 | Gestione mappe personali | PR #9 integrata; elenco, creazione, selezione e rinomina WPF + SQLite; smoke PASS |
 | GRAPH.06.03 | Editor idee e nodi | PR #11 integrata; crea radici/figli, contenuti condivisi, note locali, rappresentazioni multiple; smoke PASS |
-| GRAPH.06.04 | Editor relazioni | Candidata: CRUD Relation revisionato, scelta estremi dalla scena, doppia conferma delete; test/smoke PASS |
+| GRAPH.06.04 | Editor relazioni | PR #13 integrata; CRUD Relation revisionato, estremi dalla scena e doppia conferma delete; test/smoke PASS |
 | GRAPH.06.05+ | Ricerca UI, import/export file, backup/recovery, integrazione | Da pianificare e implementare; fuori scope 06.04 |
 | GRAPH.07 | Automazioni AI | Non implementata |
 | GRAPH.08 | Modalità libri | Non implementata |
