@@ -13,6 +13,8 @@
      <ColumnDefinition Width="2*"/>
      <ColumnDefinition Width="Auto"/>
      <ColumnDefinition Width="Auto"/>
+     <ColumnDefinition Width="Auto"/>
+     <ColumnDefinition Width="Auto"/>
     </Grid.ColumnDefinitions>
     <TextBlock Grid.Column="0" Text="Mappa" Foreground="#D6E7F5" VerticalAlignment="Center" Margin="0,0,10,0"/>
     <ComboBox Grid.Column="1" x:Name="MapPicker" MinWidth="160" Margin="0,0,12,0"
@@ -22,7 +24,11 @@
     <Button Grid.Column="3" x:Name="NewMapButton" Content="Nuova mappa" Padding="12,5"
       Margin="0,0,8,0" Click="NewMapButton_Click"/>
     <Button Grid.Column="4" x:Name="RenameMapButton" Content="Rinomina" Padding="12,5"
-      Click="RenameMapButton_Click"/>
+      Margin="0,0,8,0" Click="RenameMapButton_Click"/>
+    <Button Grid.Column="5" x:Name="ImportMapButton" Content="Importa file" Padding="12,5"
+      Margin="0,0,8,0" Click="ImportMapButton_Click"/>
+    <Button Grid.Column="6" x:Name="ExportMapButton" Content="Esporta file" Padding="12,5"
+      Click="ExportMapButton_Click"/>
    </Grid>
   </Border>
   <Border DockPanel.Dock="Bottom" Background="#101C29" Padding="16,7">

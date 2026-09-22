@@ -13,7 +13,9 @@ GRAPH.06.04 PR #13 MERGED con squash
 550ce57916d274b12606ce60f97f33a7d9f10d7a.
 GRAPH.06.05 PR #15 MERGED con squash
 cbde11114713d2e0f317c4fc82e28de5d5cf7283.
-Ricerca UI: viewer 10/10, .NET 8/8, smoke e scala 300k PASS.
+GRAPH.06.06 candidata sul branch feat/graph-06-06-file-import-export,
+base main@5624163e47c439bdbde757c75cd36a22b89e0330; PR #17 OPEN.
+File transfer: viewer 10/10, .NET 9/9 e smoke WPF/WebView2 PASS.
 PR documentale #4 CLOSED (contenuti assorbiti in GRAPH.04).
 GRAPH.05 PR #6 OPEN/DRAFT, branch feat/graph-05-editing-viewstate,
 worktree C:\Sviluppo\Nodilume-graph05, head 946c2e019d32e157a483d2c68fdddc4e2f001e59.
@@ -22,7 +24,7 @@ Undo/Redo NON PASS, successiva esecuzione bloccata dal criterio SAC 0x800711C7.
 Accettazione manuale non conclusa. Non attribuire PASS/merge alla GRAPH.05.
 La firma RSA di sviluppo deve ancora arrivare; non modificare protezioni Windows.
 
-## GRAPH.06 in parallelo: 06.01–06.05 integrate
+## GRAPH.06 in parallelo: 06.01–06.05 integrate, 06.06 candidata
 GRAPH.06 e' il primo editor personale completo (multi-map, nodi, relazioni,
 ricerca, import/export, recupero). GRAPH.06.01 ha integrato SOLO il codec
 JSON portabile di Idea/Placement/Relation: PR #7 MERGED in main, dalla
@@ -58,10 +60,18 @@ OFFICE-PC: viewer 10/10, .NET 8/8, smoke WPF/WebView2 e scala 300k PASS.
 Ricerca backend 300k p95 0,9661 ms. Vedere
 `docs/plans/graph-06-05-search-ui.md`, `docs/validation/graph-06-05.md`
 e `docs/handoffs/GRAPH_06_05_RESULT.md`.
+GRAPH.06.06: file JSON portabili tramite dialog WPF. Export UTF-8 atomico;
+import con validazione preventiva, MapId nuovo, revisione 0 e database GUID
+riservato in modo esclusivo. Limite 64 MiB, operazioni UI reciprocamente
+bloccate e cleanup di SQLite/WAL/SHM sui fallimenti. Non e' backup/recovery;
+lo scale-smoke 300k non e' stato ripetuto per questa slice senza modifiche al
+renderer/query. Vedere `docs/plans/graph-06-06-file-import-export.md`,
+`docs/validation/graph-06-06.md` e `docs/handoffs/GRAPH_06_06_RESULT.md`.
 
 ## Governance e gate
 GRAPH.06.01, GRAPH.06.02, GRAPH.06.03, GRAPH.06.04 e GRAPH.06.05
-sono integrate in main. GRAPH.05 resta Draft con gate indipendenti.
+sono integrate in main. GRAPH.06.06 e' candidata separata. GRAPH.05 resta
+Draft con gate indipendenti.
 Non iniziare integrazioni che dipendono da GRAPH.05 finche' non e' validata.
 Il PASS della 06.01 non certifica la gestione mappe: questa viene verificata
 separatamente in GRAPH.06.02. Il PASS della 06.02 NON certifica editor
@@ -69,7 +79,9 @@ Idea/Relation, ricerca UI, import/export file, backup/recovery o GRAPH.05.
 Il PASS della 06.03 NON certifica GRAPH.05 o l'editor Relation.
 Il PASS della 06.04 NON certifica GRAPH.05 o ricerca UI. Il PASS della
 06.05 NON certifica GRAPH.05, file import/export, backup/recovery o
-completamento GRAPH.06. Pianificare gate separati.
+completamento GRAPH.06. Il PASS della 06.06 certifica soltanto il trasferimento
+JSON bounded: non certifica backup/recovery SQLite, mappe oltre 64 MiB,
+accettazione visuale manuale dei dialog nativi o GRAPH.05. Pianificare gate separati.
 Usare fixture sintetiche e percorsi temporanei; non leggere o alterare mappe
 personali, chiavi o token. Nessun reset distruttivo, rebase o force-push.
 Registrare risultati di build, test runtime, scale, visione e limiti distinti.

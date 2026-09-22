@@ -27,7 +27,8 @@ internal static class Program
             pass++;
             var currentPass = pass;
             var profile = Path.Combine(root, "WebView2-" + currentPass);
-            var window = new MainWindow(profile, databasePath);
+            var fileDialog = new SmokeMapFileDialog();
+            var window = new MainWindow(profile, databasePath, fileDialog);
             window.Loaded += async (_, _) =>
             {
                 var success = false;
@@ -48,6 +49,8 @@ internal static class Program
                         await IdeaEditorSmoke.RunAsync(window, root, databasePath);
                         await RelationEditorSmoke.RunAsync(window, root, databasePath);
                         await SearchUiSmoke.RunAsync(window, databasePath);
+                        await FileTransferSmoke.RunAsync(
+                            window, root, databasePath, fileDialog);
                         result = 0;
                         Console.WriteLine(
                             "PASS: GRAPH.03 WPF/WebView2 semantic navigation, three nested contexts, "

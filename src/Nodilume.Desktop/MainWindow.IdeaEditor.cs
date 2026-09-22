@@ -17,19 +17,22 @@ public partial class MainWindow
     private void SetEditorBusy(bool busy)
     {
         _editorBusy = busy;
-        MapPicker.IsEnabled = !busy && !_mapActionBusy;
-        MapNameInput.IsEnabled = !busy && !_mapActionBusy;
-        NewMapButton.IsEnabled = !busy && !_mapActionBusy;
-        RenameMapButton.IsEnabled = !busy && !_mapActionBusy;
-        IdeaTitleInput.IsEnabled = !busy;
-        IdeaContentInput.IsEnabled = !busy;
-        PlacementAnnotationInput.IsEnabled = !busy && _editorPlacementId is not null;
-        CreateRootIdeaButton.IsEnabled = !busy && _activeMapId is not null;
-        CreateChildIdeaButton.IsEnabled = !busy && _editorPlacementId is not null;
-        SaveIdeaButton.IsEnabled = !busy && _editorIdeaId is not null;
-        SaveAnnotationButton.IsEnabled = !busy && _editorPlacementId is not null;
-        CreateRepresentationButton.IsEnabled = !busy && _editorIdeaId is not null;
-        SetRelationControlsBusy(busy);
+        var blocked = busy || _mapActionBusy;
+        MapPicker.IsEnabled = !blocked;
+        MapNameInput.IsEnabled = !blocked;
+        NewMapButton.IsEnabled = !blocked;
+        RenameMapButton.IsEnabled = !blocked;
+        ImportMapButton.IsEnabled = !blocked;
+        ExportMapButton.IsEnabled = !blocked && _selectedMap is not null;
+        IdeaTitleInput.IsEnabled = !blocked;
+        IdeaContentInput.IsEnabled = !blocked;
+        PlacementAnnotationInput.IsEnabled = !blocked && _editorPlacementId is not null;
+        CreateRootIdeaButton.IsEnabled = !blocked && _activeMapId is not null;
+        CreateChildIdeaButton.IsEnabled = !blocked && _editorPlacementId is not null;
+        SaveIdeaButton.IsEnabled = !blocked && _editorIdeaId is not null;
+        SaveAnnotationButton.IsEnabled = !blocked && _editorPlacementId is not null;
+        CreateRepresentationButton.IsEnabled = !blocked && _editorIdeaId is not null;
+        SetRelationControlsBusy(blocked);
         UpdateSearchControls();
     }
 
@@ -50,7 +53,7 @@ public partial class MainWindow
     {
         var mapId = ReadOptionalString(root, "mapId");
         var revision = ReadOptionalInt64(root, "revision");
-        if (_closed || _editorBusy || mapId != _activeMapId
+        if (_closed || _editorBusy || _mapActionBusy || mapId != _activeMapId
             || revision != _activeRevision || _selectedMap is null)
             return;
         var placement = ReadOptionalString(root, "placementId");
@@ -95,7 +98,8 @@ public partial class MainWindow
         Func<MapContentEditor, MapId, long, Task<long>> operation,
         string success)
     {
-        if (_closed || _editorBusy || _activeMapId is null || _selectedMap is null
+        if (_closed || _editorBusy || _mapActionBusy
+            || _activeMapId is null || _selectedMap is null
             || _activeMapId != _selectedMap.Map.Id.ToString())
             return;
         var mapId = _selectedMap.Map.Id;

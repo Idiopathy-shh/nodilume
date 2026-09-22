@@ -69,12 +69,7 @@ public partial class MainWindow
     private void SetMapControlsBusy(bool busy)
     {
         _mapActionBusy = busy;
-        MapPicker.IsEnabled = !busy;
-        MapNameInput.IsEnabled = !busy;
-        NewMapButton.IsEnabled = !busy;
-        RenameMapButton.IsEnabled = !busy;
-        SetRelationControlsBusy(busy || _editorBusy);
-        UpdateSearchControls();
+        SetEditorBusy(_editorBusy);
     }
 
     private async void MapPicker_SelectionChanged(object sender, SelectionChangedEventArgs e)

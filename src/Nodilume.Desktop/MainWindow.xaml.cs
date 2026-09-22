@@ -18,6 +18,7 @@ public partial class MainWindow : Window
     private readonly string _legacyDatabasePath;
     private readonly bool _seedDemoOnStartup;
     private readonly MapCatalog _mapCatalog;
+    private readonly IMapFileDialog _mapFileDialog;
     private CatalogMap? _selectedMap;
     private int _mapGeneration;
     private bool _updatingPicker;
@@ -35,7 +36,10 @@ public partial class MainWindow : Window
     {
     }
 
-    public MainWindow(string profile, string? databasePath = null)
+    public MainWindow(
+        string profile,
+        string? databasePath = null,
+        IMapFileDialog? mapFileDialog = null)
     {
         InitializeComponent();
         ResetIdeaEditor();
@@ -46,6 +50,7 @@ public partial class MainWindow : Window
         _legacyDatabasePath = _databasePath;
         _mapCatalog = new MapCatalog(Path.GetDirectoryName(Path.GetFullPath(_databasePath))!,
             _legacyDatabasePath);
+        _mapFileDialog = mapFileDialog ?? new WindowsMapFileDialog();
         Loaded += InitializeViewer;
         Closed += (_, _) =>
         {
