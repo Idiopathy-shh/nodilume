@@ -39,6 +39,7 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
         ResetIdeaEditor();
+        ResetSearch();
         _profile = profile;
         _seedDemoOnStartup = databasePath is null;
         _databasePath = databasePath ?? MapDatabasePaths.Demo;

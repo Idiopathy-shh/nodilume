@@ -47,6 +47,7 @@ internal static class Program
                         await MapManagementSmoke.RunAsync(window, root, databasePath);
                         await IdeaEditorSmoke.RunAsync(window, root, databasePath);
                         await RelationEditorSmoke.RunAsync(window, root, databasePath);
+                        await SearchUiSmoke.RunAsync(window, databasePath);
                         result = 0;
                         Console.WriteLine(
                             "PASS: GRAPH.03 WPF/WebView2 semantic navigation, three nested contexts, "

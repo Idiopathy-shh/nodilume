@@ -11,7 +11,9 @@ GRAPH.06.03 PR #11 MERGED con squash
 9478973e7a5be33c5487499e6e3ab560c342267e.
 GRAPH.06.04 PR #13 MERGED con squash
 550ce57916d274b12606ce60f97f33a7d9f10d7a.
-Editor Relation: viewer 9/9, .NET 7/7 e smoke WPF/WebView2 PASS.
+GRAPH.06.05 PR #15 OPEN sul branch feat/graph-06-05-search-ui,
+worktree C:\Sviluppo\Nodilume-graph06-05, base main@2f3eb05.
+Ricerca UI: viewer 10/10, .NET 8/8, smoke e scala 300k PASS.
 PR documentale #4 CLOSED (contenuti assorbiti in GRAPH.04).
 GRAPH.05 PR #6 OPEN/DRAFT, branch feat/graph-05-editing-viewstate,
 worktree C:\Sviluppo\Nodilume-graph05, head 946c2e019d32e157a483d2c68fdddc4e2f001e59.
@@ -49,17 +51,26 @@ conferma. Scritture SQLite atomiche e revisionate; letture mirate fino a
 smoke WPF/WebView2 03/06.02/06.03/06.04 PASS. Vedere
 docs/plans/graph-06-04-relation-editor.md,
 docs/validation/graph-06-04.md e docs/handoffs/GRAPH_06_04_RESULT.md.
+GRAPH.06.05: ricerca per prefisso indicizzata e bounded, pagine keyset,
+una scelta esplicita per ogni Placement e navigazione viewer esatta.
+Cambio mappa invalida e azzera la ricerca; nessuna scrittura. Test su
+OFFICE-PC: viewer 10/10, .NET 8/8, smoke WPF/WebView2 e scala 300k PASS.
+Ricerca backend 300k p95 0,9661 ms. Vedere
+`docs/plans/graph-06-05-search-ui.md`, `docs/validation/graph-06-05.md`
+e `docs/handoffs/GRAPH_06_05_RESULT.md`.
 
 ## Governance e gate
 GRAPH.06.01, GRAPH.06.02, GRAPH.06.03 e GRAPH.06.04 sono integrate
-in main. GRAPH.05 resta Draft con gate indipendenti.
+in main. GRAPH.06.05 e' candidata e non va dichiarata integrata prima del merge.
+GRAPH.05 resta Draft con gate indipendenti.
 Non iniziare integrazioni che dipendono da GRAPH.05 finche' non e' validata.
 Il PASS della 06.01 non certifica la gestione mappe: questa viene verificata
 separatamente in GRAPH.06.02. Il PASS della 06.02 NON certifica editor
 Idea/Relation, ricerca UI, import/export file, backup/recovery o GRAPH.05.
 Il PASS della 06.03 NON certifica GRAPH.05 o l'editor Relation.
-Il PASS della 06.04 NON certifica GRAPH.05, ricerca UI, file import/export,
-backup/recovery o completamento GRAPH.06. Pianificare gate separati.
+Il PASS della 06.04 NON certifica GRAPH.05 o ricerca UI. Il PASS della
+06.05 NON certifica GRAPH.05, file import/export, backup/recovery o
+completamento GRAPH.06. Pianificare gate separati.
 Usare fixture sintetiche e percorsi temporanei; non leggere o alterare mappe
 personali, chiavi o token. Nessun reset distruttivo, rebase o force-push.
 Registrare risultati di build, test runtime, scale, visione e limiti distinti.

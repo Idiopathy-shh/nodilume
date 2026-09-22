@@ -30,6 +30,7 @@ public partial class MainWindow
         SaveAnnotationButton.IsEnabled = !busy && _editorPlacementId is not null;
         CreateRepresentationButton.IsEnabled = !busy && _editorIdeaId is not null;
         SetRelationControlsBusy(busy);
+        UpdateSearchControls();
     }
 
     private void ResetIdeaEditor()
