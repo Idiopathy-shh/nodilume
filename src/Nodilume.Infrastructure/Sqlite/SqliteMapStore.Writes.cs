@@ -94,6 +94,13 @@ WHERE id = @map AND revision = @expected;
             case AddRelationChange add:
                 await InsertRelationAsync(connection, transaction, add.Relation, cancellationToken);
                 break;
+            case UpdateRelationChange updateRelation:
+                await UpdateRelationAsync(connection, transaction, updateRelation.Relation, cancellationToken);
+                break;
+            case RemoveRelationChange removeRelation:
+                await DeleteRelationAsync(connection, transaction, mapId, removeRelation.RelationId,
+                    cancellationToken);
+                break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(change));
         }
@@ -243,6 +250,8 @@ WHERE id=@id AND map_id=@map;
             MovePlacementChange x => x.Placement.MapId == mapId,
             RemovePlacementChange => true,
             AddRelationChange x => x.Relation.MapId == mapId,
+            UpdateRelationChange x => x.Relation.MapId == mapId,
+            RemoveRelationChange => true,
             _ => false
         };
         if (!valid) throw new DomainRuleException("Persistence change crosses map boundaries.");

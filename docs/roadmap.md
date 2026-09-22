@@ -1,6 +1,6 @@
 # Nodilume — roadmap
 
-Stato 21 settembre 2026: GRAPH.00-04 integrate (GRAPH.04 PR #5);
+Stato 22 settembre 2026: GRAPH.00-04 integrate (GRAPH.04 PR #5);
 GRAPH.06.01 PR #7 integrata con squash c515f79af7f326c6846e26acce4955dda6e6e8f6.
 GRAPH.06.02 PR #9 integrata con squash a9df2bd15cfde495c120bdf2b754b8052fa5ef62:
 gestione multi-mappa WPF/SQLite verificata su OFFICE-PC.
@@ -8,6 +8,8 @@ GRAPH.06.03 PR #11 integrata con squash
 9478973e7a5be33c5487499e6e3ab560c342267e, indipendente da GRAPH.05:
 editor di Idea/rappresentazioni, note locali e creazione gerarchica WPF;
 viewer 9/9, .NET 6/6, smoke WPF/WebView2 e scale-smoke 300k PASS.
+GRAPH.06.04 candidata: editor Relation create/update/inversione/delete;
+viewer 9/9, .NET 7/7 e smoke WPF/WebView2 PASS su OFFICE-PC.
 GRAPH.05 PR #6 resta DRAFT: test .NET 4/4 e scale-smoke 300k PASS;
 smoke UI Undo/Redo non ancora PASS e DLL smoke bloccata da Smart App Control.
 La firma RSA di sviluppo non e' ancora disponibile. GRAPH.07-08 non iniziate.
@@ -26,7 +28,8 @@ La firma RSA di sviluppo non e' ancora disponibile. GRAPH.07-08 non iniziate.
 | GRAPH.06.01 | Contratto JSON portabile del grafo | PR #7 integrata; codec/test PASS, non UI/import file |
 | GRAPH.06.02 | Gestione mappe personali | PR #9 integrata; elenco, creazione, selezione e rinomina WPF + SQLite; smoke PASS |
 | GRAPH.06.03 | Editor idee e nodi | PR #11 integrata; crea radici/figli, contenuti condivisi, note locali, rappresentazioni multiple; smoke PASS |
-| GRAPH.06.04+ | Editor relazioni, ricerca UI, import/export file, backup/recovery, integrazione | Da pianificare e implementare; fuori scope 06.03 |
+| GRAPH.06.04 | Editor relazioni | Candidata: CRUD Relation revisionato, scelta estremi dalla scena, doppia conferma delete; test/smoke PASS |
+| GRAPH.06.05+ | Ricerca UI, import/export file, backup/recovery, integrazione | Da pianificare e implementare; fuori scope 06.04 |
 | GRAPH.07 | Automazioni AI | Non implementata |
 | GRAPH.08 | Modalità libri | Non implementata |
 
@@ -69,8 +72,11 @@ elenco/creazione/rinomina/passaggio mappe persistenti (vedere
 di gate separati. GRAPH.06.03 e' stata sviluppata in
 `C:\Sviluppo\Nodilume-graph06-03` da main, senza incorporare GRAPH.05,
 e integrata tramite PR #11: vedere `docs/plans/graph-06-03-idea-node-editor.md`
-e `docs/validation/graph-06-03.md`. Nessuna singola slice finora costituisce
-l'editor personale GRAPH.06 completo.
+e `docs/validation/graph-06-03.md`. GRAPH.06.04 e' sviluppata separatamente
+in `C:\Sviluppo\Nodilume-graph06-04`: editor Relation revisionato, accessi
+SQLite mirati e smoke reale; vedere `docs/plans/graph-06-04-relation-editor.md`
+e `docs/validation/graph-06-04.md`. Ricerca, file import/export,
+backup/recovery e integrazione GRAPH.05 restano patch distinte.
 
 Ogni fase richiede verifiche sui rischi concreti introdotti. Una fase non è conclusa
 per il solo fatto che il codice compila.

@@ -14,6 +14,8 @@ GRAPH.06.02 e' integrata tramite PR #9 (squash a9df2bd): gestione
 di mappe personali in database SQLite separati. GRAPH.06.03 e' integrata
 tramite PR #11, squash 9478973: editor di Idee/nodi con gerarchie,
 rappresentazioni multiple e note locali, indipendente da GRAPH.05.
+GRAPH.06.04 e' candidata: editor Relation con create/update/inversione/delete;
+viewer 9/9, .NET 7/7 e smoke WPF/WebView2 PASS su OFFICE-PC.
 GRAPH.07-08 non iniziate. Vedere docs/coordination.md e docs/roadmap.md.
 
 GRAPH.03 introduce zoom semantico contestuale, aggregazioni e navigazione trasversale.
@@ -24,9 +26,10 @@ GRAPH.05; gestione completa e ricerca UI appartengono alle fasi successive.
 Il codec GRAPH.06.01 esporta/importa il grafo in memoria, senza file dialog o
 integrazione con la shell WPF e senza dipendere dalla migrazione SQLite v3.
 GRAPH.06.02 introduce la gestione mappe; GRAPH.06.03 rende possibile
-aggiungere e modificare idee radice o figlie in tali mappe. Le operazioni
-Undo/Redo, drag/pin e camera persistente rimangono candidate in GRAPH.05,
-non sono comprese nel ramo indipendente GRAPH.06.03.
+aggiungere e modificare idee radice o figlie in tali mappe. GRAPH.06.04
+aggiunge le Relation concettuali fra Idea con direzione, tipo e spiegazione.
+Le operazioni Undo/Redo, drag/pin e camera persistente rimangono candidate
+in GRAPH.05 e non sono comprese nel ramo indipendente GRAPH.06.04.
 
 ## Architettura
 
@@ -56,9 +59,9 @@ dotnet run --project tests/Nodilume.Smoke -c Release --no-build
 ```
 
 `build.ps1` esegue `npm ci`, nove test viewer/navigation, compilazione TypeScript,
-bundle, test Core/SQLite/proiezione semantica/catalogo mappe/editor idee su database
-temporanei reali e build .NET
-con restore bloccato. Compila inoltre lo scale-smoke e il tool benchmark GRAPH.04.
+bundle, sette gruppi .NET Core/SQLite/proiezione/codec/catalogo/editor Idea/Relation
+su database temporanei reali e build .NET con restore bloccato. Compila inoltre
+lo scale-smoke e il tool benchmark GRAPH.04.
 
 Lo smoke GRAPH.03 usa una fixture separata dalla demo personale. Apre due finestre
 WPF/WebView2 consecutive sullo stesso database temporaneo e verifica tre contesti
@@ -88,8 +91,17 @@ una nuova Idea sotto il nodo selezionato usando i campi del pannello.
 `Aggiungi rappresentazione qui` colloca la stessa Idea sotto il
 contesto corrente, se non viola gli invarianti della gerarchia.
 Le modifiche vengono scritte su SQLite; se rifiutate viene mostrato
-un messaggio. La creazione di contenuti non include ancora
-cancellazione, editor Relation o Undo/Redo.
+un messaggio. La creazione di contenuti non include cancellazione di
+Idea/Placement o Undo/Redo.
+
+## Editor relazioni (GRAPH.06.04)
+
+Seleziona un nodo e catturalo come origine; naviga e seleziona un'altra
+Idea come destinazione. Imposta tipo, direzione e spiegazione, quindi crea
+la Relation. L'elenco mostra le relazioni che toccano l'Idea selezionata;
+una voce può essere invertita o modificata conservando la propria identità.
+L'eliminazione richiede due click e rimuove soltanto la Relation. Oltre 64
+risultati l'elenco dichiara che è parziale.
 
 ## Comandi della vista
 
@@ -123,6 +135,8 @@ GRAPH.06.02: `docs/plans/graph-06-02-map-manager.md`,
 `docs/validation/graph-06-02.md` e `docs/handoffs/GRAPH_06_02_RESULT.md`.
 GRAPH.06.03: `docs/plans/graph-06-03-idea-node-editor.md`,
 `docs/validation/graph-06-03.md` e `docs/handoffs/GRAPH_06_03_RESULT.md`.
+GRAPH.06.04: `docs/plans/graph-06-04-relation-editor.md`,
+`docs/validation/graph-06-04.md` e `docs/handoffs/GRAPH_06_04_RESULT.md`.
 GRAPH.06.01: `docs/plans/graph-06-01-portable-map.md` e
 `docs/validation/graph-06-01.md`; per verificare solo questa slice:
 `dotnet restore tests/Nodilume.Tests --locked-mode`,

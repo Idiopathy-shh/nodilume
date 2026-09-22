@@ -29,6 +29,7 @@ public partial class MainWindow
         SaveIdeaButton.IsEnabled = !busy && _editorIdeaId is not null;
         SaveAnnotationButton.IsEnabled = !busy && _editorPlacementId is not null;
         CreateRepresentationButton.IsEnabled = !busy && _editorIdeaId is not null;
+        SetRelationControlsBusy(busy);
     }
 
     private void ResetIdeaEditor()
@@ -40,6 +41,7 @@ public partial class MainWindow
         IdeaTitleInput.Clear();
         IdeaContentInput.Clear();
         PlacementAnnotationInput.Clear();
+        ResetRelationEditor();
         SetEditorBusy(false);
     }
 
@@ -79,6 +81,7 @@ public partial class MainWindow
             EditorSelectionText.Text = $"Idea: {idea.Title} · nodo {node.Id.ToString()[..8]}";
             EditorStatus.Text = "";
             SetEditorBusy(false);
+            await RefreshRelationListAsync(idea.Id, serial, generation, _selectedRelationId);
         }
         catch (Exception ex)
         {
