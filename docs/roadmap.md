@@ -9,8 +9,9 @@ GRAPH.06.03 PR #11 integrata con squash
 editor di Idea/rappresentazioni, note locali e creazione gerarchica WPF;
 viewer 9/9, .NET 6/6, smoke WPF/WebView2 e scale-smoke 300k PASS.
 GRAPH.06.04 PR #13 integrata con squash
-550ce57916d274b12606ce60f97f33a7d9f10d7a: editor Relation;
-viewer 9/9, .NET 7/7 e smoke WPF/WebView2 PASS su OFFICE-PC.
+550ce57916d274b12606ce60f97f33a7d9f10d7a: editor Relation.
+GRAPH.06.05 candidata sul branch feat/graph-06-05-search-ui: ricerca UI;
+viewer 10/10, .NET 8/8, smoke e scale-smoke 300k PASS su OFFICE-PC.
 GRAPH.05 PR #6 resta DRAFT: test .NET 4/4 e scale-smoke 300k PASS;
 smoke UI Undo/Redo non ancora PASS e DLL smoke bloccata da Smart App Control.
 La firma RSA di sviluppo non e' ancora disponibile. GRAPH.07-08 non iniziate.
@@ -30,7 +31,8 @@ La firma RSA di sviluppo non e' ancora disponibile. GRAPH.07-08 non iniziate.
 | GRAPH.06.02 | Gestione mappe personali | PR #9 integrata; elenco, creazione, selezione e rinomina WPF + SQLite; smoke PASS |
 | GRAPH.06.03 | Editor idee e nodi | PR #11 integrata; crea radici/figli, contenuti condivisi, note locali, rappresentazioni multiple; smoke PASS |
 | GRAPH.06.04 | Editor relazioni | PR #13 integrata; CRUD Relation revisionato, estremi dalla scena e doppia conferma delete; test/smoke PASS |
-| GRAPH.06.05+ | Ricerca UI, import/export file, backup/recovery, integrazione | Da pianificare e implementare; fuori scope 06.04 |
+| GRAPH.06.05 | Ricerca UI | Candidata; prefisso indicizzato, pagine keyset, scelte Placement esplicite e apertura esatta; test/smoke/scala PASS |
+| GRAPH.06.06+ | Import/export file, backup/recovery, integrazione | Da pianificare e implementare; fuori scope 06.05 |
 | GRAPH.07 | Automazioni AI | Non implementata |
 | GRAPH.08 | Modalità libri | Non implementata |
 
@@ -76,8 +78,11 @@ e integrata tramite PR #11: vedere `docs/plans/graph-06-03-idea-node-editor.md`
 e `docs/validation/graph-06-03.md`. GRAPH.06.04 e' sviluppata separatamente
 in `C:\Sviluppo\Nodilume-graph06-04`: editor Relation revisionato, accessi
 SQLite mirati e smoke reale; vedere `docs/plans/graph-06-04-relation-editor.md`
-e `docs/validation/graph-06-04.md`. Ricerca, file import/export,
-backup/recovery e integrazione GRAPH.05 restano patch distinte.
+e `docs/validation/graph-06-04.md`. GRAPH.06.05 e' sviluppata da main in
+`C:\Sviluppo\Nodilume-graph06-05`: ricerca indicizzata bounded, scelte
+Placement esplicite e navigazione esatta; vedere `docs/plans/graph-06-05-search-ui.md`
+e `docs/validation/graph-06-05.md`. File import/export, backup/recovery e
+integrazione GRAPH.05 restano patch distinte.
 
 Ogni fase richiede verifiche sui rischi concreti introdotti. Una fase non è conclusa
 per il solo fatto che il codice compila.

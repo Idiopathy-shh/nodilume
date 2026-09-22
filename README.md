@@ -15,22 +15,24 @@ di mappe personali in database SQLite separati. GRAPH.06.03 e' integrata
 tramite PR #11, squash 9478973: editor di Idee/nodi con gerarchie,
 rappresentazioni multiple e note locali, indipendente da GRAPH.05.
 GRAPH.06.04 e' integrata tramite PR #13, squash 550ce57: editor Relation
-con create/update/inversione/delete; viewer 9/9, .NET 7/7 e smoke
-WPF/WebView2 PASS su OFFICE-PC.
+con create/update/inversione/delete. GRAPH.06.05 e' candidata sul branch
+feat/graph-06-05-search-ui: ricerca indicizzata con scelte Placement esplicite;
+viewer 10/10, .NET 8/8, smoke e scala 300k PASS su OFFICE-PC.
 GRAPH.07-08 non iniziate. Vedere docs/coordination.md e docs/roadmap.md.
 
 GRAPH.03 introduce zoom semantico contestuale, aggregazioni e navigazione trasversale.
 GRAPH.04 rende raggiungibili i figli oltre la prima pagina, limita nodi/link/etichette,
 evita caricamenti globali nel renderer e misura la scala fino a 300.000 Idea. Non è
 ancora un editor completo: drag/pin, undo/redo e camera persistente sono candidate
-GRAPH.05; gestione completa e ricerca UI appartengono alle fasi successive.
+GRAPH.05; file import/export e backup/recovery appartengono alle fasi successive.
 Il codec GRAPH.06.01 esporta/importa il grafo in memoria, senza file dialog o
 integrazione con la shell WPF e senza dipendere dalla migrazione SQLite v3.
 GRAPH.06.02 introduce la gestione mappe; GRAPH.06.03 rende possibile
 aggiungere e modificare idee radice o figlie in tali mappe. GRAPH.06.04
 aggiunge le Relation concettuali fra Idea con direzione, tipo e spiegazione.
+GRAPH.06.05 espone la ricerca per prefisso e apre una rappresentazione scelta.
 Le operazioni Undo/Redo, drag/pin e camera persistente rimangono candidate
-in GRAPH.05 e non sono comprese nel ramo indipendente GRAPH.06.04.
+in GRAPH.05 e non sono comprese nelle slice indipendenti GRAPH.06.
 
 ## Architettura
 
@@ -59,8 +61,8 @@ dotnet run --project tests/Nodilume.Smoke -c Release --no-build
 ./scripts/run.ps1
 ```
 
-`build.ps1` esegue `npm ci`, nove test viewer/navigation, compilazione TypeScript,
-bundle, sette gruppi .NET Core/SQLite/proiezione/codec/catalogo/editor Idea/Relation
+`build.ps1` esegue `npm ci`, dieci test viewer/navigation, compilazione TypeScript,
+bundle, otto gruppi .NET Core/SQLite/proiezione/codec/catalogo/editor/ricerca
 su database temporanei reali e build .NET con restore bloccato. Compila inoltre
 lo scale-smoke e il tool benchmark GRAPH.04.
 
@@ -104,6 +106,14 @@ una voce può essere invertita o modificata conservando la propria identità.
 L'eliminazione richiede due click e rimuove soltanto la Relation. Oltre 64
 risultati l'elenco dichiara che è parziale.
 
+## Ricerca (GRAPH.06.05)
+
+Inserisci un prefisso esatto del titolo nella sidebar. La ricerca è
+case-sensitive, usa pagine da 20 Idea e mostra ogni Placement come scelta
+separata con percorso e ID breve. Seleziona una riga per vedere il contenuto
+condiviso e premi `Apri` per raggiungere quel nodo esatto. I risultati vengono
+azzerati al cambio mappa; limiti su rappresentazioni o percorso sono dichiarati.
+
 ## Comandi della vista
 
 - Trascina col tasto sinistro per ruotare; col destro per spostare.
@@ -138,6 +148,8 @@ GRAPH.06.03: `docs/plans/graph-06-03-idea-node-editor.md`,
 `docs/validation/graph-06-03.md` e `docs/handoffs/GRAPH_06_03_RESULT.md`.
 GRAPH.06.04: `docs/plans/graph-06-04-relation-editor.md`,
 `docs/validation/graph-06-04.md` e `docs/handoffs/GRAPH_06_04_RESULT.md`.
+GRAPH.06.05: `docs/plans/graph-06-05-search-ui.md`,
+`docs/validation/graph-06-05.md` e `docs/handoffs/GRAPH_06_05_RESULT.md`.
 GRAPH.06.01: `docs/plans/graph-06-01-portable-map.md` e
 `docs/validation/graph-06-01.md`; per verificare solo questa slice:
 `dotnet restore tests/Nodilume.Tests --locked-mode`,

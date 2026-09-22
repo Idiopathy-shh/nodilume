@@ -50,6 +50,7 @@ public partial class MainWindow
     {
         _mapGeneration++;
         ResetIdeaEditor();
+        ResetSearch();
         Interlocked.Exchange(ref _projectionCancellation, null)?.Cancel();
         _projectionCache.Clear();
         _lastContextPlacementId = null;
@@ -73,6 +74,7 @@ public partial class MainWindow
         NewMapButton.IsEnabled = !busy;
         RenameMapButton.IsEnabled = !busy;
         SetRelationControlsBusy(busy || _editorBusy);
+        UpdateSearchControls();
     }
 
     private async void MapPicker_SelectionChanged(object sender, SelectionChangedEventArgs e)

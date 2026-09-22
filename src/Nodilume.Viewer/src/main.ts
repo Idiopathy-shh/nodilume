@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { focusPose } from './navigation';
+import { acceptsSearchNavigation, type NavigateToPlacement } from './search';
 import {
   DEFAULT_SEMANTIC_THRESHOLDS,
   reframePose,
@@ -49,7 +50,13 @@ type ProjectionError = {
   version: 2; type: 'projectionError'; requestId: string; mapId: string | null;
   revision: number | null; contextPlacementId: string | null; code: string; message: string;
 };
-type Incoming = Projection | ProjectionError;
+type RefreshProjection = {
+  version: 2; type: 'refreshProjection'; mapId: string; revision: number;
+};
+type SearchNavigation = NavigateToPlacement & {
+  version: 2; type: 'navigateToPlacement';
+};
+type Incoming = Projection | ProjectionError | RefreshProjection | SearchNavigation;
 type Bridge = {
   postMessage: (message: unknown) => void;
   addEventListener: (type: string, handler: (e: {data: Incoming}) => void) => void;
@@ -297,6 +304,7 @@ try {
   function select(id: string): void {
     if (!nodes.has(id)) return;
     selected = id;
+    document.body.dataset.selectedPlacement = id;
     selectedSince = performance.now();
     selectionRequestedAt = selectedSince;
     for (const [key, item] of nodes)
@@ -308,6 +316,7 @@ try {
   }
   function clearSelection(): void {
     selected = null;
+    document.body.dataset.selectedPlacement = '';
     for (const item of nodes.values()) item.label?.classList.remove('selected');
     updateSelectionUI();
     bridge?.postMessage({version: protocolVersion, type: 'selectionChanged',
@@ -952,11 +961,20 @@ try {
   bridge?.addEventListener('message', ({data}) => {
     if (!data || data.version !== protocolVersion) return;
 
-    if ((data as {type: string}).type === 'refreshProjection') {
-      const refresh = data as unknown as {mapId: string; revision: number};
-      if (refresh.mapId === activeMapId && refresh.revision >= revision && !pending)
+    if (data.type === 'refreshProjection') {
+      if (data.mapId === activeMapId && data.revision >= revision && !pending)
         requestProjection(projection?.contextPlacementId ?? null, 'page',
           {pageAfterPlacementId: null});
+      return;
+    }
+
+    if (data.type === 'navigateToPlacement') {
+      if (!acceptsSearchNavigation(activeMapId, revision, pending !== null, data)) return;
+      returnStack.push(snapshotReturn());
+      updateNavigationButtons();
+      requestProjection(data.openContextPlacementId, 'navigate', {
+        focusPlacementId: data.placementId
+      });
       return;
     }
 

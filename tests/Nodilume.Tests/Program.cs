@@ -10,7 +10,8 @@ internal static class Program
             ("Portable map JSON", PortableMapJsonTests.RunAsync),
             ("Multi-map catalog", MapCatalogTests.RunAsync),
             ("Idea and node editor", MapContentEditorTests.RunAsync),
-            ("Relation editor", MapRelationEditorTests.RunAsync)
+            ("Relation editor", MapRelationEditorTests.RunAsync),
+            ("Map search", MapSearchServiceTests.RunAsync)
         };
 
         var failed = 0;
