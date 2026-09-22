@@ -14,8 +14,9 @@ GRAPH.06.02 e' integrata tramite PR #9 (squash a9df2bd): gestione
 di mappe personali in database SQLite separati. GRAPH.06.03 e' integrata
 tramite PR #11, squash 9478973: editor di Idee/nodi con gerarchie,
 rappresentazioni multiple e note locali, indipendente da GRAPH.05.
-GRAPH.06.04 e' candidata: editor Relation con create/update/inversione/delete;
-viewer 9/9, .NET 7/7 e smoke WPF/WebView2 PASS su OFFICE-PC.
+GRAPH.06.04 e' integrata tramite PR #13, squash 550ce57: editor Relation
+con create/update/inversione/delete; viewer 9/9, .NET 7/7 e smoke
+WPF/WebView2 PASS su OFFICE-PC.
 GRAPH.07-08 non iniziate. Vedere docs/coordination.md e docs/roadmap.md.
 
 GRAPH.03 introduce zoom semantico contestuale, aggregazioni e navigazione trasversale.

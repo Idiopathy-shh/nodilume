@@ -1,8 +1,8 @@
 # GRAPH.06.04 — validazione editor relazioni
 
 Data: 22 settembre 2026. Macchina: OFFICE-PC.
-Candidata: feat/graph-06-04-relation-editor.
-Base: main@fdd65e06ffb8f2f3837262d5b1e93fda888a6baa.
+Integrata: PR #13, squash main@550ce57916d274b12606ce60f97f33a7d9f10d7a.
+Base candidata: main@fdd65e06ffb8f2f3837262d5b1e93fda888a6baa.
 Fixture: database SQLite e profili WebView2 temporanei; nessuna mappa personale letta.
 
 ## Esiti
