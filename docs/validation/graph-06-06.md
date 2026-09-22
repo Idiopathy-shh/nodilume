@@ -2,6 +2,7 @@
 
 Data: 22 settembre 2026. Macchina: OFFICE-PC.
 Base candidata: main@5624163e47c439bdbde757c75cd36a22b89e0330.
+Integrata tramite PR #17, squash 10ba39c6ba4bfb8c39bf216d96efb7aeba5283e5.
 Fixture: file, database SQLite e profili WebView2 temporanei.
 
 ## Esiti
