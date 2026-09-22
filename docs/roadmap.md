@@ -12,8 +12,9 @@ GRAPH.06.04 PR #13 integrata con squash
 550ce57916d274b12606ce60f97f33a7d9f10d7a: editor Relation.
 GRAPH.06.05 PR #15 integrata con squash
 cbde11114713d2e0f317c4fc82e28de5d5cf7283: ricerca UI.
-GRAPH.06.06 PR #17 e' candidata sul branch feat/graph-06-06-file-import-export:
-import/export JSON portabile; viewer 10/10, .NET 9/9 e smoke WPF/WebView2 PASS.
+GRAPH.06.06 PR #17 integrata con squash
+10ba39c6ba4bfb8c39bf216d96efb7aeba5283e5: import/export JSON portabile;
+viewer 10/10, .NET 9/9 e smoke WPF/WebView2 PASS.
 GRAPH.05 PR #6 resta DRAFT: test .NET 4/4 e scale-smoke 300k PASS;
 smoke UI Undo/Redo non ancora PASS e DLL smoke bloccata da Smart App Control.
 La firma RSA di sviluppo non e' ancora disponibile. GRAPH.07-08 non iniziate.
@@ -34,7 +35,7 @@ La firma RSA di sviluppo non e' ancora disponibile. GRAPH.07-08 non iniziate.
 | GRAPH.06.03 | Editor idee e nodi | PR #11 integrata; crea radici/figli, contenuti condivisi, note locali, rappresentazioni multiple; smoke PASS |
 | GRAPH.06.04 | Editor relazioni | PR #13 integrata; CRUD Relation revisionato, estremi dalla scena e doppia conferma delete; test/smoke PASS |
 | GRAPH.06.05 | Ricerca UI | PR #15 integrata; prefisso indicizzato, pagine keyset, scelte Placement esplicite e apertura esatta; test/smoke/scala PASS |
-| GRAPH.06.06 | Import/export file JSON | PR #17 candidata; export atomico, import in nuova mappa, limite 64 MiB; test/smoke PASS |
+| GRAPH.06.06 | Import/export file JSON | PR #17 integrata; export atomico, import in nuova mappa, limite 64 MiB; test/smoke PASS |
 | GRAPH.06.07+ | Backup/recovery e integrazione | Da pianificare; backup SQLite distinto dal codec portabile e integrazione GRAPH.05 separata |
 | GRAPH.07 | Automazioni AI | Non implementata |
 | GRAPH.08 | Modalità libri | Non implementata |
@@ -86,7 +87,7 @@ e `docs/validation/graph-06-04.md`. GRAPH.06.05 e' sviluppata da main in
 Placement esplicite e navigazione esatta; vedere `docs/plans/graph-06-05-search-ui.md`
 e `docs/validation/graph-06-05.md`. GRAPH.06.06 e' sviluppata da main in
 `C:\Sviluppo\Nodilume-graph06-06`: import/export JSON, identita' nuova in import,
-scrittura atomica e limite 64 MiB; vedere `docs/plans/graph-06-06-file-import-export.md`
+scrittura atomica e limite 64 MiB; integrata tramite PR #17. Vedere `docs/plans/graph-06-06-file-import-export.md`
 e `docs/validation/graph-06-06.md`. Backup/recovery e integrazione GRAPH.05
 restano patch distinte.
 

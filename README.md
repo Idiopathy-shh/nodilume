@@ -17,8 +17,8 @@ rappresentazioni multiple e note locali, indipendente da GRAPH.05.
 GRAPH.06.04 e' integrata tramite PR #13, squash 550ce57: editor Relation
 con create/update/inversione/delete. GRAPH.06.05 e' integrata tramite PR #15,
 squash cbde111: ricerca indicizzata con scelte Placement esplicite.
-GRAPH.06.06 PR #17 e' candidata sul branch `feat/graph-06-06-file-import-export`:
-file JSON portabili, import sempre in una nuova mappa e limite 64 MiB;
+GRAPH.06.06 e' integrata tramite PR #17, squash 10ba39c: file JSON
+portabili, import sempre in una nuova mappa e limite 64 MiB;
 viewer 10/10, .NET 9/9 e smoke WPF/WebView2 PASS su OFFICE-PC.
 GRAPH.07-08 non iniziate. Vedere docs/coordination.md e docs/roadmap.md.
 
