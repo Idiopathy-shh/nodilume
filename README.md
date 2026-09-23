@@ -4,10 +4,10 @@ Desktop Windows per esplorare mappe di idee come grafi 3D multiscala.
 
 ## Stato
 
-GRAPH.00-04 integrate (GRAPH.04 PR #5; main@0f6bdac). GRAPH.05 PR #6 resta
-una DRAFT storica e conflittuale: non va mergiata. I suoi contratti funzionali
-sono stati portati sulla base corrente nella candidata GRAPH.06.08, senza
-trasferirle retroattivamente il PASS.
+GRAPH.00-04 integrate (GRAPH.04 PR #5; main@0f6bdac). GRAPH.05 PR #6 e'
+chiusa come DRAFT storica e conflittuale, senza merge. I suoi contratti
+funzionali sono stati portati sulla base corrente in GRAPH.06.08 (PR #21,
+squash 52b9ade), senza trasferirle retroattivamente il PASS.
 GRAPH.06.01 e' stata integrata tramite PR #7, squash c515f79: codec JSON
 portabile del grafo, senza interfaccia editor completa o file backup.
 GRAPH.06.02 e' integrata tramite PR #9 (squash a9df2bd): gestione
@@ -21,7 +21,7 @@ GRAPH.06.06 e' integrata tramite PR #17, squash 10ba39c: file JSON
 portabili, import sempre in una nuova mappa e limite 64 MiB.
 GRAPH.06.07 e' integrata tramite PR #19, squash 073aaeb: snapshot SQLite
 verificato, retention 10 e restore non distruttivo.
-GRAPH.06.08 e' candidata sul branch feat/graph-06-08-editor-closure: drag/pin,
+GRAPH.06.08 e' integrata tramite PR #21, squash 52b9ade: drag/pin,
 Undo/Redo e view-state persistente integrati con le slice 06.02-06.07; viewer
 14/14, build e smoke WPF/WebView2 PASS. Rerun finale .NET e scala 300k sono
 bloccati da Smart App Control, senza modifiche alla policy.
@@ -30,7 +30,7 @@ GRAPH.07-08 non iniziate. Vedere docs/coordination.md e docs/roadmap.md.
 GRAPH.03 introduce zoom semantico contestuale, aggregazioni e navigazione trasversale.
 GRAPH.04 rende raggiungibili i figli oltre la prima pagina, limita nodi/link/etichette,
 evita caricamenti globali nel renderer e misura la scala fino a 300.000 Idea.
-GRAPH.06.08 completa nella candidata corrente drag/pin, Undo/Redo e vista
+GRAPH.06.08 completa drag/pin, Undo/Redo e vista
 persistente; firma/cifratura dei backup appartengono all'hardening successivo.
 Il codec GRAPH.06.01 esporta/importa il grafo in memoria. GRAPH.06.06 lo espone
 come file JSON tramite dialog WPF, senza confonderlo con un backup SQLite.

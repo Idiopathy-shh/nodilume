@@ -19,19 +19,19 @@ GRAPH.06.07 PR #19 MERGED con squash
 073aaebbc575061548ef539987da8fd922f4b96d.
 Backup/recovery: viewer 10/10, .NET 10/10 e smoke WPF/WebView2 PASS.
 PR documentale #4 CLOSED (contenuti assorbiti in GRAPH.04).
-GRAPH.05 PR #6 OPEN/DRAFT, branch feat/graph-05-editing-viewstate,
+GRAPH.05 PR #6 CLOSED/DRAFT come superseded, branch feat/graph-05-editing-viewstate,
 worktree C:\Sviluppo\Nodilume-graph05, head 946c2e019d32e157a483d2c68fdddc4e2f001e59.
 GRAPH.05: viewer 13/13, .NET 4/4, scale-smoke 300k PASS; smoke reale
 Undo/Redo NON PASS, successiva esecuzione bloccata dal criterio SAC 0x800711C7.
 Accettazione manuale non conclusa. Non attribuire PASS/merge alla GRAPH.05.
-GRAPH.06.08 PR #21 e' candidata su feat/graph-06-08-editor-closure, base main@3e64b0d:
+GRAPH.06.08 PR #21 MERGED con squash 52b9ade12d6f85419fe05d24b5af9b8eaa7964c8:
 porta drag/pin, Undo/Redo e view-state sulla base corrente, corregge il restore
 SQLite v3 e supera lo smoke completo. Viewer 14/14 e build PASS; rerun finale
-.NET e scala 300k bloccati da Smart App Control. Dopo il merge, chiudere PR #6
-come superseded senza mergiarla.
+.NET e scala 300k bloccati da Smart App Control. PR #6 e' stata chiusa come
+superseded senza essere mergiata.
 La firma RSA di sviluppo deve ancora arrivare; non modificare protezioni Windows.
 
-## GRAPH.06: 06.01–06.07 integrate, 06.08 candidata
+## GRAPH.06: 06.01–06.08 integrate
 GRAPH.06 e' il primo editor personale completo (multi-map, nodi, relazioni,
 ricerca, import/export, recupero). GRAPH.06.01 ha integrato SOLO il codec
 JSON portabile di Idea/Placement/Relation: PR #7 MERGED in main, dalla
@@ -89,9 +89,9 @@ nel restore. Lo smoke finale copre le regressioni GRAPH.03 e 06.02-06.07. Vedere
 
 ## Governance e gate
 GRAPH.06.01, GRAPH.06.02, GRAPH.06.03, GRAPH.06.04, GRAPH.06.05,
-GRAPH.06.06 e GRAPH.06.07 sono integrate in main; GRAPH.06.08 e' candidata.
+GRAPH.06.06, GRAPH.06.07 e GRAPH.06.08 sono integrate in main.
 GRAPH.05 resta una Draft storica, conflittuale e superseded dalla 06.08:
-non mergiarla e chiuderla soltanto dopo l'integrazione della nuova PR.
+e' chiusa e non e' stata mergiata.
 Il PASS della 06.01 non certifica la gestione mappe: questa viene verificata
 separatamente in GRAPH.06.02. Il PASS della 06.02 NON certifica editor
 Idea/Relation, ricerca UI, import/export file, backup/recovery o GRAPH.05.

@@ -10,8 +10,8 @@ Worktree: C:\Sviluppo\Nodilume-graph06-08.
 La PR #6 GRAPH.05 non viene mergiata: e' DRAFT, conflittuale con main e il
 suo smoke Undo/Redo non aveva raggiunto PASS. GRAPH.06.08 porta i soli
 contratti funzionali su main corrente, integra le slice 06.02-06.07 e li
-rivalida end-to-end. Dopo l'integrazione, PR #6 deve essere chiusa come
-superseded, non trasformata retroattivamente in PASS.
+rivalida end-to-end. Dopo l'integrazione, PR #6 e' stata chiusa come
+superseded, senza trasformarla retroattivamente in PASS.
 
 ## Scope
 
