@@ -3,7 +3,8 @@
 Data: 23 settembre 2026.
 Branch: feat/graph-06-07-backup-recovery.
 Base: main@cdfa7a19d2d37a3b87f396454043f0859d3cc2d1.
-PR: #19 OPEN.
+PR: #19 MERGED.
+Squash: 073aaebbc575061548ef539987da8fd922f4b96d.
 
 ## Consegnato
 
