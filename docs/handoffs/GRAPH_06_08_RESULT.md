@@ -3,7 +3,7 @@
 Data: 23 settembre 2026.
 Branch: feat/graph-06-08-editor-closure.
 Base: main@3e64b0d7f7514b82fd41b2bdd242ef56f2accf83.
-PR: #21.
+PR: #21, MERGED con squash 52b9ade12d6f85419fe05d24b5af9b8eaa7964c8.
 
 ## Consegnato
 
@@ -32,6 +32,6 @@ separata.
 
 ## Chiusura GRAPH.05
 
-Dopo l'eventuale merge di GRAPH.06.08, chiudere PR #6 come superseded con un
-commento che rimandi alla nuova PR e allo squash. Non mergiare PR #6 e non
-attribuirle retroattivamente il PASS ottenuto dalla nuova base.
+PR #6 e' stata chiusa come superseded dopo il merge di GRAPH.06.08, con un
+commento che rimanda alla nuova PR e allo squash. Non e' stata mergiata e non
+le viene attribuito retroattivamente il PASS ottenuto dalla nuova base.
