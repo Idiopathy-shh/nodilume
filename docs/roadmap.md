@@ -14,7 +14,7 @@ GRAPH.06.05 PR #15 integrata con squash
 cbde11114713d2e0f317c4fc82e28de5d5cf7283: ricerca UI.
 GRAPH.06.06 PR #17 integrata con squash
 10ba39c6ba4bfb8c39bf216d96efb7aeba5283e5: import/export JSON portabile.
-GRAPH.06.07 e' candidata sul branch feat/graph-06-07-backup-recovery:
+GRAPH.06.07 PR #19 e' candidata sul branch feat/graph-06-07-backup-recovery:
 snapshot SQLite, manifest/checksum, retention e restore non distruttivo;
 viewer 10/10, .NET 10/10 e smoke WPF/WebView2 PASS.
 GRAPH.05 PR #6 resta DRAFT: test .NET 4/4 e scale-smoke 300k PASS;
@@ -38,7 +38,7 @@ La firma RSA di sviluppo non e' ancora disponibile. GRAPH.07-08 non iniziate.
 | GRAPH.06.04 | Editor relazioni | PR #13 integrata; CRUD Relation revisionato, estremi dalla scena e doppia conferma delete; test/smoke PASS |
 | GRAPH.06.05 | Ricerca UI | PR #15 integrata; prefisso indicizzato, pagine keyset, scelte Placement esplicite e apertura esatta; test/smoke/scala PASS |
 | GRAPH.06.06 | Import/export file JSON | PR #17 integrata; export atomico, import in nuova mappa, limite 64 MiB; test/smoke PASS |
-| GRAPH.06.07 | Backup/recovery SQLite | Candidata; snapshot completo, checksum, retention 10 e restore con nuova identita'; test/smoke PASS |
+| GRAPH.06.07 | Backup/recovery SQLite | PR #19 aperta; snapshot completo, checksum, retention 10 e restore con nuova identita'; test/smoke PASS |
 | GRAPH.06.08+ | Chiusura editor e integrazione | Da pianificare; decisione separata su GRAPH.05, firma/cifratura backup come hardening |
 | GRAPH.07 | Automazioni AI | Non implementata |
 | GRAPH.08 | Modalità libri | Non implementata |

@@ -1,9 +1,9 @@
 # GRAPH.06.07 — risultato
 
-Data: 22 settembre 2026.
+Data: 23 settembre 2026.
 Branch: feat/graph-06-07-backup-recovery.
 Base: main@cdfa7a19d2d37a3b87f396454043f0859d3cc2d1.
-PR: da aprire.
+PR: #19 OPEN.
 
 ## Consegnato
 
@@ -21,7 +21,9 @@ PR: da aprire.
 Viewer 10/10; suite .NET 10/10; build completa senza warning/errori.
 Smoke WPF/WebView2 PASS, incluse regressioni GRAPH.03 e GRAPH.06.02–06.07.
 Fixture SQLite oltre 64 MiB e tabella extra: PASS.
-git diff --check PASS.## Pro e contro
+git diff --check PASS.
+
+## Pro e contro
 
 Pro: il backup e' streaming, consistente e conserva il database completo; il
 restore non sovrascrive nulla e diventa visibile al catalogo soltanto dopo tutte

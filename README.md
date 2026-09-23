@@ -19,7 +19,7 @@ con create/update/inversione/delete. GRAPH.06.05 e' integrata tramite PR #15,
 squash cbde111: ricerca indicizzata con scelte Placement esplicite.
 GRAPH.06.06 e' integrata tramite PR #17, squash 10ba39c: file JSON
 portabili, import sempre in una nuova mappa e limite 64 MiB.
-GRAPH.06.07 e' candidata sul branch `feat/graph-06-07-backup-recovery`:
+GRAPH.06.07 e' candidata in PR #19 sul branch `feat/graph-06-07-backup-recovery`:
 snapshot SQLite verificato, retention 10 e restore non distruttivo;
 viewer 10/10, .NET 10/10 e smoke WPF/WebView2 PASS su OFFICE-PC.
 GRAPH.07-08 non iniziate. Vedere docs/coordination.md e docs/roadmap.md.

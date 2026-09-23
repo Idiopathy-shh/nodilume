@@ -1,7 +1,8 @@
 # GRAPH.06.07 — validazione backup/recovery SQLite
 
-Data: 22 settembre 2026. Macchina: OFFICE-PC.
+Data: 23 settembre 2026. Macchina: OFFICE-PC.
 Base candidata: main@cdfa7a19d2d37a3b87f396454043f0859d3cc2d1.
+PR candidata: #19.
 Fixture: database, backup, profili WebView2 e cartelle temporanei.
 
 ## Esiti

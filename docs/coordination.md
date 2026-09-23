@@ -1,5 +1,5 @@
 # Nodilume — coordinamento operativo
-Checkpoint: 22 settembre 2026. Repository privata: Idiopathy-shh/nodilume.
+Checkpoint: 23 settembre 2026. Repository privata: Idiopathy-shh/nodilume.
 PC autorizzato per sviluppo e test: OFFICE-PC. GitHub CLI autenticata.
 
 ## Stato GitHub verificato
@@ -15,8 +15,8 @@ GRAPH.06.05 PR #15 MERGED con squash
 cbde11114713d2e0f317c4fc82e28de5d5cf7283.
 GRAPH.06.06 PR #17 MERGED con squash
 10ba39c6ba4bfb8c39bf216d96efb7aeba5283e5.
-GRAPH.06.07 candidata sul branch feat/graph-06-07-backup-recovery,
-base main@cdfa7a19d2d37a3b87f396454043f0859d3cc2d1; PR da aprire.
+GRAPH.06.07 PR #19 OPEN sul branch feat/graph-06-07-backup-recovery,
+base main@cdfa7a19d2d37a3b87f396454043f0859d3cc2d1.
 Backup/recovery: viewer 10/10, .NET 10/10 e smoke WPF/WebView2 PASS.
 PR documentale #4 CLOSED (contenuti assorbiti in GRAPH.04).
 GRAPH.05 PR #6 OPEN/DRAFT, branch feat/graph-05-editing-viewstate,
