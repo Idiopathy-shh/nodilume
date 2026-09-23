@@ -15,8 +15,8 @@ GRAPH.06.05 PR #15 MERGED con squash
 cbde11114713d2e0f317c4fc82e28de5d5cf7283.
 GRAPH.06.06 PR #17 MERGED con squash
 10ba39c6ba4bfb8c39bf216d96efb7aeba5283e5.
-GRAPH.06.07 PR #19 OPEN sul branch feat/graph-06-07-backup-recovery,
-base main@cdfa7a19d2d37a3b87f396454043f0859d3cc2d1.
+GRAPH.06.07 PR #19 MERGED con squash
+073aaebbc575061548ef539987da8fd922f4b96d.
 Backup/recovery: viewer 10/10, .NET 10/10 e smoke WPF/WebView2 PASS.
 PR documentale #4 CLOSED (contenuti assorbiti in GRAPH.04).
 GRAPH.05 PR #6 OPEN/DRAFT, branch feat/graph-05-editing-viewstate,
@@ -26,7 +26,7 @@ Undo/Redo NON PASS, successiva esecuzione bloccata dal criterio SAC 0x800711C7.
 Accettazione manuale non conclusa. Non attribuire PASS/merge alla GRAPH.05.
 La firma RSA di sviluppo deve ancora arrivare; non modificare protezioni Windows.
 
-## GRAPH.06 in parallelo: 06.01–06.06 integrate, 06.07 candidata
+## GRAPH.06 in parallelo: 06.01–06.07 integrate
 GRAPH.06 e' il primo editor personale completo (multi-map, nodi, relazioni,
 ricerca, import/export, recupero). GRAPH.06.01 ha integrato SOLO il codec
 JSON portabile di Idea/Placement/Relation: PR #7 MERGED in main, dalla
@@ -78,8 +78,8 @@ firma/autenticita'. Vedere `docs/plans/graph-06-07-backup-recovery.md`,
 `docs/validation/graph-06-07.md` e `docs/handoffs/GRAPH_06_07_RESULT.md`.
 
 ## Governance e gate
-GRAPH.06.01, GRAPH.06.02, GRAPH.06.03, GRAPH.06.04, GRAPH.06.05
-e GRAPH.06.06 sono integrate in main. GRAPH.06.07 e' candidata separata.
+GRAPH.06.01, GRAPH.06.02, GRAPH.06.03, GRAPH.06.04, GRAPH.06.05,
+GRAPH.06.06 e GRAPH.06.07 sono integrate in main.
 GRAPH.05 resta Draft con gate indipendenti.
 Non iniziare integrazioni che dipendono da GRAPH.05 finche' non e' validata.
 Il PASS della 06.01 non certifica la gestione mappe: questa viene verificata
