@@ -6,6 +6,7 @@ public interface IMapFileDialog
 {
     string? ChooseImportPath();
     string? ChooseExportPath(string suggestedFileName);
+    string? ChooseBackupPath(string initialDirectory);
 }
 
 internal sealed class WindowsMapFileDialog : IMapFileDialog
@@ -37,6 +38,20 @@ internal sealed class WindowsMapFileDialog : IMapFileDialog
             AddExtension = true,
             OverwritePrompt = true,
             ValidateNames = true
+        };
+        return dialog.ShowDialog() == true ? dialog.FileName : null;
+    }
+
+    public string? ChooseBackupPath(string initialDirectory)
+    {
+        var dialog = new OpenFileDialog
+        {
+            Title = "Ripristina backup Nodilume",
+            Filter = "Backup Nodilume (*.nodilume-backup)|*.nodilume-backup",
+            InitialDirectory = initialDirectory,
+            CheckFileExists = true,
+            Multiselect = false,
+            DereferenceLinks = true
         };
         return dialog.ShowDialog() == true ? dialog.FileName : null;
     }

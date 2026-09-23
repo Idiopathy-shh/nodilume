@@ -7,28 +7,40 @@
  <DockPanel>
   <Border DockPanel.Dock="Top" Background="#152536" Padding="12,8">
    <Grid>
+    <Grid.RowDefinitions>
+     <RowDefinition Height="Auto"/>
+     <RowDefinition Height="Auto"/>
+    </Grid.RowDefinitions>
     <Grid.ColumnDefinitions>
      <ColumnDefinition Width="Auto"/>
      <ColumnDefinition Width="2*"/>
      <ColumnDefinition Width="2*"/>
      <ColumnDefinition Width="Auto"/>
      <ColumnDefinition Width="Auto"/>
-     <ColumnDefinition Width="Auto"/>
-     <ColumnDefinition Width="Auto"/>
     </Grid.ColumnDefinitions>
-    <TextBlock Grid.Column="0" Text="Mappa" Foreground="#D6E7F5" VerticalAlignment="Center" Margin="0,0,10,0"/>
-    <ComboBox Grid.Column="1" x:Name="MapPicker" MinWidth="160" Margin="0,0,12,0"
-      SelectionChanged="MapPicker_SelectionChanged" AutomationProperties.Name="Mappa attiva"/>
-    <TextBox Grid.Column="2" x:Name="MapNameInput" MaxLength="120" Margin="0,0,12,0"
-      VerticalContentAlignment="Center" ToolTip="Nome per nuova mappa o rinomina"/>
-    <Button Grid.Column="3" x:Name="NewMapButton" Content="Nuova mappa" Padding="12,5"
-      Margin="0,0,8,0" Click="NewMapButton_Click"/>
-    <Button Grid.Column="4" x:Name="RenameMapButton" Content="Rinomina" Padding="12,5"
-      Margin="0,0,8,0" Click="RenameMapButton_Click"/>
-    <Button Grid.Column="5" x:Name="ImportMapButton" Content="Importa file" Padding="12,5"
-      Margin="0,0,8,0" Click="ImportMapButton_Click"/>
-    <Button Grid.Column="6" x:Name="ExportMapButton" Content="Esporta file" Padding="12,5"
-      Click="ExportMapButton_Click"/>
+    <TextBlock Grid.Row="0" Grid.Column="0" Text="Mappa" Foreground="#D6E7F5"
+      VerticalAlignment="Center" Margin="0,0,10,0"/>
+    <ComboBox Grid.Row="0" Grid.Column="1" x:Name="MapPicker" MinWidth="160"
+      Margin="0,0,12,0" SelectionChanged="MapPicker_SelectionChanged"
+      AutomationProperties.Name="Mappa attiva"/>
+    <TextBox Grid.Row="0" Grid.Column="2" x:Name="MapNameInput" MaxLength="120"
+      Margin="0,0,12,0" VerticalContentAlignment="Center"
+      ToolTip="Nome per nuova mappa o rinomina"/>
+    <Button Grid.Row="0" Grid.Column="3" x:Name="NewMapButton" Content="Nuova mappa"
+      Padding="12,5" Margin="0,0,8,0" Click="NewMapButton_Click"/>
+    <Button Grid.Row="0" Grid.Column="4" x:Name="RenameMapButton" Content="Rinomina"
+      Padding="12,5" Click="RenameMapButton_Click"/>
+    <WrapPanel Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="4"
+      HorizontalAlignment="Right" Margin="0,8,0,0">
+     <Button x:Name="ImportMapButton" Content="Importa file" Padding="12,5"
+       Margin="0,0,8,0" Click="ImportMapButton_Click"/>
+     <Button x:Name="ExportMapButton" Content="Esporta file" Padding="12,5"
+       Margin="0,0,8,0" Click="ExportMapButton_Click"/>
+     <Button x:Name="BackupMapButton" Content="Crea backup" Padding="12,5"
+       Margin="0,0,8,0" Click="BackupMapButton_Click"/>
+     <Button x:Name="RestoreBackupButton" Content="Ripristina backup" Padding="12,5"
+       Click="RestoreBackupButton_Click"/>
+    </WrapPanel>
    </Grid>
   </Border>
   <Border DockPanel.Dock="Bottom" Background="#101C29" Padding="16,7">
