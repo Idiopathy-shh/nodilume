@@ -13,8 +13,10 @@ GRAPH.06.04 PR #13 integrata con squash
 GRAPH.06.05 PR #15 integrata con squash
 cbde11114713d2e0f317c4fc82e28de5d5cf7283: ricerca UI.
 GRAPH.06.06 PR #17 integrata con squash
-10ba39c6ba4bfb8c39bf216d96efb7aeba5283e5: import/export JSON portabile;
-viewer 10/10, .NET 9/9 e smoke WPF/WebView2 PASS.
+10ba39c6ba4bfb8c39bf216d96efb7aeba5283e5: import/export JSON portabile.
+GRAPH.06.07 PR #19 e' candidata sul branch feat/graph-06-07-backup-recovery:
+snapshot SQLite, manifest/checksum, retention e restore non distruttivo;
+viewer 10/10, .NET 10/10 e smoke WPF/WebView2 PASS.
 GRAPH.05 PR #6 resta DRAFT: test .NET 4/4 e scale-smoke 300k PASS;
 smoke UI Undo/Redo non ancora PASS e DLL smoke bloccata da Smart App Control.
 La firma RSA di sviluppo non e' ancora disponibile. GRAPH.07-08 non iniziate.
@@ -36,7 +38,8 @@ La firma RSA di sviluppo non e' ancora disponibile. GRAPH.07-08 non iniziate.
 | GRAPH.06.04 | Editor relazioni | PR #13 integrata; CRUD Relation revisionato, estremi dalla scena e doppia conferma delete; test/smoke PASS |
 | GRAPH.06.05 | Ricerca UI | PR #15 integrata; prefisso indicizzato, pagine keyset, scelte Placement esplicite e apertura esatta; test/smoke/scala PASS |
 | GRAPH.06.06 | Import/export file JSON | PR #17 integrata; export atomico, import in nuova mappa, limite 64 MiB; test/smoke PASS |
-| GRAPH.06.07+ | Backup/recovery e integrazione | Da pianificare; backup SQLite distinto dal codec portabile e integrazione GRAPH.05 separata |
+| GRAPH.06.07 | Backup/recovery SQLite | PR #19 aperta; snapshot completo, checksum, retention 10 e restore con nuova identita'; test/smoke PASS |
+| GRAPH.06.08+ | Chiusura editor e integrazione | Da pianificare; decisione separata su GRAPH.05, firma/cifratura backup come hardening |
 | GRAPH.07 | Automazioni AI | Non implementata |
 | GRAPH.08 | Modalità libri | Non implementata |
 
@@ -88,8 +91,11 @@ Placement esplicite e navigazione esatta; vedere `docs/plans/graph-06-05-search-
 e `docs/validation/graph-06-05.md`. GRAPH.06.06 e' sviluppata da main in
 `C:\Sviluppo\Nodilume-graph06-06`: import/export JSON, identita' nuova in import,
 scrittura atomica e limite 64 MiB; integrata tramite PR #17. Vedere `docs/plans/graph-06-06-file-import-export.md`
-e `docs/validation/graph-06-06.md`. Backup/recovery e integrazione GRAPH.05
-restano patch distinte.
+e `docs/validation/graph-06-06.md`. GRAPH.06.07 e' sviluppata da main in
+`C:\Sviluppo\Nodilume-graph06-07`: snapshot SQLite completo, SHA-256,
+retention 10 e restore sempre in nuova mappa; vedere
+`docs/plans/graph-06-07-backup-recovery.md` e `docs/validation/graph-06-07.md`.
+Integrazione GRAPH.05 e hardening crittografico restano patch distinte.
 
 Ogni fase richiede verifiche sui rischi concreti introdotti. Una fase non è conclusa
 per il solo fatto che il codice compila.

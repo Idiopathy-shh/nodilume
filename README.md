@@ -18,15 +18,17 @@ GRAPH.06.04 e' integrata tramite PR #13, squash 550ce57: editor Relation
 con create/update/inversione/delete. GRAPH.06.05 e' integrata tramite PR #15,
 squash cbde111: ricerca indicizzata con scelte Placement esplicite.
 GRAPH.06.06 e' integrata tramite PR #17, squash 10ba39c: file JSON
-portabili, import sempre in una nuova mappa e limite 64 MiB;
-viewer 10/10, .NET 9/9 e smoke WPF/WebView2 PASS su OFFICE-PC.
+portabili, import sempre in una nuova mappa e limite 64 MiB.
+GRAPH.06.07 e' candidata in PR #19 sul branch `feat/graph-06-07-backup-recovery`:
+snapshot SQLite verificato, retention 10 e restore non distruttivo;
+viewer 10/10, .NET 10/10 e smoke WPF/WebView2 PASS su OFFICE-PC.
 GRAPH.07-08 non iniziate. Vedere docs/coordination.md e docs/roadmap.md.
 
 GRAPH.03 introduce zoom semantico contestuale, aggregazioni e navigazione trasversale.
 GRAPH.04 rende raggiungibili i figli oltre la prima pagina, limita nodi/link/etichette,
 evita caricamenti globali nel renderer e misura la scala fino a 300.000 Idea. Non è
 ancora un editor completo: drag/pin, undo/redo e camera persistente sono candidate
-GRAPH.05; backup/recovery appartiene alle fasi successive.
+GRAPH.05; firma/cifratura dei backup appartengono all'hardening successivo.
 Il codec GRAPH.06.01 esporta/importa il grafo in memoria. GRAPH.06.06 lo espone
 come file JSON tramite dialog WPF, senza confonderlo con un backup SQLite.
 GRAPH.06.02 introduce la gestione mappe; GRAPH.06.03 rende possibile
@@ -34,6 +36,7 @@ aggiungere e modificare idee radice o figlie in tali mappe. GRAPH.06.04
 aggiunge le Relation concettuali fra Idea con direzione, tipo e spiegazione.
 GRAPH.06.05 espone la ricerca per prefisso e apre una rappresentazione scelta.
 GRAPH.06.06 esporta file JSON UTF-8 e importa copie indipendenti in nuove mappe.
+GRAPH.06.07 salva snapshot SQLite completi e li ripristina con identita' nuova.
 Le operazioni Undo/Redo, drag/pin e camera persistente rimangono candidate
 in GRAPH.05 e non sono comprese nelle slice indipendenti GRAPH.06.
 
@@ -65,7 +68,7 @@ dotnet run --project tests/Nodilume.Smoke -c Release --no-build
 ```
 
 `build.ps1` esegue `npm ci`, dieci test viewer/navigation, compilazione TypeScript,
-bundle, nove gruppi .NET Core/SQLite/proiezione/codec/catalogo/editor/ricerca/file
+bundle, dieci gruppi .NET Core/SQLite/proiezione/codec/catalogo/editor/ricerca/file/backup
 su database temporanei reali e build .NET con restore bloccato. Compila inoltre
 lo scale-smoke e il tool benchmark GRAPH.04.
 
@@ -125,6 +128,15 @@ creare una nuova mappa con MapId distinto e revisione 0; non sovrascrive mai la
 mappa di origine. Sono accettati solo file `.json` fino a 64 MiB. Questa funzione
 e' pensata per mappe piccole/medie e non sostituisce backup/recovery SQLite.
 
+## Backup/recovery SQLite (GRAPH.06.07)
+
+`Crea backup` salva uno snapshot consistente nel folder gestito `Maps\Backups`;
+sono conservati gli ultimi 10 backup validi per mappa. Il pacchetto contiene il
+database completo e un manifest con dimensione e SHA-256. `Ripristina backup`
+verifica struttura, checksum, integrita' e schema prima di creare una copia con
+MapId nuovo, senza sovrascrivere la sorgente. Il limite e' 8 GiB. Il checksum
+rileva corruzione ma non sostituisce firma o cifratura del pacchetto.
+
 ## Comandi della vista
 
 - Trascina col tasto sinistro per ruotare; col destro per spostare.
@@ -163,6 +175,8 @@ GRAPH.06.05: `docs/plans/graph-06-05-search-ui.md`,
 `docs/validation/graph-06-05.md` e `docs/handoffs/GRAPH_06_05_RESULT.md`.
 GRAPH.06.06: `docs/plans/graph-06-06-file-import-export.md`,
 `docs/validation/graph-06-06.md` e `docs/handoffs/GRAPH_06_06_RESULT.md`.
+GRAPH.06.07: `docs/plans/graph-06-07-backup-recovery.md`,
+`docs/validation/graph-06-07.md` e `docs/handoffs/GRAPH_06_07_RESULT.md`.
 GRAPH.06.01: `docs/plans/graph-06-01-portable-map.md` e
 `docs/validation/graph-06-01.md`; per verificare solo questa slice:
 `dotnet restore tests/Nodilume.Tests --locked-mode`,

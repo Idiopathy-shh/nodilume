@@ -51,6 +51,8 @@ internal static class Program
                         await SearchUiSmoke.RunAsync(window, databasePath);
                         await FileTransferSmoke.RunAsync(
                             window, root, databasePath, fileDialog);
+                        await BackupRecoverySmoke.RunAsync(
+                            window, root, databasePath, fileDialog);
                         result = 0;
                         Console.WriteLine(
                             "PASS: GRAPH.03 WPF/WebView2 semantic navigation, three nested contexts, "
