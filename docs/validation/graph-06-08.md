@@ -2,7 +2,7 @@
 
 Data: 23 settembre 2026. Macchina: OFFICE-PC.
 Base: main@3e64b0d7f7514b82fd41b2bdd242ef56f2accf83.
-Stato: candidata; PR da aprire.
+Stato: candidata; PR #21.
 
 ## Esiti osservati
 

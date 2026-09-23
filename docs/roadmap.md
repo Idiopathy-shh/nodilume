@@ -16,7 +16,7 @@ GRAPH.06.06 PR #17 integrata con squash
 10ba39c6ba4bfb8c39bf216d96efb7aeba5283e5: import/export JSON portabile.
 GRAPH.06.07 PR #19 e' integrata con squash
 073aaebbc575061548ef539987da8fd922f4b96d: backup/recovery SQLite.
-GRAPH.06.08 e' candidata su feat/graph-06-08-editor-closure: porta drag/pin,
+GRAPH.06.08 PR #21 e' candidata su feat/graph-06-08-editor-closure: porta drag/pin,
 Undo/Redo e view-state sulla base corrente, corregge restore SQLite v3 e supera
 lo smoke WPF/WebView2 completo. Viewer 14/14; build PASS. Rerun finale .NET e
 scala 300k bloccati da Smart App Control.

@@ -3,7 +3,7 @@
 Data: 23 settembre 2026.
 Branch: feat/graph-06-08-editor-closure.
 Base: main@3e64b0d7f7514b82fd41b2bdd242ef56f2accf83.
-PR: da aprire.
+PR: #21.
 
 ## Consegnato
 

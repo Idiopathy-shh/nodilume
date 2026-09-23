@@ -24,7 +24,7 @@ worktree C:\Sviluppo\Nodilume-graph05, head 946c2e019d32e157a483d2c68fdddc4e2f00
 GRAPH.05: viewer 13/13, .NET 4/4, scale-smoke 300k PASS; smoke reale
 Undo/Redo NON PASS, successiva esecuzione bloccata dal criterio SAC 0x800711C7.
 Accettazione manuale non conclusa. Non attribuire PASS/merge alla GRAPH.05.
-GRAPH.06.08 e' candidata su feat/graph-06-08-editor-closure, base main@3e64b0d:
+GRAPH.06.08 PR #21 e' candidata su feat/graph-06-08-editor-closure, base main@3e64b0d:
 porta drag/pin, Undo/Redo e view-state sulla base corrente, corregge il restore
 SQLite v3 e supera lo smoke completo. Viewer 14/14 e build PASS; rerun finale
 .NET e scala 300k bloccati da Smart App Control. Dopo il merge, chiudere PR #6
