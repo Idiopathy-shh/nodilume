@@ -4,6 +4,7 @@
     <TargetFramework>net10.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="../../src/Nodilume.Desktop/ViewStateResolver.cs" Link="ViewStateResolver.cs" />
     <ProjectReference Include="../../src/Nodilume.Core/Nodilume.Core.csproj" />
     <ProjectReference Include="../../src/Nodilume.Application/Nodilume.Application.csproj" />
     <ProjectReference Include="../../src/Nodilume.Infrastructure/Nodilume.Infrastructure.csproj" />

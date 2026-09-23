@@ -4,10 +4,10 @@ Desktop Windows per esplorare mappe di idee come grafi 3D multiscala.
 
 ## Stato
 
-GRAPH.00-04 integrate (GRAPH.04 PR #5; main@0f6bdac). GRAPH.05 PR #6 e'
-una candidata DRAFT: viewer 13/13, test .NET 4/4 e scale-smoke 300k PASS
-sul relativo branch, ma smoke UI Undo/Redo e accettazione manuale ancora mancanti;
-Smart App Control blocca la DLL smoke non firmata su OFFICE-PC.
+GRAPH.00-04 integrate (GRAPH.04 PR #5; main@0f6bdac). GRAPH.05 PR #6 resta
+una DRAFT storica e conflittuale: non va mergiata. I suoi contratti funzionali
+sono stati portati sulla base corrente nella candidata GRAPH.06.08, senza
+trasferirle retroattivamente il PASS.
 GRAPH.06.01 e' stata integrata tramite PR #7, squash c515f79: codec JSON
 portabile del grafo, senza interfaccia editor completa o file backup.
 GRAPH.06.02 e' integrata tramite PR #9 (squash a9df2bd): gestione
@@ -20,15 +20,18 @@ squash cbde111: ricerca indicizzata con scelte Placement esplicite.
 GRAPH.06.06 e' integrata tramite PR #17, squash 10ba39c: file JSON
 portabili, import sempre in una nuova mappa e limite 64 MiB.
 GRAPH.06.07 e' integrata tramite PR #19, squash 073aaeb: snapshot SQLite
-verificato, retention 10 e restore non distruttivo; viewer 10/10, .NET 10/10
-e smoke WPF/WebView2 PASS su OFFICE-PC.
+verificato, retention 10 e restore non distruttivo.
+GRAPH.06.08 e' candidata sul branch feat/graph-06-08-editor-closure: drag/pin,
+Undo/Redo e view-state persistente integrati con le slice 06.02-06.07; viewer
+14/14, build e smoke WPF/WebView2 PASS. Rerun finale .NET e scala 300k sono
+bloccati da Smart App Control, senza modifiche alla policy.
 GRAPH.07-08 non iniziate. Vedere docs/coordination.md e docs/roadmap.md.
 
 GRAPH.03 introduce zoom semantico contestuale, aggregazioni e navigazione trasversale.
 GRAPH.04 rende raggiungibili i figli oltre la prima pagina, limita nodi/link/etichette,
-evita caricamenti globali nel renderer e misura la scala fino a 300.000 Idea. Non è
-ancora un editor completo: drag/pin, undo/redo e camera persistente sono candidate
-GRAPH.05; firma/cifratura dei backup appartengono all'hardening successivo.
+evita caricamenti globali nel renderer e misura la scala fino a 300.000 Idea.
+GRAPH.06.08 completa nella candidata corrente drag/pin, Undo/Redo e vista
+persistente; firma/cifratura dei backup appartengono all'hardening successivo.
 Il codec GRAPH.06.01 esporta/importa il grafo in memoria. GRAPH.06.06 lo espone
 come file JSON tramite dialog WPF, senza confonderlo con un backup SQLite.
 GRAPH.06.02 introduce la gestione mappe; GRAPH.06.03 rende possibile
@@ -37,8 +40,8 @@ aggiunge le Relation concettuali fra Idea con direzione, tipo e spiegazione.
 GRAPH.06.05 espone la ricerca per prefisso e apre una rappresentazione scelta.
 GRAPH.06.06 esporta file JSON UTF-8 e importa copie indipendenti in nuove mappe.
 GRAPH.06.07 salva snapshot SQLite completi e li ripristina con identita' nuova.
-Le operazioni Undo/Redo, drag/pin e camera persistente rimangono candidate
-in GRAPH.05 e non sono comprese nelle slice indipendenti GRAPH.06.
+GRAPH.06.08 porta sulla base corrente drag/pin, Undo/Redo locale e stato della
+vista, sostituendo la vecchia candidata GRAPH.05 senza mergiarne la PR.
 
 ## Architettura
 
@@ -136,10 +139,21 @@ database completo e un manifest con dimensione e SHA-256. `Ripristina backup`
 verifica struttura, checksum, integrita' e schema prima di creare una copia con
 MapId nuovo, senza sovrascrivere la sorgente. Il limite e' 8 GiB. Il checksum
 rileva corruzione ma non sostituisce firma o cifratura del pacchetto.
+Con lo schema v3 il restore reindicizza anche cronologia, ricevute, cursore
+Undo/Redo e view-state verso il nuovo MapId.
+
+## Editing locale e vista persistente (GRAPH.06.08)
+
+Maiusc + trascinamento sposta un Placement nel contesto corrente; Esc annulla.
+Un nodo fissato deve essere sbloccato prima del drag. `Fissa`, `Annulla` e
+`Ripeti` operano sulla mappa attiva e persistono su SQLite; la cronologia conserva
+al massimo 100 operazioni per mappa. Contesto, selezione, pagina e camera vengono
+ripristinati al cambio mappa e alla riapertura. Undo/Redo copre move/pin, non le
+operazioni dell'editor Idea/Relation.
 
 ## Comandi della vista
 
-- Trascina col tasto sinistro per ruotare; col destro per spostare.
+- Trascina col tasto sinistro per ruotare; col destro per spostare la camera; Maiusc + sinistro sposta il nodo selezionato.
 - Rotella per avvicinarti o allontanarti.
 - Clic sul nodo o sulla sua etichetta per selezionarlo.
 - Doppio clic o «Entra» apre un nodo che possiede figli; una foglia viene soltanto messa a fuoco.
@@ -177,6 +191,8 @@ GRAPH.06.06: `docs/plans/graph-06-06-file-import-export.md`,
 `docs/validation/graph-06-06.md` e `docs/handoffs/GRAPH_06_06_RESULT.md`.
 GRAPH.06.07: `docs/plans/graph-06-07-backup-recovery.md`,
 `docs/validation/graph-06-07.md` e `docs/handoffs/GRAPH_06_07_RESULT.md`.
+GRAPH.06.08: `docs/plans/graph-06-08-editor-closure.md`,
+`docs/validation/graph-06-08.md` e `docs/handoffs/GRAPH_06_08_RESULT.md`.
 GRAPH.06.01: `docs/plans/graph-06-01-portable-map.md` e
 `docs/validation/graph-06-01.md`; per verificare solo questa slice:
 `dotnet restore tests/Nodilume.Tests --locked-mode`,

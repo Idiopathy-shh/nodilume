@@ -88,11 +88,14 @@ internal static class SearchUiSmoke
             "Search did not navigate to the exact Placement.");
         await Wait(() => Task.FromResult(editorSelection.Text.Contains(
             "Idea condivisa aggiornata", StringComparison.Ordinal)),
-            "Search selection did not synchronize the WPF editor.");        picker.SelectedItem = picker.Items.Cast<CatalogMap>()
+            "Search selection did not synchronize the WPF editor.");
+
+        picker.SelectedItem = picker.Items.Cast<CatalogMap>()
             .Single(x => x.DatabasePath == legacyPath);
         await Wait(() => Script("document.body.dataset.state==='ready'"
-            + "&& document.querySelector('#breadcrumbs .current')?.textContent==='Radice'"),
-            "Legacy map was not ready after search.");
+            + "&& document.querySelector('#breadcrumbs .current')?.textContent==='Gruppo A'"
+            + "&& document.getElementById('selection-title').textContent==='Sottogruppo A1'"),
+            "Legacy map did not restore its persisted view after search.");
         if (input.Text.Length != 0 || results.Items.Count != 0)
             throw new InvalidOperationException("Search state leaked across maps.");
         input.Text = "Idea condivisa aggiornata";

@@ -1,10 +1,11 @@
 using Microsoft.Data.Sqlite;
 using Nodilume.Application.Persistence;
+using Nodilume.Application;
 using Nodilume.Core;
 
 namespace Nodilume.Infrastructure.Sqlite;
 
-public sealed partial class SqliteMapStore : IMapStore
+public sealed partial class SqliteMapStore : IMapStore, ILocalEditStore
 {
     private readonly string _connectionString;
 
@@ -59,6 +60,15 @@ public sealed partial class SqliteMapStore : IMapStore
             migration.CommandText = SqliteSchema.MigrationV2;
             await migration.ExecuteNonQueryAsync(cancellationToken);
             version = 2;
+        }
+
+        if (version < 3)
+        {
+            await using var migration = connection.CreateCommand();
+            migration.Transaction = transaction;
+            migration.CommandText = SqliteSchema.MigrationV3;
+            await migration.ExecuteNonQueryAsync(cancellationToken);
+            version = 3;
         }
 
         await using (var stamp = connection.CreateCommand())

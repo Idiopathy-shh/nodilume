@@ -125,6 +125,7 @@ public sealed partial class MapCatalog
                 temporary,
                 snapshot.Map.Id,
                 restoreId,
+                snapshot.DatabaseSchemaVersion,
                 cancellationToken);
             var restored = await ReadSnapshotMetadataAsync(
                 temporary, cancellationToken);

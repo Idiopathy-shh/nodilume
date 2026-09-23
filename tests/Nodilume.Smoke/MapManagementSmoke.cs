@@ -51,8 +51,9 @@ internal static class MapManagementSmoke
             picker.SelectedItem is CatalogMap entry && entry.Map.Id == legacy.Map.Id
             && await ScriptAsync(web,
                 "document.body.dataset.state==='ready' "
-                + "&& document.querySelector('#breadcrumbs .current')?.textContent === 'Radice'"),
-            "Switch back to the legacy graph did not restore its projection.");
+                + "&& document.querySelector('#breadcrumbs .current')?.textContent === 'Gruppo A' "
+                + "&& document.getElementById('selection-title').textContent === 'Sottogruppo A1'"),
+            "Switch back to the legacy graph did not restore its persisted context and selection.");
 
         picker.SelectedItem = picker.Items.Cast<CatalogMap>()
             .Single(x => x.Map.Id == newMap.Map.Id);

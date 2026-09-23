@@ -101,6 +101,7 @@ public sealed partial class MapCatalog
         string path,
         MapId sourceId,
         MapId destinationId,
+        int databaseSchemaVersion,
         CancellationToken cancellationToken)
     {
         var builder = new SqliteConnectionStringBuilder
@@ -126,13 +127,19 @@ public sealed partial class MapCatalog
             await defer.ExecuteNonQueryAsync(cancellationToken);
         }
 
-        foreach (var sql in new[]
-                 {
-                     "UPDATE ideas SET map_id = @new WHERE map_id = @old;",
-                     "UPDATE placements SET map_id = @new WHERE map_id = @old;",
-                     "UPDATE relations SET map_id = @new WHERE map_id = @old;"
-                 })
+        var mapScopedTables = new List<string>
         {
+            "ideas",
+            "placements",
+            "relations"
+        };
+        if (databaseSchemaVersion >= 3)
+            mapScopedTables.AddRange(
+                ["graph_edits", "edit_cursor", "edit_receipts", "view_state"]);
+
+        foreach (var table in mapScopedTables)
+        {
+            var sql = $"UPDATE {table} SET map_id = @new WHERE map_id = @old;";
             await using var command = connection.CreateCommand();
             command.Transaction = transaction;
             command.CommandText = sql;
