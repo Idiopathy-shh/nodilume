@@ -24,9 +24,14 @@ worktree C:\Sviluppo\Nodilume-graph05, head 946c2e019d32e157a483d2c68fdddc4e2f00
 GRAPH.05: viewer 13/13, .NET 4/4, scale-smoke 300k PASS; smoke reale
 Undo/Redo NON PASS, successiva esecuzione bloccata dal criterio SAC 0x800711C7.
 Accettazione manuale non conclusa. Non attribuire PASS/merge alla GRAPH.05.
+GRAPH.06.08 e' candidata su feat/graph-06-08-editor-closure, base main@3e64b0d:
+porta drag/pin, Undo/Redo e view-state sulla base corrente, corregge il restore
+SQLite v3 e supera lo smoke completo. Viewer 14/14 e build PASS; rerun finale
+.NET e scala 300k bloccati da Smart App Control. Dopo il merge, chiudere PR #6
+come superseded senza mergiarla.
 La firma RSA di sviluppo deve ancora arrivare; non modificare protezioni Windows.
 
-## GRAPH.06 in parallelo: 06.01–06.07 integrate
+## GRAPH.06: 06.01–06.07 integrate, 06.08 candidata
 GRAPH.06 e' il primo editor personale completo (multi-map, nodi, relazioni,
 ricerca, import/export, recupero). GRAPH.06.01 ha integrato SOLO il codec
 JSON portabile di Idea/Placement/Relation: PR #7 MERGED in main, dalla
@@ -76,12 +81,17 @@ pubblica una nuova mappa GUID senza sovrascrivere sorgente o catalogo. Test
 oltre 64 MiB con tabella extra e smoke WPF/WebView2 PASS. SHA-256 non e'
 firma/autenticita'. Vedere `docs/plans/graph-06-07-backup-recovery.md`,
 `docs/validation/graph-06-07.md` e `docs/handoffs/GRAPH_06_07_RESULT.md`.
+GRAPH.06.08: chiusura integrata dell'editor sulla base corrente. Include drag/pin,
+Undo/Redo persistente e bounded, view-state per mappa e rekey delle tabelle v3
+nel restore. Lo smoke finale copre le regressioni GRAPH.03 e 06.02-06.07. Vedere
+`docs/plans/graph-06-08-editor-closure.md`, `docs/validation/graph-06-08.md` e
+`docs/handoffs/GRAPH_06_08_RESULT.md`.
 
 ## Governance e gate
 GRAPH.06.01, GRAPH.06.02, GRAPH.06.03, GRAPH.06.04, GRAPH.06.05,
-GRAPH.06.06 e GRAPH.06.07 sono integrate in main.
-GRAPH.05 resta Draft con gate indipendenti.
-Non iniziare integrazioni che dipendono da GRAPH.05 finche' non e' validata.
+GRAPH.06.06 e GRAPH.06.07 sono integrate in main; GRAPH.06.08 e' candidata.
+GRAPH.05 resta una Draft storica, conflittuale e superseded dalla 06.08:
+non mergiarla e chiuderla soltanto dopo l'integrazione della nuova PR.
 Il PASS della 06.01 non certifica la gestione mappe: questa viene verificata
 separatamente in GRAPH.06.02. Il PASS della 06.02 NON certifica editor
 Idea/Relation, ricerca UI, import/export file, backup/recovery o GRAPH.05.
@@ -92,6 +102,8 @@ completamento GRAPH.06. Il PASS della 06.06 certifica soltanto il trasferimento
 JSON bounded: non certifica backup/recovery SQLite, mappe oltre 64 MiB,
 accettazione visuale manuale dei dialog nativi o GRAPH.05. Il PASS della 06.07
 non certifica autenticita'/cifratura, cloud sync, backup oltre 8 GiB o GRAPH.05.
+Il PASS della 06.08 certifica lo smoke integrato ma non il gate scala combinato,
+il rerun finale .NET bloccato da SAC o l'accettazione visuale manuale.
 Pianificare gate separati.
 Usare fixture sintetiche e percorsi temporanei; non leggere o alterare mappe
 personali, chiavi o token. Nessun reset distruttivo, rebase o force-push.

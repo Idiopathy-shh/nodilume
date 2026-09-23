@@ -140,8 +140,9 @@ internal static class RelationEditorSmoke
         picker.SelectedItem = picker.Items.Cast<CatalogMap>()
             .Single(x => x.DatabasePath == legacyPath);
         await Wait(() => Script("document.body.dataset.state==='ready' "
-            + "&& document.querySelector('#breadcrumbs .current')?.textContent==='Radice'"),
-            "Switching to legacy map after relation edit failed.");
+            + "&& document.querySelector('#breadcrumbs .current')?.textContent==='Gruppo A' "
+            + "&& document.getElementById('selection-title').textContent==='Sottogruppo A1'"),
+            "Switching to legacy map after relation edit did not restore its persisted view.");
         picker.SelectedItem = picker.Items.Cast<CatalogMap>()
             .Single(x => x.Map.Id == active.Map.Id);
         await Wait(() => Script("document.body.dataset.state==='ready' "

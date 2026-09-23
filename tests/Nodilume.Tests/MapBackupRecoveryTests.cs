@@ -24,6 +24,33 @@ internal static class MapBackupRecoveryTests
             initial.Map.Revision,
             "Backup source");
         await AddLargePayloadAsync(source.DatabasePath);
+        PersistedViewState expectedView;
+        await using (var editStore = new SqliteMapStore(source.DatabasePath))
+        {
+            var graph = await editStore.LoadGraphAsync();
+            var placement = graph.Placements.Values.First(x => !x.IsPinned);
+            var edited = await editStore.ApplyLocalEditAsync(new(
+                "backup-edit",
+                source.Map.Id,
+                source.Map.Revision,
+                "move",
+                placement.Id,
+                placement.X + 1,
+                placement.Y + 2,
+                placement.Z + 3));
+            Check.True(edited.Changed && edited.CanUndo,
+                "Backup fixture did not create persistent edit history.");
+            expectedView = new(
+                [],
+                [1, 2, 3],
+                [0, 0, 0],
+                placement.Id.ToString(),
+                null,
+                [0, 1, 0]);
+            await editStore.SaveViewStateAsync(source.Map.Id, expectedView);
+        }
+        source = (await catalog.ListAsync())
+            .Single(x => x.Map.Id == source.Map.Id);
         Check.True(new FileInfo(source.DatabasePath).Length
             > MapCatalog.MaxPortableFileBytes,
             "Backup fixture did not exceed the portable JSON limit.");
@@ -82,6 +109,27 @@ internal static class MapBackupRecoveryTests
             "Repeated restore did not create an independent map.");
         await AssertGraphEqualsAsync(sourceJson, second.DatabasePath);
         await AssertLargePayloadAsync(second.DatabasePath);
+        await using (var restoredStore =
+                     new SqliteMapStore(second.DatabasePath))
+        {
+            var restoredView = await restoredStore.ReadViewStateAsync(
+                second.Map.Id);
+            Check.Equal(
+                JsonSerializer.Serialize(expectedView),
+                JsonSerializer.Serialize(restoredView),
+                "Restore did not rekey and preserve view state.");
+            var history = await restoredStore.ReadEditHistoryStatusAsync(
+                second.Map.Id);
+            Check.True(history.CanUndo,
+                "Restore did not rekey persistent edit history.");
+            var undo = await restoredStore.ApplyLocalEditAsync(new(
+                "restored-undo",
+                second.Map.Id,
+                second.Map.Revision,
+                "undo"));
+            Check.True(undo.Changed && undo.CanRedo,
+                "Restored edit history is not operational.");
+        }
         var catalogCount = (await catalog.ListAsync()).Count;
         var badChecksum = Path.Combine(
             temp.Root, "bad-checksum" + MapCatalog.BackupExtension);

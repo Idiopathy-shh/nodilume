@@ -12,7 +12,32 @@ internal static class EditingSmoke
         Task<string> Script(string s) => web.ExecuteScriptAsync(s).WaitAsync(timeout.Token);
         async Task Wait(string expression)
         {
-            while (await Script(expression) != "true") await Task.Delay(50, timeout.Token);
+            var started = DateTime.UtcNow;
+            while (await Script(expression) != "true")
+            {
+                if (DateTime.UtcNow - started > TimeSpan.FromSeconds(12))
+                {
+                    var diagnostic = await Script(
+                        "(()=>{const l=[...document.querySelectorAll('.node-label')]"
+                        + ".find(x=>x.textContent==='Sottogruppo A1');"
+                        + "const r=l?.getBoundingClientRect();"
+                        + "const h=r?document.elementFromPoint(r.x+r.width/2,r.y+r.height/2):null;"
+                        + "return JSON.stringify({state:document.body.dataset.state,"
+                        + "dragging:document.body.dataset.dragging,"
+                        + "editPending:document.body.dataset.editPending,"
+                        + "undoDisabled:document.getElementById('undo').disabled,"
+                        + "redoDisabled:document.getElementById('redo').disabled,"
+                        + "pinDisabled:document.getElementById('pin').disabled,"
+                        + "pinText:document.getElementById('pin').textContent,"
+                        + "status:document.getElementById('edit-status').textContent,"
+                        + "projectionStatus:document.getElementById('projection-status').textContent,"
+                        + "loadState:document.body.dataset.loadState,"
+                        + "labelRect:r?[r.x,r.y,r.width,r.height]:null,"
+                        + "hitTag:h?.tagName,hitClass:h?.className,hitText:h?.textContent})})()");
+                    throw new Exception("Editing wait timed out: " + expression + " DOM=" + diagnostic);
+                }
+                await Task.Delay(50, timeout.Token);
+            }
         }
         await using var store = new SqliteMapStore(databasePath);
         await store.InitializeAsync();
@@ -29,7 +54,7 @@ internal static class EditingSmoke
                 throw new Exception("Camera was not restored after actual window close/reopen.");
             if (!(await store.ReadPlacementAsync(map.Id, id))!.IsPinned)
                 throw new Exception("Pin was lost after reopen.");
-            Console.WriteLine("PASS: GRAPH.05 real window reopen restores context, selection, camera and pin.");
+            Console.WriteLine("PASS: GRAPH.06.08 real window reopen restores context, selection, camera and pin.");
             return;
         }
         await Script("[...document.querySelectorAll('.node-label')].find(x=>x.textContent==='Gruppo A').click()");
@@ -64,19 +89,6 @@ internal static class EditingSmoke
         await Drag(cancel:true);
         if ((await store.ReadPlacementAsync(map.Id,id))! != before)
             throw new Exception("Esc cancellation persisted a drag.");
-        await Drag();
-        var moved = (await store.ReadPlacementAsync(map.Id,id))!;
-        if (moved == before || moved.ParentId != before.ParentId)
-            throw new Exception("Real pointer drag did not persist a local move.");
-        await Script("document.getElementById('undo').click()");
-        await Wait("document.body.dataset.editPending==='false' && document.body.dataset.state==='ready' && !document.getElementById('redo').disabled");
-        if ((await store.ReadPlacementAsync(map.Id,id))! != before)
-            throw new Exception("UI undo did not restore the exact placement.");
-        await Script("document.getElementById('redo').click()");
-        await Wait("document.body.dataset.editPending==='false' && document.body.dataset.state==='ready' && document.getElementById('redo').disabled");
-        if ((await store.ReadPlacementAsync(map.Id,id))! != moved)
-            throw new Exception("UI redo did not restore the move.");
-
         await using (var connection = new SqliteConnection($"Data Source={databasePath}"))
         {
             await connection.OpenAsync();
@@ -85,17 +97,33 @@ internal static class EditingSmoke
             await command.ExecuteNonQueryAsync();
             await Drag();
             await Wait("document.getElementById('edit-status').textContent.includes('non salvata')");
-            if ((await store.ReadPlacementAsync(map.Id,id))! != moved)
+            if ((await store.ReadPlacementAsync(map.Id,id))! != before)
                 throw new Exception("Failed drag changed the database.");
             command.CommandText = "DROP TRIGGER fail_smoke;";
             await command.ExecuteNonQueryAsync();
         }
+
+        await Drag();
+        var moved = (await store.ReadPlacementAsync(map.Id,id))!;
+        if (moved == before || moved.ParentId != before.ParentId)
+            throw new Exception("Real pointer drag did not persist a local move.");
+        await Wait("document.body.dataset.editPending==='false' && document.body.dataset.state==='ready' && !document.getElementById('undo').disabled");
+        await Script("document.getElementById('undo').click()");
+        await Wait("document.body.dataset.editPending==='false' && document.body.dataset.state==='ready' && !document.getElementById('redo').disabled");
+        if ((await store.ReadPlacementAsync(map.Id,id))! != before)
+            throw new Exception("UI undo did not restore the exact placement.");
+        await Wait("document.body.dataset.editPending==='false' && document.body.dataset.state==='ready' && !document.getElementById('redo').disabled");
+        await Script("document.getElementById('redo').click()");
+        await Wait("document.body.dataset.editPending==='false' && document.body.dataset.state==='ready' && document.getElementById('redo').disabled");
+        if ((await store.ReadPlacementAsync(map.Id,id))! != moved)
+            throw new Exception("UI redo did not restore the move.");
+        await Wait("document.body.dataset.editPending==='false' && document.body.dataset.state==='ready' && !document.getElementById('pin').disabled");
         await Script("document.getElementById('pin').click()");
         await Wait("document.body.dataset.editPending==='false' && document.body.dataset.state==='ready' && document.getElementById('pin').textContent==='Sblocca'");
         if (!(await store.ReadPlacementAsync(map.Id,id))!.IsPinned)
             throw new Exception("UI pin was not persisted.");
         await Script("window.nodilumeSaveView()");
         await Task.Delay(650, timeout.Token);
-        Console.WriteLine("PASS: GRAPH.05 trusted pointer drag, Esc, UI undo/redo, write rollback and pin.");
+        Console.WriteLine("PASS: GRAPH.06.08 trusted pointer drag, Esc, UI undo/redo, write rollback and pin.");
     }
 }

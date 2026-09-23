@@ -15,12 +15,13 @@ cbde11114713d2e0f317c4fc82e28de5d5cf7283: ricerca UI.
 GRAPH.06.06 PR #17 integrata con squash
 10ba39c6ba4bfb8c39bf216d96efb7aeba5283e5: import/export JSON portabile.
 GRAPH.06.07 PR #19 e' integrata con squash
-073aaebbc575061548ef539987da8fd922f4b96d: snapshot SQLite,
-manifest/checksum, retention e restore non distruttivo; viewer 10/10,
-.NET 10/10 e smoke WPF/WebView2 PASS.
-GRAPH.05 PR #6 resta DRAFT: test .NET 4/4 e scale-smoke 300k PASS;
-smoke UI Undo/Redo non ancora PASS e DLL smoke bloccata da Smart App Control.
-La firma RSA di sviluppo non e' ancora disponibile. GRAPH.07-08 non iniziate.
+073aaebbc575061548ef539987da8fd922f4b96d: backup/recovery SQLite.
+GRAPH.06.08 e' candidata su feat/graph-06-08-editor-closure: porta drag/pin,
+Undo/Redo e view-state sulla base corrente, corregge restore SQLite v3 e supera
+lo smoke WPF/WebView2 completo. Viewer 14/14; build PASS. Rerun finale .NET e
+scala 300k bloccati da Smart App Control.
+GRAPH.05 PR #6 resta una DRAFT storica/conflittuale e non va mergiata; dopo
+GRAPH.06.08 deve essere chiusa come superseded. GRAPH.07-08 non iniziate.
 
 ## Roadmap
 
@@ -31,8 +32,8 @@ La firma RSA di sviluppo non e' ancora disponibile. GRAPH.07-08 non iniziate.
 | GRAPH.02 | Identità, rappresentazioni, contenimento e SQLite | Integrata tramite PR #2 |
 | GRAPH.03 | Zoom semantico continuo e collegamenti aggregati | Integrata PR #3; PASS tecnico e smoke confermati |
 | GRAPH.04 | Caricamento selettivo e prove di scala | PR #5 integrata; limiti del benchmark invariati |
-| GRAPH.05 | Spostamento, fissaggio, undo e ripristino | PR #6 Draft; smoke UI e accettazione mancanti |
-| GRAPH.06 | Primo editor personale completo | Avviato a slice; editor completo non implementato |
+| GRAPH.05 | Spostamento, fissaggio, undo e ripristino | PR #6 Draft storica; conflittuale, da chiudere superseded dopo GRAPH.06.08 |
+| GRAPH.06 | Primo editor personale completo | Slice 06.01-06.07 integrate; chiusura candidata in 06.08 |
 | GRAPH.06.01 | Contratto JSON portabile del grafo | PR #7 integrata; codec/test PASS, non UI/import file |
 | GRAPH.06.02 | Gestione mappe personali | PR #9 integrata; elenco, creazione, selezione e rinomina WPF + SQLite; smoke PASS |
 | GRAPH.06.03 | Editor idee e nodi | PR #11 integrata; crea radici/figli, contenuti condivisi, note locali, rappresentazioni multiple; smoke PASS |
@@ -40,7 +41,7 @@ La firma RSA di sviluppo non e' ancora disponibile. GRAPH.07-08 non iniziate.
 | GRAPH.06.05 | Ricerca UI | PR #15 integrata; prefisso indicizzato, pagine keyset, scelte Placement esplicite e apertura esatta; test/smoke/scala PASS |
 | GRAPH.06.06 | Import/export file JSON | PR #17 integrata; export atomico, import in nuova mappa, limite 64 MiB; test/smoke PASS |
 | GRAPH.06.07 | Backup/recovery SQLite | PR #19 integrata; snapshot completo, checksum, retention 10 e restore con nuova identita'; test/smoke PASS |
-| GRAPH.06.08+ | Chiusura editor e integrazione | Da pianificare; decisione separata su GRAPH.05, firma/cifratura backup come hardening |
+| GRAPH.06.08 | Chiusura editor e integrazione | Candidata; drag/pin, Undo/Redo, view-state, restore v3; smoke completo PASS, gate finali .NET/scala bloccati da SAC |
 | GRAPH.07 | Automazioni AI | Non implementata |
 | GRAPH.08 | Modalità libri | Non implementata |
 
@@ -96,7 +97,11 @@ e `docs/validation/graph-06-06.md`. GRAPH.06.07 e' sviluppata da main in
 `C:\Sviluppo\Nodilume-graph06-07`: snapshot SQLite completo, SHA-256,
 retention 10 e restore sempre in nuova mappa; integrata tramite PR #19. Vedere
 `docs/plans/graph-06-07-backup-recovery.md` e `docs/validation/graph-06-07.md`.
-Integrazione GRAPH.05 e hardening crittografico restano patch distinte.
+GRAPH.06.08 e' sviluppata da main in `C:\Sviluppo\Nodilume-graph06-08`:
+integra i contratti editing senza mergiare PR #6, persiste la vista per mappa
+e rende il restore compatibile con lo schema v3. Vedere
+`docs/plans/graph-06-08-editor-closure.md` e `docs/validation/graph-06-08.md`.
+Firma/cifratura dei backup resta hardening separato.
 
 Ogni fase richiede verifiche sui rischi concreti introdotti. Una fase non è conclusa
 per il solo fatto che il codice compila.
